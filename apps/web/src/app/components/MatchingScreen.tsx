@@ -58,7 +58,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
       </div>
 
       {/* request list */}
-      <div className="mt-5 flex flex-col gap-3">
+      <div className="mt-5 flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4">
         {bloodRequests.map((r) => {
           const badge = urgencyStyle[r.urgency];
           return (

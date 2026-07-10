@@ -1,15 +1,14 @@
 import { Home, Search, User, LayoutList } from "lucide-react";
+import { Logo } from "./Logo";
 
-interface BottomNavigationProps {
+interface SidebarProps {
   activeScreen: string;
   onNavigate: (screen: string) => void;
   userType: "donor" | "hospital" | null;
 }
 
-const visibleOn = ["home", "matching", "profile", "hospital"];
-
-export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomNavigationProps) {
-  if (!userType || !visibleOn.includes(activeScreen)) return null;
+export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
+  if (!userType) return null;
 
   const isHospital = userType === "hospital";
   const accent = isHospital ? "#0E8BA8" : "#E5484D";
@@ -24,15 +23,17 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 z-[15] px-4 pt-[9px] lg:hidden"
-      style={{
-        background: "rgba(255,255,255,0.92)",
-        backdropFilter: "blur(12px)",
-        borderTop: "1px solid rgba(11,36,50,0.07)",
-        paddingBottom: "calc(9px + env(safe-area-inset-bottom))",
-      }}
+      className="hidden lg:flex lg:flex-col lg:w-[240px] lg:shrink-0 lg:h-screen lg:sticky lg:top-0 px-5 py-6"
+      style={{ borderRight: "1px solid rgba(11,36,50,0.07)", background: "#FFFFFF" }}
     >
-      <div className="flex items-center justify-around">
+      <div className="flex items-center gap-2.5 px-2 mb-8">
+        <Logo size={28} />
+        <span className="text-xl font-extrabold tracking-[-0.5px]" style={{ color: "#0B2432" }}>
+          We<span style={{ color: accent }}>Are</span>
+        </span>
+      </div>
+
+      <nav className="flex flex-col gap-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeScreen === item.id;
@@ -40,18 +41,18 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className="cursor-pointer border-none flex flex-col items-center gap-[3px] px-4 py-2 rounded-[14px]"
+              className="cursor-pointer border-none flex items-center gap-3 px-3 py-3 rounded-[14px] text-left"
               style={{
                 background: isActive ? accentSoft : "transparent",
-                color: isActive ? accent : "#9AA9B2",
+                color: isActive ? accent : "#5A6B75",
               }}
             >
-              <Icon className="w-[23px] h-[23px]" strokeWidth={2} />
-              <span className="text-[11px] font-bold">{item.label}</span>
+              <Icon className="w-5 h-5 shrink-0" strokeWidth={2} />
+              <span className="text-[14.5px] font-bold">{item.label}</span>
             </button>
           );
         })}
-      </div>
+      </nav>
     </div>
   );
 }
