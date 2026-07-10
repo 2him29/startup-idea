@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Search, Droplet, Plus } from "lucide-react";
-import { bloodRequests, unitsLabel, urgencyStyle } from "@weare/core";
+import { unitsLabel, urgencyStyle, useBloodRequests } from "@weare/core";
 
 interface HospitalDashboardProps {
   onBack: () => void;
@@ -11,6 +11,7 @@ const filterChips = ["All", "Critical", "O-", "Nearby"];
 export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
   const [search, setSearch] = useState("");
   const [activeChip, setActiveChip] = useState("All");
+  const { requests: bloodRequests } = useBloodRequests();
 
   const filtered = bloodRequests.filter((r) => {
     const matchesSearch =

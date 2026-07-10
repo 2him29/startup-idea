@@ -1,5 +1,5 @@
 import { ArrowLeft, MapPin, Droplet } from "lucide-react";
-import { bloodRequests, unitsLabel, urgencyStyle, type BloodRequest } from "@weare/core";
+import { unitsLabel, urgencyStyle, useBloodRequests, type BloodRequest } from "@weare/core";
 
 interface MatchingScreenProps {
   onBack: () => void;
@@ -9,6 +9,7 @@ interface MatchingScreenProps {
 
 export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScreenProps) {
   const accent = userType === "hospital" ? "#0E8BA8" : "#E5484D";
+  const { requests: bloodRequests } = useBloodRequests();
 
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>

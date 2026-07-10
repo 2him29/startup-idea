@@ -6,6 +6,10 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@weare/ui-tokens": "*"
+    "@weare/ui-tokens": "*",
+    "@supabase/supabase-js": "^2"
+  },
+  "peerDependencies": {
+    "react": ">=18"
   }
 }
