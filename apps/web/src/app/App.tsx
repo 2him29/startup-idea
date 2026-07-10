@@ -9,7 +9,7 @@ import { MatchConfirm } from "./components/MatchConfirm";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { Sidebar } from "./components/Sidebar";
-import { bloodRequests, signOut, useSession, type BloodRequest, type Profile } from "@weare/core";
+import { bloodRequests, signInDemo, signOut, useSession, type BloodRequest, type Profile } from "@weare/core";
 
 export default function App() {
   const { profile, loading: sessionLoading } = useSession();
@@ -33,6 +33,12 @@ export default function App() {
   };
 
   const handleAuthenticated = (authProfile: Profile) => {
+    setUserType(authProfile.role);
+    setCurrentScreen("home");
+  };
+
+  const handleDemoLogin = async (role: "donor" | "hospital") => {
+    const authProfile = await signInDemo(role);
     setUserType(authProfile.role);
     setCurrentScreen("home");
   };
@@ -64,6 +70,7 @@ export default function App() {
             onNavigate={handleNavigate}
             userType={userType}
             onSetUserType={handleSelectRole}
+            onDemoLogin={handleDemoLogin}
           />
         );
       case "auth":
@@ -105,6 +112,7 @@ export default function App() {
             onNavigate={handleNavigate}
             userType={userType}
             onSetUserType={handleSelectRole}
+            onDemoLogin={handleDemoLogin}
           />
         );
     }

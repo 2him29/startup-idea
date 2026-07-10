@@ -1,13 +1,30 @@
-import { Droplet, Users, Bell, ShieldCheck, ChevronRight, Calendar, Award } from "lucide-react";
+import { useState } from "react";
+import { Droplet, Users, Bell, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle } from "lucide-react";
 import { Logo } from "./Logo";
 
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
   userType: "donor" | "hospital" | null;
   onSetUserType: (type: "donor" | "hospital") => void;
+  onDemoLogin: (role: "donor" | "hospital") => Promise<void>;
 }
 
-export function HomeScreen({ onNavigate, userType, onSetUserType }: HomeScreenProps) {
+export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }: HomeScreenProps) {
+  const [demoLoading, setDemoLoading] = useState<"donor" | "hospital" | null>(null);
+  const [demoError, setDemoError] = useState<string | null>(null);
+
+  const handleDemo = async (role: "donor" | "hospital") => {
+    setDemoError(null);
+    setDemoLoading(role);
+    try {
+      await onDemoLogin(role);
+    } catch (err) {
+      setDemoError(err instanceof Error ? err.message : "Couldn't start the demo, try again");
+    } finally {
+      setDemoLoading(null);
+    }
+  };
+
   if (!userType) {
     return (
       <div
@@ -59,6 +76,41 @@ export function HomeScreen({ onNavigate, userType, onSetUserType }: HomeScreenPr
               </span>
               <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 shrink-0" style={{ color: "#0E8BA8" }} />
             </button>
+          </div>
+
+          <div className="w-full lg:w-full lg:max-w-4xl mt-6 lg:mt-8">
+            <div className="flex items-center gap-3 text-[12px] lg:text-[13px] font-semibold" style={{ color: "#9AA9B2" }}>
+              <div className="flex-1 h-px" style={{ background: "rgba(11,36,50,0.1)" }} />
+              For demonstrations
+              <div className="flex-1 h-px" style={{ background: "rgba(11,36,50,0.1)" }} />
+            </div>
+            <div className="mt-4 flex flex-col lg:flex-row gap-2.5 lg:gap-3">
+              <button
+                type="button"
+                onClick={() => handleDemo("donor")}
+                disabled={demoLoading !== null}
+                className="cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2 text-[13.5px] lg:text-sm font-bold px-4 py-3 lg:flex-1 rounded-2xl border-[1.5px]"
+                style={{ color: "#E5484D", borderColor: "#FBD3D3", background: "#FFF" }}
+              >
+                <PlayCircle className="w-4 h-4" />
+                {demoLoading === "donor" ? "Loading demo…" : "View demo as Donor"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemo("hospital")}
+                disabled={demoLoading !== null}
+                className="cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2 text-[13.5px] lg:text-sm font-bold px-4 py-3 lg:flex-1 rounded-2xl border-[1.5px]"
+                style={{ color: "#0E8BA8", borderColor: "#CDEAF2", background: "#FFF" }}
+              >
+                <PlayCircle className="w-4 h-4" />
+                {demoLoading === "hospital" ? "Loading demo…" : "View demo as Hospital"}
+              </button>
+            </div>
+            {demoError && (
+              <div className="mt-3 text-[12.5px] font-semibold text-center" style={{ color: "#E5484D" }}>
+                {demoError}
+              </div>
+            )}
           </div>
         </div>
 

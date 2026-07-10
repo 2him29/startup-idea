@@ -75,6 +75,16 @@ export async function signIn(params: { email: string; password: string }): Promi
   return profile;
 }
 
+/** Pre-seeded accounts for investor/demo walkthroughs -- not secret, just a shortcut past the sign-up form. */
+export const DEMO_ACCOUNTS: Record<UserRole, { email: string; password: string }> = {
+  donor: { email: "demo.donor@weare.app", password: "WeAreDemo123!" },
+  hospital: { email: "demo.hospital@weare.app", password: "WeAreDemo123!" },
+};
+
+export async function signInDemo(role: UserRole): Promise<Profile> {
+  return signIn(DEMO_ACCOUNTS[role]);
+}
+
 export async function signOut(): Promise<void> {
   const { error } = await getSupabase().auth.signOut();
   if (error) throw error;
