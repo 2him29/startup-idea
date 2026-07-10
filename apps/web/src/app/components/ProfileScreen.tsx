@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { ArrowLeft, Droplet, Heart, Award, Calendar, User, Settings, ChevronRight } from "lucide-react";
+import type { Profile } from "@weare/core";
 
 interface ProfileScreenProps {
   onBack: () => void;
   userType: "donor" | "hospital" | null;
+  profile: Profile | null;
+  onSignOut: () => void;
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return parts.slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "").join("") || "?";
 }
 
 const donationHistory = [
@@ -31,7 +39,9 @@ function ToggleRow({ label, defaultOn }: { label: string; defaultOn: boolean }) 
   );
 }
 
-export function ProfileScreen({ onBack }: ProfileScreenProps) {
+export function ProfileScreen({ onBack, profile, onSignOut }: ProfileScreenProps) {
+  const displayName = profile?.fullName ?? "John Doe";
+  const displayEmail = profile?.email ?? "john.doe@email.com";
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
       <div className="flex items-center gap-3 mb-4">
@@ -53,11 +63,11 @@ export function ProfileScreen({ onBack }: ProfileScreenProps) {
           className="w-[66px] h-[66px] rounded-full bg-white flex items-center justify-center text-2xl font-extrabold border-4"
           style={{ color: "#E5484D", borderColor: "rgba(255,255,255,0.35)" }}
         >
-          JD
+          {initials(displayName)}
         </span>
         <div className="flex-1">
-          <div className="text-xl font-extrabold">John Doe</div>
-          <div className="text-[13px] opacity-90">john.doe@email.com</div>
+          <div className="text-xl font-extrabold">{displayName}</div>
+          <div className="text-[13px] opacity-90">{displayEmail}</div>
           <span className="inline-block mt-2 text-xs font-extrabold bg-white/[0.22] border border-white/35 px-[11px] py-1 rounded-full">
             Blood type A+
           </span>
@@ -138,7 +148,11 @@ export function ProfileScreen({ onBack }: ProfileScreenProps) {
           <span className="flex-1 text-[15px] font-semibold" style={{ color: "#0B2432" }}>Settings</span>
           <ChevronRight className="w-[18px] h-[18px]" style={{ color: "#C0CCD2" }} />
         </button>
-        <button className="cursor-pointer w-full text-left border-none bg-transparent py-[15px] px-1 text-[15px] font-bold" style={{ color: "#E5484D" }}>
+        <button
+          onClick={onSignOut}
+          className="cursor-pointer w-full text-left border-none bg-transparent py-[15px] px-1 text-[15px] font-bold"
+          style={{ color: "#E5484D" }}
+        >
           Sign out
         </button>
       </div>

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HomeScreen } from "./components/HomeScreen";
+import { AuthScreen } from "./components/AuthScreen";
 import { DonorRegistration } from "./components/DonorRegistration";
 import { HospitalDashboard } from "./components/HospitalDashboard";
 import { MatchingScreen } from "./components/MatchingScreen";
@@ -7,19 +8,37 @@ import { RequestDetail } from "./components/RequestDetail";
 import { MatchConfirm } from "./components/MatchConfirm";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
-import { bloodRequests, type BloodRequest } from "@weare/core";
+import { bloodRequests, signOut, useSession, type BloodRequest, type Profile } from "@weare/core";
 
 export default function App() {
+  const { profile, loading: sessionLoading } = useSession();
   const [currentScreen, setCurrentScreen] = useState<string>("home");
   const [userType, setUserType] = useState<"donor" | "hospital" | null>(null);
+  const [pendingRole, setPendingRole] = useState<"donor" | "hospital" | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<BloodRequest>(bloodRequests[0]);
+
+  // Resume an existing session: skip the splash screen once we know who's signed in.
+  useEffect(() => {
+    if (profile) setUserType(profile.role);
+  }, [profile]);
 
   const handleNavigate = (screen: string) => {
     setCurrentScreen(screen);
   };
 
-  const handleSetUserType = (type: "donor" | "hospital") => {
-    setUserType(type);
+  const handleSelectRole = (type: "donor" | "hospital") => {
+    setPendingRole(type);
+    setCurrentScreen("auth");
+  };
+
+  const handleAuthenticated = (authProfile: Profile) => {
+    setUserType(authProfile.role);
+    setCurrentScreen("home");
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setUserType(null);
     setCurrentScreen("home");
   };
 
@@ -32,6 +51,10 @@ export default function App() {
     setCurrentScreen("request-detail");
   };
 
+  if (sessionLoading) {
+    return <div className="size-full bg-background" />;
+  }
+
   const renderScreen = () => {
     switch (currentScreen) {
       case "home":
@@ -39,7 +62,15 @@ export default function App() {
           <HomeScreen
             onNavigate={handleNavigate}
             userType={userType}
-            onSetUserType={handleSetUserType}
+            onSetUserType={handleSelectRole}
+          />
+        );
+      case "auth":
+        return (
+          <AuthScreen
+            role={pendingRole ?? "donor"}
+            onBack={handleBack}
+            onAuthenticated={handleAuthenticated}
           />
         );
       case "donor-registration":
@@ -59,13 +90,20 @@ export default function App() {
       case "match-confirm":
         return <MatchConfirm onBackHome={handleBack} request={selectedRequest} />;
       case "profile":
-        return <ProfileScreen onBack={handleBack} userType={userType} />;
+        return (
+          <ProfileScreen
+            onBack={handleBack}
+            userType={userType}
+            profile={profile}
+            onSignOut={handleSignOut}
+          />
+        );
       default:
         return (
           <HomeScreen
             onNavigate={handleNavigate}
             userType={userType}
-            onSetUserType={handleSetUserType}
+            onSetUserType={handleSelectRole}
           />
         );
     }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Droplet, Check } from "lucide-react";
+import { upsertDonorProfile } from "@weare/core";
 
 interface DonorRegistrationProps {
   onBack: () => void;
@@ -15,12 +16,27 @@ export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps
   const [selectedBlood, setSelectedBlood] = useState("A+");
   const [medicallyEligible, setMedicallyEligible] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const canSubmit = medicallyEligible && agreedToTerms;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onComplete();
+    setError(null);
+    setSubmitting(true);
+    try {
+      await upsertDonorProfile({
+        bloodType: selectedBlood,
+        age: age ? Number(age) : null,
+        weightKg: weight ? Number(weight) : null,
+      });
+      onComplete();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't save your details, try again");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -139,13 +155,19 @@ export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps
           </label>
         </div>
 
+        {error && (
+          <div className="mt-3.5 rounded-2xl px-4 py-3 text-[13px]" style={{ background: "#FFECEC", color: "#8A3438", border: "1px solid #FBD3D3" }}>
+            {error}
+          </div>
+        )}
+
         <button
           type="submit"
-          disabled={!canSubmit}
+          disabled={!canSubmit || submitting}
           className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 mt-[18px] w-full h-[54px] rounded-2xl text-white text-base font-extrabold shadow-[0_16px_28px_-14px_rgba(229,72,77,0.8)]"
           style={{ background: "linear-gradient(135deg,#E5484D,#F4677E)" }}
         >
-          Complete registration
+          {submitting ? "Saving…" : "Complete registration"}
         </button>
       </form>
     </div>
