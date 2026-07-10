@@ -1,5 +1,5 @@
 import { ArrowLeft, Phone, Clock, MapPin, AlertTriangle } from "lucide-react";
-import type { BloodRequest } from "../data/requests";
+import type { BloodRequest } from "@weare/core";
 
 interface RequestDetailProps {
   onBack: () => void;

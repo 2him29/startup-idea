@@ -1,3 +1,5 @@
+import { colors } from "@weare/ui-tokens";
+
 export type Urgency = "Critical" | "High" | "Medium" | "Low";
 
 export interface BloodRequest {
@@ -12,8 +14,8 @@ export interface BloodRequest {
 }
 
 export const urgencyStyle: Record<Urgency, { bg: string; fg: string }> = {
-  Critical: { bg: "#E5484D", fg: "#FFFFFF" },
-  High: { bg: "#F5871F", fg: "#FFFFFF" },
+  Critical: { bg: colors.red, fg: "#FFFFFF" },
+  High: { bg: colors.orange, fg: "#FFFFFF" },
   Medium: { bg: "#F1C40F", fg: "#4A3B00" },
   Low: { bg: "#3B82C4", fg: "#FFFFFF" },
 };

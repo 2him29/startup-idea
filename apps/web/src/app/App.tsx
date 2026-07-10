@@ -7,7 +7,7 @@ import { RequestDetail } from "./components/RequestDetail";
 import { MatchConfirm } from "./components/MatchConfirm";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
-import { bloodRequests, type BloodRequest } from "./data/requests";
+import { bloodRequests, type BloodRequest } from "@weare/core";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<string>("home");

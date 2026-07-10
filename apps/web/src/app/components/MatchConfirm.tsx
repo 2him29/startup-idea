@@ -1,5 +1,5 @@
 import { Check, Navigation } from "lucide-react";
-import type { BloodRequest } from "../data/requests";
+import type { BloodRequest } from "@weare/core";
 
 interface MatchConfirmProps {
   onBackHome: () => void;

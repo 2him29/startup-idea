@@ -1,5 +1,5 @@
 import { ArrowLeft, MapPin, Droplet } from "lucide-react";
-import { bloodRequests, unitsLabel, urgencyStyle, type BloodRequest } from "../data/requests";
+import { bloodRequests, unitsLabel, urgencyStyle, type BloodRequest } from "@weare/core";
 
 interface MatchingScreenProps {
   onBack: () => void;

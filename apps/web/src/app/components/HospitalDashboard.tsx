@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Search, Droplet, Plus } from "lucide-react";
-import { bloodRequests, unitsLabel, urgencyStyle } from "../data/requests";
+import { bloodRequests, unitsLabel, urgencyStyle } from "@weare/core";
 
 interface HospitalDashboardProps {
   onBack: () => void;
