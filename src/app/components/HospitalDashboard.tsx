@@ -1,235 +1,110 @@
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { ArrowLeft, Search, Filter, Droplet, Clock, MapPin } from "lucide-react";
 import { useState } from "react";
+import { ArrowLeft, Search, Droplet, Plus } from "lucide-react";
+import { bloodRequests, unitsLabel, urgencyStyle } from "../data/requests";
 
 interface HospitalDashboardProps {
   onBack: () => void;
 }
 
-const mockRequests = [
-  {
-    id: 1,
-    patientId: "P-2024-001",
-    bloodType: "A+",
-    units: 2,
-    urgency: "Critical",
-    hospital: "City General Hospital",
-    location: "2.3 km away",
-    time: "30 mins ago",
-    status: "Active",
-  },
-  {
-    id: 2,
-    patientId: "P-2024-002",
-    bloodType: "O-",
-    units: 3,
-    urgency: "High",
-    hospital: "Memorial Medical Center",
-    location: "4.1 km away",
-    time: "1 hour ago",
-    status: "Active",
-  },
-  {
-    id: 3,
-    patientId: "P-2024-003",
-    bloodType: "B+",
-    units: 1,
-    urgency: "Medium",
-    hospital: "St. Mary's Hospital",
-    location: "5.7 km away",
-    time: "3 hours ago",
-    status: "Active",
-  },
-  {
-    id: 4,
-    patientId: "P-2024-004",
-    bloodType: "AB+",
-    units: 2,
-    urgency: "Low",
-    hospital: "County Hospital",
-    location: "8.2 km away",
-    time: "5 hours ago",
-    status: "Pending",
-  },
-];
+const filterChips = ["All", "Critical", "O-", "Nearby"];
 
 export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterBloodType, setFilterBloodType] = useState("all");
-  const [filterUrgency, setFilterUrgency] = useState("all");
+  const [search, setSearch] = useState("");
+  const [activeChip, setActiveChip] = useState("All");
 
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case "Critical":
-        return "bg-red-500 text-white";
-      case "High":
-        return "bg-orange-500 text-white";
-      case "Medium":
-        return "bg-yellow-500 text-white";
-      case "Low":
-        return "bg-blue-500 text-white";
-      default:
-        return "bg-gray-500 text-white";
-    }
-  };
-
-  const filteredRequests = mockRequests.filter((request) => {
+  const filtered = bloodRequests.filter((r) => {
     const matchesSearch =
-      request.patientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      request.hospital.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesBloodType =
-      filterBloodType === "all" || request.bloodType === filterBloodType;
-    const matchesUrgency =
-      filterUrgency === "all" || request.urgency === filterUrgency;
-    return matchesSearch && matchesBloodType && matchesUrgency;
+      r.patientId.toLowerCase().includes(search.toLowerCase()) ||
+      r.hospital.toLowerCase().includes(search.toLowerCase());
+    const matchesChip =
+      activeChip === "All" ||
+      (activeChip === "Critical" && r.urgency === "Critical") ||
+      (activeChip === "O-" && r.bloodType === "O-") ||
+      activeChip === "Nearby";
+    return matchesSearch && matchesChip;
   });
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-white p-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={onBack}>
-          <ArrowLeft className="w-5 h-5 text-emerald-700" />
-        </Button>
-        <h2 className="text-emerald-900">Blood Requests</h2>
+    <div className="min-h-screen px-5 pt-2 pb-[130px] relative" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
+      <div className="flex items-center gap-3 mb-4">
+        <button
+          onClick={onBack}
+          className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
+          style={{ borderColor: "rgba(11,36,50,0.08)" }}
+        >
+          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432" }} />
+        </button>
+        <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>Blood requests</div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <Card className="p-3 text-center">
-          <p className="text-muted-foreground">Total</p>
-          <h3 className="text-emerald-600">{mockRequests.length}</h3>
-        </Card>
-        <Card className="p-3 text-center">
-          <p className="text-muted-foreground">Active</p>
-          <h3 className="text-cyan-600">
-            {mockRequests.filter((r) => r.status === "Active").length}
-          </h3>
-        </Card>
-        <Card className="p-3 text-center">
-          <p className="text-muted-foreground">Critical</p>
-          <h3 className="text-red-600">
-            {mockRequests.filter((r) => r.urgency === "Critical").length}
-          </h3>
-        </Card>
+      <div className="relative mb-3.5">
+        <Search className="absolute left-[15px] top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: "#9AA9B2" }} />
+        <input
+          placeholder="Search patient ID or type…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full h-12 rounded-2xl border-[1.5px] bg-white pl-[42px] pr-3.5 text-sm outline-none"
+          style={{ borderColor: "rgba(11,36,50,0.1)", color: "#0B2432" }}
+        />
       </div>
 
-      {/* Search and Filters */}
-      <Card className="p-4 mb-4 space-y-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by patient ID or hospital..."
-            className="pl-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Droplet className="w-4 h-4 text-emerald-600" />
-              <p className="text-emerald-900">Blood Type</p>
-            </div>
-            <Select value={filterBloodType} onValueChange={setFilterBloodType}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="A+">A+</SelectItem>
-                <SelectItem value="A-">A-</SelectItem>
-                <SelectItem value="B+">B+</SelectItem>
-                <SelectItem value="B-">B-</SelectItem>
-                <SelectItem value="AB+">AB+</SelectItem>
-                <SelectItem value="AB-">AB-</SelectItem>
-                <SelectItem value="O+">O+</SelectItem>
-                <SelectItem value="O-">O-</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-emerald-600" />
-              <p className="text-emerald-900">Urgency</p>
-            </div>
-            <Select value={filterUrgency} onValueChange={setFilterUrgency}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="Critical">Critical</SelectItem>
-                <SelectItem value="High">High</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="Low">Low</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </Card>
-
-      {/* Requests List */}
-      <div className="space-y-3 flex-1">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-emerald-900">All Requests</h3>
-          <p className="text-muted-foreground">
-            {filteredRequests.length} result{filteredRequests.length !== 1 ? "s" : ""}
-          </p>
-        </div>
-
-        {filteredRequests.map((request) => (
-          <Card key={request.id} className="p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
-                  <Droplet className="w-6 h-6 text-emerald-600" />
-                </div>
-                <div>
-                  <h4 className="text-emerald-900">{request.patientId}</h4>
-                  <p className="text-muted-foreground">{request.hospital}</p>
-                </div>
-              </div>
-              <Badge className={getUrgencyColor(request.urgency)}>{request.urgency}</Badge>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded bg-red-100 flex items-center justify-center">
-                  <p className="text-red-700">{request.bloodType}</p>
-                </div>
-                <p className="text-muted-foreground">{request.units} unit{request.units > 1 ? "s" : ""}</p>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Clock className="w-4 h-4" />
-                <p>{request.time}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 mb-3 text-muted-foreground">
-              <MapPin className="w-4 h-4" />
-              <p>{request.location}</p>
-            </div>
-
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-              View Details
-            </Button>
-          </Card>
+      <div className="flex gap-2 mb-4 flex-wrap">
+        {filterChips.map((chip) => (
+          <button
+            key={chip}
+            onClick={() => setActiveChip(chip)}
+            className="cursor-pointer text-[12.5px] font-bold px-3.5 py-2 rounded-full border"
+            style={
+              activeChip === chip
+                ? { background: "#0E8BA8", color: "#fff", borderColor: "#0E8BA8" }
+                : { background: "#fff", color: "#5A6B75", borderColor: "rgba(11,36,50,0.1)" }
+            }
+          >
+            {chip}
+          </button>
         ))}
       </div>
 
-      {/* New Request Button */}
-      <div className="fixed bottom-24 right-6">
-        <Button size="lg" className="rounded-full shadow-lg bg-emerald-600 hover:bg-emerald-700 h-14 px-6">
-          + New Request
-        </Button>
+      <div className="flex flex-col gap-3">
+        {filtered.map((r) => {
+          const badge = urgencyStyle[r.urgency];
+          return (
+            <div
+              key={r.id}
+              className="border rounded-[20px] p-4 bg-white shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
+              style={{ borderColor: "rgba(11,36,50,0.06)" }}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="w-11 h-11 rounded-[13px] flex items-center justify-center" style={{ background: "#E4F6FB" }}>
+                    <Droplet className="w-[21px] h-[21px]" style={{ color: "#0E8BA8" }} fill="#0E8BA8" />
+                  </span>
+                  <div>
+                    <div className="text-sm font-extrabold" style={{ color: "#0B2432" }}>{r.patientId}</div>
+                    <div className="text-[12.5px]" style={{ color: "#8496A0" }}>{r.hospital}</div>
+                  </div>
+                </div>
+                <span className="text-[11.5px] font-extrabold px-[11px] py-1.5 rounded-full" style={{ background: badge.bg, color: badge.fg }}>
+                  {r.urgency}
+                </span>
+              </div>
+              <div className="mt-[13px] flex items-center gap-2.5">
+                <span className="font-extrabold text-[13px] px-[11px] py-1.5 rounded-[11px]" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
+                <span className="text-[12.5px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units)}</span>
+                <span className="ml-auto text-[12.5px]" style={{ color: "#8496A0" }}>{r.time}</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      <button
+        className="cursor-pointer absolute bottom-[104px] right-5 h-[52px] px-5 rounded-[26px] text-white text-[15px] font-extrabold flex items-center gap-2 shadow-[0_16px_30px_-12px_rgba(14,139,168,0.9)] z-20"
+        style={{ background: "linear-gradient(135deg,#0E8BA8,#23A6C4)" }}
+      >
+        <Plus className="w-[19px] h-[19px]" strokeWidth={2.4} />
+        New
+      </button>
     </div>
   );
 }

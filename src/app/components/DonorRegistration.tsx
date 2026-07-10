@@ -1,189 +1,152 @@
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Checkbox } from "./ui/checkbox";
-import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { Logo } from "./Logo";
+import { ArrowLeft, Droplet, Check } from "lucide-react";
 
 interface DonorRegistrationProps {
   onBack: () => void;
+  onComplete: () => void;
 }
 
-export function DonorRegistration({ onBack }: DonorRegistrationProps) {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    age: "",
-    bloodType: "",
-    weight: "",
-    lastDonation: "",
-    medicallyEligible: false,
-    agreedToTerms: false,
-  });
+const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps) {
+  const [fullName, setFullName] = useState("");
+  const [age, setAge] = useState("");
+  const [weight, setWeight] = useState("");
+  const [selectedBlood, setSelectedBlood] = useState("A+");
+  const [medicallyEligible, setMedicallyEligible] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  const canSubmit = medicallyEligible && agreedToTerms;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    alert("Registration submitted! (Demo only)");
+    onComplete();
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-red-50 to-white p-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={onBack}>
-          <ArrowLeft className="w-5 h-5 text-slate-700" />
-        </Button>
-        <div className="flex items-center gap-2">
-          <Logo size={28} />
-          <h2 className="text-red-600">Donor Registration</h2>
+    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
+      <div className="flex items-center gap-3 mb-4">
+        <button
+          onClick={onBack}
+          className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
+          style={{ borderColor: "rgba(11,36,50,0.08)" }}
+        >
+          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432" }} />
+        </button>
+        <div>
+          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>Become a donor</div>
+          <div className="text-[12.5px]" style={{ color: "#8496A0" }}>Takes about 2 minutes</div>
         </div>
       </div>
 
-      {/* Info Card */}
-      <Card className="p-4 mb-6 bg-red-50 border-red-200">
-        <p className="text-slate-700">
-          Complete this form to register as a blood donor. Your information will help us match you with patients in need.
-        </p>
-      </Card>
+      <div className="rounded-2xl px-4 py-3.5 flex gap-[11px] items-start" style={{ background: "#FFECEC", border: "1px solid #FBD3D3" }}>
+        <Droplet className="w-[19px] h-[19px] shrink-0 mt-0.5" style={{ color: "#E5484D" }} fill="#E5484D" />
+        <span className="text-[13px] leading-relaxed" style={{ color: "#8A3438" }}>
+          Your details help us match you with patients in need. Everything stays confidential.
+        </span>
+      </div>
 
-      {/* Registration Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card className="p-6 space-y-6 border-red-100">
-          <h3 className="text-red-600">Personal Information</h3>
+      <form onSubmit={handleSubmit}>
+        <div className="mt-[18px] bg-white border rounded-[20px] p-[18px] shadow-[0_10px_24px_-20px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+          <div className="text-sm font-extrabold mb-3.5" style={{ color: "#0B2432" }}>Personal information</div>
 
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name *</Label>
-            <Input
-              id="fullName"
-              placeholder="John Doe"
-              value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              required
-            />
-          </div>
+          <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75" }}>Full name</label>
+          <input
+            placeholder="John Doe"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+            className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none mb-3.5"
+            style={{ borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432" }}
+          />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="age">Age *</Label>
-              <Input
-                id="age"
+          <div className="flex gap-3 mb-4">
+            <div className="flex-1">
+              <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75" }}>Age</label>
+              <input
+                placeholder="28"
                 type="number"
-                placeholder="25"
-                value={formData.age}
-                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
                 required
+                className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none"
+                style={{ borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432" }}
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="weight">Weight (kg) *</Label>
-              <Input
-                id="weight"
-                type="number"
+            <div className="flex-1">
+              <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75" }}>Weight (kg)</label>
+              <input
                 placeholder="70"
-                value={formData.weight}
-                onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                type="number"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
                 required
+                className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none"
+                style={{ borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432" }}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="bloodType">Blood Type *</Label>
-            <Select
-              value={formData.bloodType}
-              onValueChange={(value) => setFormData({ ...formData, bloodType: value })}
-            >
-              <SelectTrigger id="bloodType">
-                <SelectValue placeholder="Select your blood type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="A+">A+</SelectItem>
-                <SelectItem value="A-">A-</SelectItem>
-                <SelectItem value="B+">B+</SelectItem>
-                <SelectItem value="B-">B-</SelectItem>
-                <SelectItem value="AB+">AB+</SelectItem>
-                <SelectItem value="AB-">AB-</SelectItem>
-                <SelectItem value="O+">O+</SelectItem>
-                <SelectItem value="O-">O-</SelectItem>
-              </SelectContent>
-            </Select>
+          <label className="block text-[12.5px] font-bold mb-2.5" style={{ color: "#5A6B75" }}>Blood type</label>
+          <div className="grid grid-cols-4 gap-2.5">
+            {bloodTypes.map((b) => {
+              const active = b === selectedBlood;
+              return (
+                <button
+                  key={b}
+                  type="button"
+                  onClick={() => setSelectedBlood(b)}
+                  className="cursor-pointer h-[46px] rounded-[13px] text-[15px] font-extrabold border-[1.5px]"
+                  style={{
+                    background: active ? "#E5484D" : "#F7FAFB",
+                    color: active ? "#FFFFFF" : "#0B2432",
+                    borderColor: active ? "#E5484D" : "rgba(11,36,50,0.12)",
+                  }}
+                >
+                  {b}
+                </button>
+              );
+            })}
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="lastDonation">Last Donation Date</Label>
-            <Input
-              id="lastDonation"
-              type="date"
-              value={formData.lastDonation}
-              onChange={(e) => setFormData({ ...formData, lastDonation: e.target.value })}
-            />
-            <p className="text-muted-foreground">Leave blank if first-time donor</p>
-          </div>
-        </Card>
-
-        <Card className="p-6 space-y-6 border-red-100">
-          <h3 className="text-red-600">Medical Eligibility</h3>
-
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="medicallyEligible"
-                checked={formData.medicallyEligible}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, medicallyEligible: checked as boolean })
-                }
-              />
-              <div className="space-y-1">
-                <Label htmlFor="medicallyEligible" className="cursor-pointer">
-                  I confirm that I am medically eligible to donate blood
-                </Label>
-                <p className="text-muted-foreground">
-                  You should be in good health, weigh at least 50kg, and be between 18-65 years old
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="agreedToTerms"
-                checked={formData.agreedToTerms}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, agreedToTerms: checked as boolean })
-                }
-              />
-              <div className="space-y-1">
-                <Label htmlFor="agreedToTerms" className="cursor-pointer">
-                  I agree to the terms and conditions
-                </Label>
-                <p className="text-muted-foreground">
-                  Your information will be kept confidential and used only for donation purposes
-                </p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <div className="space-y-3">
-          <Button
-            type="submit"
-            className="w-full bg-red-500 hover:bg-red-600"
-            disabled={!formData.medicallyEligible || !formData.agreedToTerms}
-          >
-            Complete Registration
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border-red-200"
-            onClick={onBack}
-          >
-            Cancel
-          </Button>
         </div>
+
+        <div className="mt-3.5 bg-white border rounded-[20px] p-[18px]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+          <div className="text-sm font-extrabold mb-3.5" style={{ color: "#0B2432" }}>Eligibility</div>
+          <label className="flex gap-3 items-start cursor-pointer">
+            <span
+              onClick={(e) => { e.preventDefault(); setMedicallyEligible((v) => !v); }}
+              className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-px"
+              style={{ background: medicallyEligible ? "#12B76A" : "#EEF2F3", border: medicallyEligible ? "none" : "1.5px solid rgba(11,36,50,0.15)" }}
+            >
+              {medicallyEligible && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+            </span>
+            <span className="text-[13px] leading-relaxed" style={{ color: "#0B2432" }}>
+              I'm in good health, weigh 50kg+, and I'm 18–65 years old.
+            </span>
+          </label>
+          <div className="h-3" />
+          <label className="flex gap-3 items-start cursor-pointer">
+            <span
+              onClick={(e) => { e.preventDefault(); setAgreedToTerms((v) => !v); }}
+              className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-px"
+              style={{ background: agreedToTerms ? "#12B76A" : "#EEF2F3", border: agreedToTerms ? "none" : "1.5px solid rgba(11,36,50,0.15)" }}
+            >
+              {agreedToTerms && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+            </span>
+            <span className="text-[13px] leading-relaxed" style={{ color: "#0B2432" }}>
+              I agree to the terms and privacy policy.
+            </span>
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={!canSubmit}
+          className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 mt-[18px] w-full h-[54px] rounded-2xl text-white text-base font-extrabold shadow-[0_16px_28px_-14px_rgba(229,72,77,0.8)]"
+          style={{ background: "linear-gradient(135deg,#E5484D,#F4677E)" }}
+        >
+          Complete registration
+        </button>
       </form>
     </div>
   );

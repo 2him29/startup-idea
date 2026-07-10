@@ -1,233 +1,100 @@
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Avatar, AvatarFallback } from "./ui/avatar";
-import { ArrowLeft, MapPin, Phone, Navigation, Droplet, Clock } from "lucide-react";
-import { Logo } from "./Logo";
+import { ArrowLeft, MapPin, Droplet } from "lucide-react";
+import { bloodRequests, unitsLabel, urgencyStyle, type BloodRequest } from "../data/requests";
 
 interface MatchingScreenProps {
   onBack: () => void;
   userType: "donor" | "hospital" | null;
+  onOpenDetail: (request: BloodRequest) => void;
 }
 
-const mockDonors = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    bloodType: "A+",
-    distance: "1.2 km",
-    availability: "Available Now",
-    donations: 8,
-    verified: true,
-  },
-  {
-    id: 2,
-    name: "Michael Chen",
-    bloodType: "A+",
-    distance: "2.5 km",
-    availability: "Available Today",
-    donations: 15,
-    verified: true,
-  },
-  {
-    id: 3,
-    name: "Emily Davis",
-    bloodType: "A+",
-    distance: "3.1 km",
-    availability: "Available Tomorrow",
-    donations: 5,
-    verified: true,
-  },
-];
-
-const mockRequests = [
-  {
-    id: 1,
-    hospital: "City General Hospital",
-    bloodType: "A+",
-    units: 2,
-    urgency: "Critical",
-    distance: "2.3 km",
-    time: "30 mins ago",
-  },
-  {
-    id: 2,
-    hospital: "Memorial Medical Center",
-    bloodType: "O-",
-    units: 3,
-    urgency: "High",
-    distance: "4.1 km",
-    time: "1 hour ago",
-  },
-  {
-    id: 3,
-    hospital: "St. Mary's Hospital",
-    bloodType: "B+",
-    units: 1,
-    urgency: "Medium",
-    distance: "5.7 km",
-    time: "2 hours ago",
-  },
-];
-
-export function MatchingScreen({ onBack, userType }: MatchingScreenProps) {
-  const isDonor = userType === "donor";
+export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScreenProps) {
+  const accent = userType === "hospital" ? "#0E8BA8" : "#E5484D";
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-red-50 via-pink-50 to-white pb-24">
-      {/* Header */}
-      <div className="flex items-center gap-3 p-6 pb-4">
-        <Button variant="ghost" size="icon" onClick={onBack}>
-          <ArrowLeft className="w-5 h-5 text-slate-700" />
-        </Button>
-        <Logo size={28} className="mr-1" />
-        <h2 className={isDonor ? "text-red-600" : "text-cyan-600"}>
-          {isDonor ? "Urgent Requests" : "Available Donors"}
-        </h2>
-      </div>
-
-      {/* Map Preview */}
-      <div className="px-6 mb-6">
-        <Card className={`h-48 bg-gradient-to-br ${isDonor ? 'from-red-100 to-pink-100 border-2 border-red-200' : 'from-cyan-100 to-blue-100 border-2 border-cyan-200'} relative overflow-hidden`}>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Navigation className={`w-16 h-16 ${isDonor ? 'text-red-400' : 'text-cyan-400'} opacity-50`} />
-          </div>
-          <div className="absolute top-4 right-4 bg-white rounded-lg shadow-md p-2">
-            <p className={isDonor ? "text-red-600" : "text-cyan-600"}>Map View</p>
-            <p className="text-muted-foreground">
-              {isDonor ? mockRequests.length : mockDonors.length} nearby
-            </p>
-          </div>
-          {/* Mock map markers */}
-          <div className="absolute top-1/4 left-1/3 w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow-md" />
-          <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow-md" />
-          <div className="absolute top-2/3 left-2/3 w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow-md" />
-        </Card>
-      </div>
-
-      {/* List */}
-      <div className="px-6 space-y-3">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className={isDonor ? "text-red-600" : "text-cyan-600"}>
-            {isDonor ? "Requests Near You" : "Matched Donors"}
-          </h3>
-          <Button variant="ghost" size="sm" className={isDonor ? "text-red-500" : "text-cyan-500"}>
-            <MapPin className="w-4 h-4 mr-1" />
-            Sort by distance
-          </Button>
+    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
+      <div className="flex items-center gap-3 mb-4">
+        <button
+          onClick={onBack}
+          className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
+          style={{ borderColor: "rgba(11,36,50,0.08)" }}
+        >
+          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432" }} />
+        </button>
+        <div>
+          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>Urgent requests</div>
+          <div className="text-[12.5px]" style={{ color: "#8496A0" }}>Sorted by distance · {bloodRequests.length} nearby</div>
         </div>
+      </div>
 
-        {isDonor ? (
-          // Donor view - show requests
-          mockRequests.map((request) => (
-            <Card key={request.id} className="p-4">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
-                    <Droplet className="w-6 h-6 text-white" />
-                  </div>
+      {/* map preview */}
+      <div className="rounded-[22px] overflow-hidden h-[172px] relative border shadow-[0_12px_26px_-18px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.08)" }}>
+        <svg width="100%" height="172" viewBox="0 0 348 172" preserveAspectRatio="xMidYMid slice" className="block">
+          <rect width="348" height="172" fill="#EAF1F0" />
+          <path d="M-10 40 H360 M-10 96 H360 M-10 140 H360" stroke="#DBE6E4" strokeWidth="8" />
+          <path d="M70 -10 V182 M180 -10 V182 M270 -10 V182" stroke="#DBE6E4" strokeWidth="8" />
+          <path d="M-10 96 H70 V-10" stroke="#C9DAD7" strokeWidth="3" fill="none" />
+          <path d="M20 150 C 90 120, 130 110, 180 96 S 280 60, 320 30" stroke="#E5484D" strokeWidth="3.5" strokeDasharray="2 7" strokeLinecap="round" fill="none" />
+        </svg>
+        <div className="absolute" style={{ left: "16%", top: "52%", transform: "translate(-50%,-50%)" }}>
+          <span className="block w-4 h-4 rounded-full border-[3px] border-white shadow-md" style={{ background: "#0E8BA8" }} />
+        </div>
+        <div className="absolute" style={{ left: "50%", top: "52%", transform: "translate(-50%,-100%)" }}>
+          <svg width="26" height="30" viewBox="0 0 24 28" fill="none">
+            <path d="M12 0C6 0 1 5 1 11c0 8 11 17 11 17s11-9 11-17C23 5 18 0 12 0z" fill="#E5484D" stroke="#fff" strokeWidth="1.6" />
+            <circle cx="12" cy="11" r="4" fill="#fff" />
+          </svg>
+        </div>
+        <div className="absolute" style={{ left: "84%", top: "24%", transform: "translate(-50%,-100%)" }}>
+          <svg width="22" height="26" viewBox="0 0 24 28" fill="none">
+            <path d="M12 0C6 0 1 5 1 11c0 8 11 17 11 17s11-9 11-17C23 5 18 0 12 0z" fill="#F5871F" stroke="#fff" strokeWidth="1.6" />
+            <circle cx="12" cy="11" r="4" fill="#fff" />
+          </svg>
+        </div>
+        <div className="absolute top-3 right-3 bg-white rounded-xl px-[11px] py-2 shadow-[0_6px_14px_-8px_rgba(11,36,50,0.5)]">
+          <div className="text-xs font-extrabold" style={{ color: accent }}>Live map</div>
+          <div className="text-[11px]" style={{ color: "#8496A0" }}>{bloodRequests.length} nearby</div>
+        </div>
+      </div>
+
+      {/* request list */}
+      <div className="mt-5 flex flex-col gap-3">
+        {bloodRequests.map((r) => {
+          const badge = urgencyStyle[r.urgency];
+          return (
+            <button
+              key={r.id}
+              onClick={() => onOpenDetail(r)}
+              className="cursor-pointer text-left w-full border rounded-[20px] p-4 bg-white shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
+              style={{ borderColor: "rgba(11,36,50,0.06)", animation: "waRise .4s ease both" }}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-[13px]">
+                  <span
+                    className="w-12 h-12 rounded-[15px] flex items-center justify-center shrink-0 shadow-[0_8px_16px_-8px_rgba(229,72,77,0.7)]"
+                    style={{ background: "linear-gradient(135deg,#E5484D,#F4677E)" }}
+                  >
+                    <Droplet className="w-6 h-6" fill="white" stroke="none" />
+                  </span>
                   <div>
-                    <h4 className="text-cyan-900">{request.hospital}</h4>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="w-3 h-3" />
-                      <p>{request.distance}</p>
+                    <div className="text-[15.5px] font-bold" style={{ color: "#0B2432" }}>{r.hospital}</div>
+                    <div className="flex items-center gap-1 mt-0.5 text-[12.5px]" style={{ color: "#8496A0" }}>
+                      <MapPin className="w-[13px] h-[13px]" />
+                      {r.distance} · {r.time}
                     </div>
                   </div>
                 </div>
-                <Badge
-                  className={
-                    request.urgency === "Critical"
-                      ? "bg-red-500 text-white"
-                      : request.urgency === "High"
-                      ? "bg-orange-500 text-white"
-                      : "bg-yellow-500 text-white"
-                  }
-                >
-                  {request.urgency}
-                </Badge>
+                <span className="text-[11.5px] font-extrabold px-[11px] py-1.5 rounded-full" style={{ background: badge.bg, color: badge.fg }}>
+                  {r.urgency}
+                </span>
               </div>
-
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded bg-cyan-100 flex items-center justify-center">
-                    <p className="text-cyan-700">{request.bloodType}</p>
-                  </div>
-                  <p className="text-muted-foreground">
-                    {request.units} unit{request.units > 1 ? "s" : ""}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Clock className="w-4 h-4" />
-                  <p>{request.time}</p>
-                </div>
+              <div className="mt-3.5 flex items-center gap-2.5">
+                <span className="font-extrabold text-sm px-3 py-1.5 rounded-xl" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
+                <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units)}</span>
+                <span className="ml-auto text-[13px] font-extrabold" style={{ color: accent }}>View →</span>
               </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" className="border-red-200">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call
-                </Button>
-                <Button className="bg-red-500 hover:bg-red-600">
-                  Respond
-                </Button>
-              </div>
-            </Card>
-          ))
-        ) : (
-          // Hospital view - show donors
-          mockDonors.map((donor) => (
-            <Card key={donor.id} className="p-4">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <Avatar className="w-12 h-12">
-                    <AvatarFallback className="bg-gradient-to-br from-cyan-400 to-emerald-400 text-white">
-                      {donor.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-emerald-900">{donor.name}</h4>
-                      {donor.verified && (
-                        <div className="w-4 h-4 rounded-full bg-cyan-500 flex items-center justify-center">
-                          <div className="w-2 h-2 bg-white rounded-full" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="w-3 h-3" />
-                      <p>{donor.distance}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                  <p className="text-red-700">{donor.bloodType}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between mb-3">
-                <Badge variant="outline" className="border-emerald-200 text-emerald-700">
-                  {donor.availability}
-                </Badge>
-                <p className="text-muted-foreground">
-                  {donor.donations} donations
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" className="border-emerald-200">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call
-                </Button>
-                <Button className="bg-emerald-600 hover:bg-emerald-700">
-                  Request
-                </Button>
-              </div>
-            </Card>
-          ))
-        )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
