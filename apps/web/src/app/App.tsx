@@ -111,12 +111,16 @@ export default function App() {
   };
 
   const screen = renderScreen();
+  // Pre-login (splash/auth) has no sidebar, so let it use the full viewport
+  // as a real landing page instead of sitting in the same content column
+  // that's deliberately width-capped for signed-in dashboard screens.
+  const isFullBleed = !userType;
 
   return (
     <div className="size-full bg-background lg:flex">
       <Sidebar activeScreen={currentScreen} onNavigate={handleNavigate} userType={userType} />
       <div className="max-w-md mx-auto h-full relative lg:max-w-none lg:mx-0 lg:flex-1 lg:h-screen lg:overflow-y-auto">
-        <div className="lg:max-w-5xl lg:mx-auto lg:px-10 lg:py-8">{screen}</div>
+        {isFullBleed ? screen : <div className="lg:max-w-5xl lg:mx-auto lg:px-10 lg:py-8">{screen}</div>}
         <BottomNavigation
           activeScreen={currentScreen}
           onNavigate={handleNavigate}

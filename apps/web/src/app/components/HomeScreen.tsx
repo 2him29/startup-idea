@@ -11,58 +11,59 @@ export function HomeScreen({ onNavigate, userType, onSetUserType }: HomeScreenPr
   if (!userType) {
     return (
       <div
-        className="flex flex-col min-h-screen p-6 pb-8"
+        className="flex flex-col min-h-screen p-6 pb-8 lg:p-12"
         style={{ background: "radial-gradient(130% 90% at 50% -10%, #FFE1E0 0%, #FFF3F2 40%, #F4FBFC 100%)" }}
       >
         <div className="flex-1 flex flex-col items-center justify-center text-center">
           <div
-            className="w-[82px] h-[82px] rounded-[26px] bg-white flex items-center justify-center shadow-[0_18px_40px_-14px_rgba(229,72,77,0.5)]"
+            className="w-[82px] h-[82px] lg:w-[110px] lg:h-[110px] rounded-[26px] lg:rounded-[32px] bg-white flex items-center justify-center shadow-[0_18px_40px_-14px_rgba(229,72,77,0.5)]"
             style={{ animation: "waPop .5s ease both" }}
           >
-            <Logo size={46} />
+            <Logo size={46} className="lg:hidden" />
+            <Logo size={62} className="hidden lg:block" />
           </div>
-          <h1 className="mt-[22px] text-[38px] font-extrabold tracking-[-1.2px]" style={{ color: "#0B2432" }}>
+          <h1 className="mt-[22px] lg:mt-8 text-[38px] lg:text-[64px] font-extrabold tracking-[-1.2px] lg:tracking-[-2px]" style={{ color: "#0B2432" }}>
             We<span style={{ color: "#E5484D" }}>Are</span>
           </h1>
-          <p className="mt-[10px] text-base leading-relaxed max-w-[260px]" style={{ color: "#5A6B75" }}>
+          <p className="mt-[10px] lg:mt-3 text-base lg:text-xl leading-relaxed max-w-[260px] lg:max-w-md" style={{ color: "#5A6B75" }}>
             Every drop connects a life. Match donors and hospitals in real time.
           </p>
 
-          <div className="w-full mt-[34px] flex flex-col gap-3.5">
+          <div className="w-full lg:w-full lg:max-w-4xl mt-[34px] lg:mt-14 flex flex-col lg:flex-row gap-3.5 lg:gap-5">
             <button
               onClick={() => onSetUserType("donor")}
-              className="cursor-pointer text-left p-5 rounded-[24px] text-white flex items-center gap-4 shadow-[0_20px_34px_-16px_rgba(229,72,77,0.7)]"
+              className="cursor-pointer text-left p-5 lg:p-7 rounded-[24px] lg:rounded-[28px] text-white flex items-center gap-4 lg:gap-5 shadow-[0_20px_34px_-16px_rgba(229,72,77,0.7)] lg:flex-1 lg:min-w-0"
               style={{ background: "linear-gradient(135deg,#E5484D,#F4677E)" }}
             >
-              <span className="w-[52px] h-[52px] rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-                <Droplet className="w-[26px] h-[26px]" fill="white" />
+              <span className="w-[52px] h-[52px] lg:w-16 lg:h-16 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+                <Droplet className="w-[26px] h-[26px] lg:w-8 lg:h-8" fill="white" />
               </span>
               <span className="flex-1">
-                <span className="block text-lg font-bold">I'm a Donor</span>
-                <span className="block text-[13.5px] opacity-90 mt-0.5">Give blood, save up to 3 lives</span>
+                <span className="block text-lg lg:text-2xl font-bold">I'm a Donor</span>
+                <span className="block text-[13.5px] lg:text-base opacity-90 mt-0.5">Give blood, save up to 3 lives</span>
               </span>
-              <ChevronRight className="w-5 h-5 shrink-0" />
+              <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 shrink-0" />
             </button>
 
             <button
               onClick={() => onSetUserType("hospital")}
-              className="cursor-pointer text-left p-5 rounded-[24px] bg-white flex items-center gap-4 shadow-[0_16px_30px_-18px_rgba(14,139,168,0.55)] border-[1.5px]"
+              className="cursor-pointer text-left p-5 lg:p-7 rounded-[24px] lg:rounded-[28px] bg-white flex items-center gap-4 lg:gap-5 shadow-[0_16px_30px_-18px_rgba(14,139,168,0.55)] border-[1.5px] lg:flex-1 lg:min-w-0"
               style={{ color: "#0B2432", borderColor: "#DDEFF3" }}
             >
-              <span className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center shrink-0" style={{ background: "#E4F6FB" }}>
-                <Users className="w-[26px] h-[26px]" style={{ color: "#0E8BA8" }} />
+              <span className="w-[52px] h-[52px] lg:w-16 lg:h-16 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "#E4F6FB" }}>
+                <Users className="w-[26px] h-[26px] lg:w-8 lg:h-8" style={{ color: "#0E8BA8" }} />
               </span>
               <span className="flex-1">
-                <span className="block text-lg font-bold">I'm a Hospital</span>
-                <span className="block text-[13.5px] mt-0.5" style={{ color: "#6B7C88" }}>Request units, find donors fast</span>
+                <span className="block text-lg lg:text-2xl font-bold">I'm a Hospital</span>
+                <span className="block text-[13.5px] lg:text-base mt-0.5" style={{ color: "#6B7C88" }}>Request units, find donors fast</span>
               </span>
-              <ChevronRight className="w-5 h-5 shrink-0" style={{ color: "#0E8BA8" }} />
+              <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 shrink-0" style={{ color: "#0E8BA8" }} />
             </button>
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-6 text-[12.5px] font-semibold" style={{ color: "#8496A0" }}>
-          <ShieldCheck className="w-[15px] h-[15px]" style={{ color: "#12B76A" }} />
+        <div className="flex items-center justify-center gap-2 mt-6 text-[12.5px] lg:text-sm font-semibold" style={{ color: "#8496A0" }}>
+          <ShieldCheck className="w-[15px] h-[15px] lg:w-4 lg:h-4" style={{ color: "#12B76A" }} />
           HIPAA-safe · Trusted by 40+ hospitals
         </div>
       </div>
