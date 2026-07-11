@@ -23,7 +23,7 @@ export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
 
   return (
     <div
-      className="hidden lg:flex lg:flex-col lg:w-[240px] lg:shrink-0 lg:h-screen lg:sticky lg:top-0 px-5 py-6"
+      className="hidden md:flex md:flex-col md:w-[240px] md:shrink-0 md:h-screen md:sticky md:top-0 px-5 py-6"
       style={{ borderRight: "1px solid rgba(11,36,50,0.07)", background: "#FFFFFF" }}
     >
       <div className="flex items-center gap-2.5 px-2 mb-8">

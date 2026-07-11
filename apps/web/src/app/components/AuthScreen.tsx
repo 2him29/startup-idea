@@ -42,10 +42,10 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
 
   return (
     <div
-      className="min-h-screen px-5 pt-2 pb-[130px] lg:flex lg:flex-col lg:items-center lg:justify-center lg:px-6 lg:py-12"
+      className="min-h-screen px-5 pt-2 pb-[130px] md:flex md:flex-col md:items-center md:justify-center md:px-6 md:py-12"
       style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}
     >
-      <div className="lg:w-full lg:max-w-md">
+      <div className="md:w-full md:max-w-md">
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={onBack}

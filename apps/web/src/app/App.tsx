@@ -125,10 +125,10 @@ export default function App() {
   const isFullBleed = !userType;
 
   return (
-    <div className="size-full bg-background lg:flex">
+    <div className="size-full bg-background md:flex">
       <Sidebar activeScreen={currentScreen} onNavigate={handleNavigate} userType={userType} />
-      <div className="max-w-md mx-auto h-full relative lg:max-w-none lg:mx-0 lg:flex-1 lg:h-screen lg:overflow-y-auto">
-        {isFullBleed ? screen : <div className="lg:max-w-5xl lg:mx-auto lg:px-10 lg:py-8">{screen}</div>}
+      <div className="max-w-md mx-auto h-full relative md:max-w-none md:mx-0 md:flex-1 md:h-screen md:overflow-y-auto">
+        {isFullBleed ? screen : <div className="md:px-10 md:py-8">{screen}</div>}
         <BottomNavigation
           activeScreen={currentScreen}
           onNavigate={handleNavigate}

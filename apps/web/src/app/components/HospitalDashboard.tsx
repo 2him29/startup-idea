@@ -66,7 +66,7 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4">
+      <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
         {filtered.map((r) => {
           const badge = urgencyStyle[r.urgency];
           return (
