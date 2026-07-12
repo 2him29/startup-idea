@@ -6,6 +6,7 @@ import { HospitalDashboard } from "./components/HospitalDashboard";
 import { MatchingScreen } from "./components/MatchingScreen";
 import { RequestDetail } from "./components/RequestDetail";
 import { MatchConfirm } from "./components/MatchConfirm";
+import { CompensateScreen } from "./components/CompensateScreen";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { Sidebar } from "./components/Sidebar";
@@ -97,6 +98,8 @@ export default function App() {
         );
       case "match-confirm":
         return <MatchConfirm onBackHome={handleBack} request={selectedRequest} />;
+      case "compensate":
+        return <CompensateScreen onBack={handleBack} onComplete={handleBack} />;
       case "profile":
         return (
           <ProfileScreen

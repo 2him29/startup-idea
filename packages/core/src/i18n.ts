@@ -51,6 +51,9 @@ export interface Strings {
   deskSosLive: string; deskSosLiveSub: string; dismiss: string;
   dashboard: string; requestsNav: string; donorsNav: string; reserveNav: string;
   bloodRequestsTitle: string; searchPlaceholder: string; filterAll: string; filterNearby: string; newLabel: string;
+  compensatePledged: string; thankYouPrefix: string; thankYouSuffix: string;
+  patientRowLabel: string; fileRowLabel: string; referenceLabel: string;
+  pledging: string; genericError: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -96,6 +99,9 @@ export const I18N: Record<Lang, Strings> = {
     deskSosLive: "SOS broadcast is live", deskSosLiveSub: "Sent to 12 compatible A+ donors within 5 km", dismiss: "Dismiss",
     dashboard: "Dashboard", requestsNav: "Requests", donorsNav: "Donors", reserveNav: "Reserve",
     bloodRequestsTitle: "Blood requests", searchPlaceholder: "Search patient ID or type…", filterAll: "All", filterNearby: "Nearby", newLabel: "New",
+    compensatePledged: "Compensation pledged", thankYouPrefix: "Thank you for standing in for", thankYouSuffix: "Show this reference at the donation desk to release their unit.",
+    patientRowLabel: "Patient", fileRowLabel: "File №", referenceLabel: "Reference",
+    pledging: "Pledging…", genericError: "Something went wrong",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -139,6 +145,9 @@ export const I18N: Record<Lang, Strings> = {
     deskSosLive: "Diffusion SOS active", deskSosLiveSub: "Envoyé à 12 donneurs A+ dans un rayon de 5 km", dismiss: "Fermer",
     dashboard: "Tableau de bord", requestsNav: "Demandes", donorsNav: "Donneurs", reserveNav: "Réserve",
     bloodRequestsTitle: "Demandes de sang", searchPlaceholder: "Rechercher un patient ou un groupe…", filterAll: "Tous", filterNearby: "À proximité", newLabel: "Nouveau",
+    compensatePledged: "Don de compensation promis", thankYouPrefix: "Merci de vous porter garant pour", thankYouSuffix: "Présentez cette référence au bureau de don pour libérer son unité.",
+    patientRowLabel: "Patient", fileRowLabel: "Dossier №", referenceLabel: "Référence",
+    pledging: "Envoi…", genericError: "Une erreur s'est produite",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -182,5 +191,8 @@ export const I18N: Record<Lang, Strings> = {
     deskSosLive: "النداء العاجل نشط", deskSosLiveSub: "أُرسل إلى 12 متبرعاً A+ ضمن 5 كم", dismiss: "إغلاق",
     dashboard: "اللوحة", requestsNav: "الطلبات", donorsNav: "المتبرعون", reserveNav: "المخزون",
     bloodRequestsTitle: "طلبات الدم", searchPlaceholder: "ابحث برقم المريض أو الفصيلة…", filterAll: "الكل", filterNearby: "بالقرب", newLabel: "جديد",
+    compensatePledged: "تم التعهد بالتعويض", thankYouPrefix: "شكراً لتعويضك عن", thankYouSuffix: "أظهر هذا المرجع عند مكتب التبرع لتحرير وحدته.",
+    patientRowLabel: "المريض", fileRowLabel: "رقم الملف", referenceLabel: "المرجع",
+    pledging: "جارٍ التعهد…", genericError: "حدث خطأ ما",
   },
 };

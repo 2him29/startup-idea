@@ -1,4 +1,4 @@
-import { Home, Search, User, LayoutList } from "lucide-react";
+import { Home, Search, User, LayoutList, HeartHandshake } from "lucide-react";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LangSwitcher } from "./LangSwitcher";
 import { useI18n } from "../i18n/LangContext";
@@ -21,6 +21,7 @@ export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
     { id: "home", icon: Home, label: t.navHome },
     ...(isHospital ? [{ id: "hospital", icon: LayoutList, label: t.requestsNav }] : []),
     { id: "matching", icon: Search, label: isHospital ? t.donorsNav : t.navFind },
+    ...(isHospital ? [] : [{ id: "compensate", icon: HeartHandshake, label: t.navGive }]),
     { id: "profile", icon: User, label: t.navProfile },
   ];
 

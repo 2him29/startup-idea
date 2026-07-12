@@ -3,6 +3,7 @@ import { fetchBloodRequests } from "./api";
 import { bloodRequests as fallbackRequests, type BloodRequest } from "./requests";
 import { getCurrentProfile, type Profile } from "./auth";
 import { getSupabase } from "./supabaseClient";
+import { fetchHospitals, fallbackHospitals, type Hospital } from "./compensations";
 
 /**
  * Live open requests from Supabase, shared by the Find screen and the
@@ -71,4 +72,33 @@ export function useSession() {
   }, []);
 
   return { profile, loading };
+}
+
+/**
+ * Hospitals for the compensation form's <select>. Mirrors useBloodRequests:
+ * seed with the static fallback so the control is usable immediately, then
+ * swap in live rows once Supabase responds (and keep the fallback on error).
+ */
+export function useHospitals() {
+  const [hospitals, setHospitals] = useState<Hospital[]>(fallbackHospitals);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchHospitals()
+      .then((data) => {
+        if (!cancelled && data.length > 0) setHospitals(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch hospitals, using fallback data", err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { hospitals, loading };
 }

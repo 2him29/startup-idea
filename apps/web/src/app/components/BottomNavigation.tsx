@@ -1,4 +1,4 @@
-import { Home, Search, User, LayoutList } from "lucide-react";
+import { Home, Search, User, LayoutList, HeartHandshake } from "lucide-react";
 import { useI18n } from "../i18n/LangContext";
 
 interface BottomNavigationProps {
@@ -7,7 +7,7 @@ interface BottomNavigationProps {
   userType: "donor" | "hospital" | null;
 }
 
-const visibleOn = ["home", "matching", "profile", "hospital"];
+const visibleOn = ["home", "matching", "profile", "hospital", "compensate"];
 
 export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomNavigationProps) {
   const { t } = useI18n();
@@ -21,6 +21,7 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
     { id: "home", icon: Home, label: t.navHome },
     ...(isHospital ? [{ id: "hospital", icon: LayoutList, label: t.requestsNav }] : []),
     { id: "matching", icon: Search, label: isHospital ? t.donorsNav : t.navFind },
+    ...(isHospital ? [] : [{ id: "compensate", icon: HeartHandshake, label: t.navGive }]),
     { id: "profile", icon: User, label: t.navProfile },
   ];
 
