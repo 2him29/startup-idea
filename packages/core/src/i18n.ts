@@ -1,0 +1,186 @@
+// Trilingual copy for Qatra (قطرة): English, French (Algeria's lingua franca),
+// and Arabic (RTL). Every user-facing string in the redesign is keyed here so
+// the UI can switch language at runtime and mirror direction for Arabic.
+
+export type Lang = "en" | "fr" | "ar";
+
+export const LANGS: Lang[] = ["en", "fr", "ar"];
+
+/** Arabic is the only RTL language here. */
+export function dir(lang: Lang): "rtl" | "ltr" {
+  return lang === "ar" ? "rtl" : "ltr";
+}
+
+/** Font stack per language -- Cairo reads far better for Arabic than Jakarta. */
+export function fontStack(lang: Lang): string {
+  return lang === "ar"
+    ? "'Cairo', sans-serif"
+    : "'Plus Jakarta Sans', system-ui, sans-serif";
+}
+
+export interface Strings {
+  tagline: string; imDonor: string; donorSub: string; imHospital: string; hospitalSub: string; trust: string; forDemos: string;
+  email: string; password: string; orDemo: string; continueDemo: string;
+  welcome: string; eligible: string; eligibleNow: string; donations: string; livesSaved: string; streak: string;
+  ramadanTitle: string; ramadanSub: string;
+  sosLabel: string; sosTitle: string; units: string; respond: string;
+  reserveTitle: string; updatedNow: string; view: string;
+  quickActions: string; findRequests: string; findRequestsSub: string;
+  compensateTitle: string; compensateSub: string; schedule: string; scheduleSub: string;
+  urgentRequests: string; sortedDistance: string; nearby: string; liveMap: string;
+  requestDetails: string; requestedBy: string; bloodType: string; unitsNeeded: string;
+  distance: string; details: string; posted: string; responseWindow: string;
+  away: string; driveParking: string; emergencyPatient: string; directMatch: string; respondRequest: string;
+  matchedTitle: string; matchedBody: string;
+  location: string; confirmation: string; getDirections: string; backHome: string;
+  becomeDonor: string; twoMinutes: string; registerBlurb: string;
+  personalInfo: string; fullName: string; age: string; weight: string; eligibilitySection: string; eligibilityConsent: string; agreeTerms: string; completeReg: string;
+  profile: string; nextEligible: string; ready: string;
+  notifications: string; notifUrgent: string; notifRamadan: string; notifNearby: string;
+  history: string; signOut: string; editProfile: string; settingsLabel: string;
+  compensateHint: string; compensateBlurb: string;
+  patientName: string; patientNamePh: string; patientFile: string; hospitalLabel: string;
+  compensateNote: string; compensateCta: string;
+  signedInAs: string; activeRequests: string; donorsMatched: string;
+  openConsole: string; findDonors: string; findDonorsSub: string;
+  navHome: string; navFind: string; navGive: string; navProfile: string;
+  urgencyCritical: string; urgencyHigh: string; urgencyMedium: string; urgencyLow: string;
+  deskTitle: string; critical: string; fulfilled: string;
+  openRequests: string; viewAll: string; donorsNearby: string; compatibleDonors: string;
+  deskSosCta: string; deskSosSub: string; deskSosBtn: string;
+  deskSosLive: string; deskSosLiveSub: string; dismiss: string;
+  dashboard: string; requestsNav: string; donorsNav: string; reserveNav: string;
+  bloodRequestsTitle: string; searchPlaceholder: string; filterAll: string; filterNearby: string; newLabel: string;
+}
+
+export const I18N: Record<Lang, Strings> = {
+  en: {
+    tagline: "Every drop connects a life. Match donors and hospitals across Algeria, in real time.",
+    imDonor: "I'm a Donor", donorSub: "Give blood, save up to 3 lives",
+    imHospital: "I'm a Hospital", hospitalSub: "Request units, find donors fast",
+    trust: "Aligned with national blood-donation guidelines", forDemos: "For demonstrations",
+    email: "Email", password: "Password", orDemo: "or", continueDemo: "Continue with demo account",
+    welcome: "Welcome back", eligible: "eligible", eligibleNow: "You're eligible to donate",
+    donations: "Donations", livesSaved: "Lives saved", streak: "Streak",
+    ramadanTitle: "Ramadan night donation", ramadanSub: "Centers open tonight until 3:00 — after Tarawih",
+    sosLabel: "SOS · URGENT", sosTitle: "Critical A+ request nearby", units: "units", respond: "Respond",
+    reserveTitle: "National reserve", updatedNow: "live", view: "View",
+    quickActions: "Quick actions", findRequests: "Find urgent requests", findRequestsSub: "3 near you right now",
+    compensateTitle: "Compensate for a patient", compensateSub: "Donate in a patient's name",
+    schedule: "Schedule a donation", scheduleSub: "Book your next appointment",
+    urgentRequests: "Urgent requests", sortedDistance: "Sorted by distance", nearby: "nearby", liveMap: "Live map",
+    requestDetails: "Request details", requestedBy: "Requested by", bloodType: "Blood type", unitsNeeded: "Units needed",
+    distance: "Distance", details: "Details", posted: "Posted", responseWindow: "Response window: 4 hours",
+    away: "away", driveParking: "~8 min drive · free parking", emergencyPatient: "Emergency surgery patient",
+    directMatch: "Your A+ type is a direct match.", respondRequest: "Respond to request",
+    matchedTitle: "You're matched!", matchedBody: "The hospital has been notified. Head over to donate — you could save up to 3 lives today.",
+    location: "Location", confirmation: "Confirmation", getDirections: "Get directions", backHome: "Back to home",
+    becomeDonor: "Become a donor", twoMinutes: "Takes about 2 minutes",
+    registerBlurb: "Your details help us match you with patients in need. Everything stays confidential.",
+    personalInfo: "Personal information", fullName: "Full name", age: "Age", weight: "Weight (kg)",
+    eligibilitySection: "Eligibility", eligibilityConsent: "I'm in good health, weigh 50kg+, and I'm 18–65 years old.", agreeTerms: "I agree to the terms and privacy policy.", completeReg: "Complete registration",
+    profile: "Profile", nextEligible: "Next eligible donation", ready: "Ready",
+    notifications: "Notifications", notifUrgent: "Urgent blood requests", notifRamadan: "Ramadan campaigns", notifNearby: "Nearby drives",
+    history: "Donation history", signOut: "Sign out", editProfile: "Edit profile", settingsLabel: "Settings",
+    compensateHint: "Family replacement", compensateBlurb: "When regional stock is low, a patient's transfusion can be released once someone donates in their name — any blood type counts.",
+    patientName: "Patient name", patientNamePh: "e.g. Amel K.", patientFile: "Patient file №", hospitalLabel: "Hospital",
+    compensateNote: "You don't need to match the patient's blood type — you're replacing a unit for the shared reserve.",
+    compensateCta: "Pledge a compensation donation",
+    signedInAs: "Signed in as", activeRequests: "Active requests", donorsMatched: "Donors matched",
+    openConsole: "Open the full hospital console", findDonors: "Find donors", findDonorsSub: "Search available donors nearby",
+    navHome: "Home", navFind: "Find", navGive: "Give", navProfile: "Profile",
+    urgencyCritical: "Critical", urgencyHigh: "High", urgencyMedium: "Medium", urgencyLow: "Low",
+    deskTitle: "Requests overview", critical: "Critical", fulfilled: "Fulfilled this month",
+    openRequests: "Open requests", viewAll: "View all", donorsNearby: "Donors nearby", compatibleDonors: "compatible donors",
+    deskSosCta: "Emergency?", deskSosSub: "Broadcast an SOS to every compatible donor nearby.", deskSosBtn: "Broadcast SOS",
+    deskSosLive: "SOS broadcast is live", deskSosLiveSub: "Sent to 12 compatible A+ donors within 5 km", dismiss: "Dismiss",
+    dashboard: "Dashboard", requestsNav: "Requests", donorsNav: "Donors", reserveNav: "Reserve",
+    bloodRequestsTitle: "Blood requests", searchPlaceholder: "Search patient ID or type…", filterAll: "All", filterNearby: "Nearby", newLabel: "New",
+  },
+  fr: {
+    tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
+    imDonor: "Je suis donneur", donorSub: "Donnez votre sang, sauvez 3 vies",
+    imHospital: "Je suis un hôpital", hospitalSub: "Demandez des unités, trouvez vite",
+    trust: "Conforme aux directives nationales du don de sang", forDemos: "Pour les démonstrations",
+    email: "E-mail", password: "Mot de passe", orDemo: "ou", continueDemo: "Continuer en mode démo",
+    welcome: "Bon retour", eligible: "éligible", eligibleNow: "Vous pouvez donner",
+    donations: "Dons", livesSaved: "Vies sauvées", streak: "Série",
+    ramadanTitle: "Don de nuit — Ramadan", ramadanSub: "Centres ouverts ce soir jusqu'à 3h — après les Tarawih",
+    sosLabel: "SOS · URGENT", sosTitle: "Demande A+ critique à proximité", units: "unités", respond: "Répondre",
+    reserveTitle: "Réserve nationale", updatedNow: "en direct", view: "Voir",
+    quickActions: "Actions rapides", findRequests: "Demandes urgentes", findRequestsSub: "3 près de vous",
+    compensateTitle: "Compenser pour un patient", compensateSub: "Donner au nom d'un patient",
+    schedule: "Planifier un don", scheduleSub: "Réservez votre rendez-vous",
+    urgentRequests: "Demandes urgentes", sortedDistance: "Par distance", nearby: "à proximité", liveMap: "Carte live",
+    requestDetails: "Détails de la demande", requestedBy: "Demandé par", bloodType: "Groupe", unitsNeeded: "Unités",
+    distance: "Distance", details: "Détails", posted: "Publié", responseWindow: "Fenêtre : 4 heures",
+    away: "de distance", driveParking: "~8 min · parking gratuit", emergencyPatient: "Patient en chirurgie urgente",
+    directMatch: "Votre groupe A+ correspond.", respondRequest: "Répondre à la demande",
+    matchedTitle: "Vous êtes jumelé !", matchedBody: "L'hôpital a été notifié. Rendez-vous pour donner — vous pouvez sauver 3 vies aujourd'hui.",
+    location: "Lieu", confirmation: "Confirmation", getDirections: "Itinéraire", backHome: "Accueil",
+    becomeDonor: "Devenir donneur", twoMinutes: "Environ 2 minutes",
+    registerBlurb: "Vos informations nous aident à vous jumeler avec des patients. Tout reste confidentiel.",
+    personalInfo: "Informations", fullName: "Nom complet", age: "Âge", weight: "Poids (kg)",
+    eligibilitySection: "Éligibilité", eligibilityConsent: "Je suis en bonne santé, 50kg+, entre 18 et 65 ans.", agreeTerms: "J'accepte les conditions et la politique de confidentialité.", completeReg: "Terminer l'inscription",
+    profile: "Profil", nextEligible: "Prochain don possible", ready: "Prêt",
+    notifications: "Notifications", notifUrgent: "Demandes urgentes", notifRamadan: "Campagnes Ramadan", notifNearby: "Collectes proches",
+    history: "Historique des dons", signOut: "Se déconnecter", editProfile: "Modifier le profil", settingsLabel: "Paramètres",
+    compensateHint: "Don de compensation", compensateBlurb: "Quand le stock régional est bas, la transfusion d'un patient est libérée dès qu'une personne donne en son nom — tout groupe compte.",
+    patientName: "Nom du patient", patientNamePh: "ex. Amel K.", patientFile: "Dossier patient №", hospitalLabel: "Hôpital",
+    compensateNote: "Pas besoin du même groupe — vous remplacez une unité pour la réserve commune.",
+    compensateCta: "Promettre un don de compensation",
+    signedInAs: "Connecté en tant que", activeRequests: "Demandes actives", donorsMatched: "Donneurs jumelés",
+    openConsole: "Ouvrir la console hôpital", findDonors: "Trouver des donneurs", findDonorsSub: "Donneurs disponibles à proximité",
+    navHome: "Accueil", navFind: "Chercher", navGive: "Donner", navProfile: "Profil",
+    urgencyCritical: "Critique", urgencyHigh: "Élevée", urgencyMedium: "Moyenne", urgencyLow: "Faible",
+    deskTitle: "Vue des demandes", critical: "Critiques", fulfilled: "Satisfaites ce mois",
+    openRequests: "Demandes ouvertes", viewAll: "Tout voir", donorsNearby: "Donneurs à proximité", compatibleDonors: "donneurs compatibles",
+    deskSosCta: "Urgence ?", deskSosSub: "Diffusez un SOS à chaque donneur compatible proche.", deskSosBtn: "Diffuser un SOS",
+    deskSosLive: "Diffusion SOS active", deskSosLiveSub: "Envoyé à 12 donneurs A+ dans un rayon de 5 km", dismiss: "Fermer",
+    dashboard: "Tableau de bord", requestsNav: "Demandes", donorsNav: "Donneurs", reserveNav: "Réserve",
+    bloodRequestsTitle: "Demandes de sang", searchPlaceholder: "Rechercher un patient ou un groupe…", filterAll: "Tous", filterNearby: "À proximité", newLabel: "Nouveau",
+  },
+  ar: {
+    tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
+    imDonor: "أنا متبرع", donorSub: "تبرّع بالدم، أنقذ حتى 3 أرواح",
+    imHospital: "أنا مستشفى", hospitalSub: "اطلب وحدات، اعثر على متبرعين بسرعة",
+    trust: "متوافق مع الإرشادات الوطنية للتبرع بالدم", forDemos: "لأغراض العرض التوضيحي",
+    email: "البريد الإلكتروني", password: "كلمة المرور", orDemo: "أو", continueDemo: "المتابعة بحساب تجريبي",
+    welcome: "مرحباً بعودتك", eligible: "مؤهل", eligibleNow: "يمكنك التبرع الآن",
+    donations: "تبرعات", livesSaved: "أرواح أُنقذت", streak: "التتابع",
+    ramadanTitle: "تبرع ليلي — رمضان", ramadanSub: "المراكز مفتوحة الليلة حتى 3 صباحاً — بعد التراويح",
+    sosLabel: "نداء · عاجل", sosTitle: "طلب A+ حرج قريب منك", units: "وحدات", respond: "استجب",
+    reserveTitle: "المخزون الوطني", updatedNow: "مباشر", view: "عرض",
+    quickActions: "إجراءات سريعة", findRequests: "الطلبات العاجلة", findRequestsSub: "3 بالقرب منك الآن",
+    compensateTitle: "تعويض عن مريض", compensateSub: "تبرّع باسم مريض",
+    schedule: "جدولة تبرع", scheduleSub: "احجز موعدك القادم",
+    urgentRequests: "طلبات عاجلة", sortedDistance: "حسب المسافة", nearby: "بالقرب", liveMap: "خريطة مباشرة",
+    requestDetails: "تفاصيل الطلب", requestedBy: "الطالب", bloodType: "الفصيلة", unitsNeeded: "الوحدات",
+    distance: "المسافة", details: "التفاصيل", posted: "نُشر", responseWindow: "مدة الاستجابة: 4 ساعات",
+    away: "بعيداً", driveParking: "~8 دقائق · موقف مجاني", emergencyPatient: "مريض جراحة طارئة",
+    directMatch: "فصيلتك A+ مطابقة تماماً.", respondRequest: "الاستجابة للطلب",
+    matchedTitle: "تم التوفيق!", matchedBody: "تم إخطار المستشفى. توجّه للتبرع — قد تنقذ 3 أرواح اليوم.",
+    location: "المكان", confirmation: "التأكيد", getDirections: "الاتجاهات", backHome: "الرئيسية",
+    becomeDonor: "كن متبرعاً", twoMinutes: "حوالي دقيقتين",
+    registerBlurb: "تساعدنا بياناتك في توفيقك مع المرضى المحتاجين. كل شيء يبقى سرياً.",
+    personalInfo: "المعلومات الشخصية", fullName: "الاسم الكامل", age: "العمر", weight: "الوزن (كغ)",
+    eligibilitySection: "الأهلية", eligibilityConsent: "أنا بصحة جيدة، وزني 50 كغ+، وعمري بين 18 و65 عاماً.", agreeTerms: "أوافق على الشروط وسياسة الخصوصية.", completeReg: "إكمال التسجيل",
+    profile: "الملف", nextEligible: "التبرع القادم المتاح", ready: "جاهز",
+    notifications: "الإشعارات", notifUrgent: "طلبات الدم العاجلة", notifRamadan: "حملات رمضان", notifNearby: "حملات قريبة",
+    history: "سجل التبرعات", signOut: "تسجيل الخروج", editProfile: "تعديل الملف", settingsLabel: "الإعدادات",
+    compensateHint: "تبرع بديل", compensateBlurb: "عند انخفاض المخزون الجهوي، يُفرَج عن نقل دم المريض بمجرد أن يتبرع شخص باسمه — أي فصيلة تُحتسب.",
+    patientName: "اسم المريض", patientNamePh: "مثال: أمل ك.", patientFile: "رقم ملف المريض", hospitalLabel: "المستشفى",
+    compensateNote: "لا حاجة لمطابقة الفصيلة — أنت تعوّض وحدة للمخزون المشترك.",
+    compensateCta: "التعهد بتبرع تعويضي",
+    signedInAs: "مسجّل الدخول باسم", activeRequests: "طلبات نشطة", donorsMatched: "متبرعون مطابقون",
+    openConsole: "فتح لوحة المستشفى الكاملة", findDonors: "ابحث عن متبرعين", findDonorsSub: "متبرعون متاحون بالقرب منك",
+    navHome: "الرئيسية", navFind: "بحث", navGive: "تبرّع", navProfile: "الملف",
+    urgencyCritical: "حرج", urgencyHigh: "مرتفع", urgencyMedium: "متوسط", urgencyLow: "منخفض",
+    deskTitle: "نظرة على الطلبات", critical: "حرجة", fulfilled: "مُلبّاة هذا الشهر",
+    openRequests: "الطلبات المفتوحة", viewAll: "عرض الكل", donorsNearby: "متبرعون قريبون", compatibleDonors: "متبرعون متوافقون",
+    deskSosCta: "حالة طارئة؟", deskSosSub: "أرسل نداء استغاثة لكل متبرع متوافق قريب.", deskSosBtn: "إرسال نداء",
+    deskSosLive: "النداء العاجل نشط", deskSosLiveSub: "أُرسل إلى 12 متبرعاً A+ ضمن 5 كم", dismiss: "إغلاق",
+    dashboard: "اللوحة", requestsNav: "الطلبات", donorsNav: "المتبرعون", reserveNav: "المخزون",
+    bloodRequestsTitle: "طلبات الدم", searchPlaceholder: "ابحث برقم المريض أو الفصيلة…", filterAll: "الكل", filterNearby: "بالقرب", newLabel: "جديد",
+  },
+};

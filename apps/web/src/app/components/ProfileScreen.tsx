@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Droplet, Heart, Award, Calendar, User, Settings, ChevronRight } from "lucide-react";
 import type { Profile } from "@weare/core";
+import { useI18n } from "../i18n/LangContext";
 
 interface ProfileScreenProps {
   onBack: () => void;
@@ -21,7 +22,9 @@ const donationHistory = [
 ];
 
 function ToggleRow({ label, defaultOn }: { label: string; defaultOn: boolean }) {
+  const { dir } = useI18n();
   const [on, setOn] = useState(defaultOn);
+  const knobSide = (on && dir !== "rtl") || (!on && dir === "rtl") ? "right" : "left";
   return (
     <div className="flex items-center justify-between px-[15px] py-[15px]">
       <span className="text-sm font-semibold" style={{ color: "#0B2432" }}>{label}</span>
@@ -32,7 +35,7 @@ function ToggleRow({ label, defaultOn }: { label: string; defaultOn: boolean }) 
       >
         <span
           className="absolute top-[3px] w-5 h-5 rounded-full bg-white transition-all"
-          style={{ [on ? "right" : "left"]: "3px" } as React.CSSProperties}
+          style={{ [knobSide]: "3px" } as React.CSSProperties}
         />
       </button>
     </div>
@@ -40,8 +43,11 @@ function ToggleRow({ label, defaultOn }: { label: string; defaultOn: boolean }) 
 }
 
 export function ProfileScreen({ onBack, profile, onSignOut }: ProfileScreenProps) {
-  const displayName = profile?.fullName ?? "John Doe";
-  const displayEmail = profile?.email ?? "john.doe@email.com";
+  const { t, dir } = useI18n();
+  const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
+  const displayName = profile?.fullName ?? "Yacine B.";
+  const displayEmail = profile?.email ?? "yacine.b@email.com";
+
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
       <div className="flex items-center gap-3 mb-4">
@@ -50,9 +56,9 @@ export function ProfileScreen({ onBack, profile, onSignOut }: ProfileScreenProps
           className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
           style={{ borderColor: "rgba(11,36,50,0.08)" }}
         >
-          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432" }} />
+          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432", transform: chevronFlip }} />
         </button>
-        <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>Profile</div>
+        <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{t.profile}</div>
       </div>
 
       <div
@@ -60,7 +66,7 @@ export function ProfileScreen({ onBack, profile, onSignOut }: ProfileScreenProps
         style={{ background: "linear-gradient(135deg,#E5484D,#F4677E)" }}
       >
         <span
-          className="w-[66px] h-[66px] rounded-full bg-white flex items-center justify-center text-2xl font-extrabold border-4"
+          className="w-[66px] h-[66px] rounded-full bg-white flex items-center justify-center text-2xl font-extrabold border-4 shrink-0"
           style={{ color: "#E5484D", borderColor: "rgba(255,255,255,0.35)" }}
         >
           {initials(displayName)}
@@ -69,7 +75,7 @@ export function ProfileScreen({ onBack, profile, onSignOut }: ProfileScreenProps
           <div className="text-xl font-extrabold">{displayName}</div>
           <div className="text-[13px] opacity-90">{displayEmail}</div>
           <span className="inline-block mt-2 text-xs font-extrabold bg-white/[0.22] border border-white/35 px-[11px] py-1 rounded-full">
-            Blood type A+
+            {t.bloodType} A+
           </span>
         </div>
       </div>
@@ -78,12 +84,12 @@ export function ProfileScreen({ onBack, profile, onSignOut }: ProfileScreenProps
         <div className="bg-white border rounded-2xl p-3.5 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
           <Droplet className="w-[22px] h-[22px] mx-auto mb-1" style={{ color: "#E5484D" }} fill="#E5484D" />
           <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>12</div>
-          <div className="text-[11px] font-semibold" style={{ color: "#8496A0" }}>Donations</div>
+          <div className="text-[11px] font-semibold" style={{ color: "#8496A0" }}>{t.donations}</div>
         </div>
         <div className="bg-white border rounded-2xl p-3.5 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
           <Heart className="w-[22px] h-[22px] mx-auto mb-1" style={{ color: "#E5484D" }} fill="#E5484D" />
           <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>36</div>
-          <div className="text-[11px] font-semibold" style={{ color: "#8496A0" }}>Lives saved</div>
+          <div className="text-[11px] font-semibold" style={{ color: "#8496A0" }}>{t.livesSaved}</div>
         </div>
         <div className="bg-white border rounded-2xl p-3.5 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
           <Award className="w-[22px] h-[22px] mx-auto mb-1" style={{ color: "#F5871F" }} />
@@ -100,24 +106,24 @@ export function ProfileScreen({ onBack, profile, onSignOut }: ProfileScreenProps
           <Calendar className="w-[22px] h-[22px]" />
         </span>
         <div className="flex-1">
-          <div className="text-[12.5px] opacity-90">Next eligible donation</div>
+          <div className="text-[12.5px] opacity-90">{t.nextEligible}</div>
           <div className="text-[17px] font-extrabold">May 15, 2025</div>
         </div>
-        <span className="text-xs font-extrabold bg-white/[0.22] px-[11px] py-1.5 rounded-full">Ready</span>
+        <span className="text-xs font-extrabold bg-white/[0.22] px-[11px] py-1.5 rounded-full">{t.ready}</span>
       </div>
 
-      <div className="mt-5 text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432" }}>Notifications</div>
+      <div className="mt-5 text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432" }}>{t.notifications}</div>
       <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
         <div style={{ borderBottom: "1px solid rgba(11,36,50,0.05)" }}>
-          <ToggleRow label="Urgent blood requests" defaultOn={true} />
+          <ToggleRow label={t.notifUrgent} defaultOn={true} />
         </div>
         <div style={{ borderBottom: "1px solid rgba(11,36,50,0.05)" }}>
-          <ToggleRow label="Donation reminders" defaultOn={true} />
+          <ToggleRow label={t.notifRamadan} defaultOn={true} />
         </div>
-        <ToggleRow label="Nearby hospitals" defaultOn={false} />
+        <ToggleRow label={t.notifNearby} defaultOn={false} />
       </div>
 
-      <div className="mt-5 text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432" }}>Donation history</div>
+      <div className="mt-5 text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432" }}>{t.history}</div>
       <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
         {donationHistory.map((h, i) => (
           <div
@@ -138,22 +144,22 @@ export function ProfileScreen({ onBack, profile, onSignOut }: ProfileScreenProps
       </div>
 
       <div className="mt-5 flex flex-col gap-0.5">
-        <button className="cursor-pointer w-full text-left border-none bg-transparent py-[15px] px-1 flex items-center gap-[13px]">
+        <button className="cursor-pointer w-full text-start border-none bg-transparent py-[15px] px-1 flex items-center gap-[13px]">
           <User className="w-5 h-5" style={{ color: "#E5484D" }} />
-          <span className="flex-1 text-[15px] font-semibold" style={{ color: "#0B2432" }}>Edit profile</span>
-          <ChevronRight className="w-[18px] h-[18px]" style={{ color: "#C0CCD2" }} />
+          <span className="flex-1 text-[15px] font-semibold" style={{ color: "#0B2432" }}>{t.editProfile}</span>
+          <ChevronRight className="w-[18px] h-[18px]" style={{ color: "#C0CCD2", transform: chevronFlip }} />
         </button>
-        <button className="cursor-pointer w-full text-left border-none bg-transparent py-[15px] px-1 flex items-center gap-[13px]">
+        <button className="cursor-pointer w-full text-start border-none bg-transparent py-[15px] px-1 flex items-center gap-[13px]">
           <Settings className="w-5 h-5" style={{ color: "#E5484D" }} />
-          <span className="flex-1 text-[15px] font-semibold" style={{ color: "#0B2432" }}>Settings</span>
-          <ChevronRight className="w-[18px] h-[18px]" style={{ color: "#C0CCD2" }} />
+          <span className="flex-1 text-[15px] font-semibold" style={{ color: "#0B2432" }}>{t.settingsLabel}</span>
+          <ChevronRight className="w-[18px] h-[18px]" style={{ color: "#C0CCD2", transform: chevronFlip }} />
         </button>
         <button
           onClick={onSignOut}
-          className="cursor-pointer w-full text-left border-none bg-transparent py-[15px] px-1 text-[15px] font-bold"
+          className="cursor-pointer w-full text-start border-none bg-transparent py-[15px] px-1 text-[15px] font-bold"
           style={{ color: "#E5484D" }}
         >
-          Sign out
+          {t.signOut}
         </button>
       </div>
     </div>

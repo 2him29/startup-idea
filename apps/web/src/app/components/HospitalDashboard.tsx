@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { ArrowLeft, Search, Droplet, Plus } from "lucide-react";
-import { unitsLabel, urgencyStyle, useBloodRequests } from "@weare/core";
+import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests } from "@weare/core";
+import { useI18n } from "../i18n/LangContext";
 
 interface HospitalDashboardProps {
   onBack: () => void;
 }
 
-const filterChips = ["All", "Critical", "O-", "Nearby"];
-
 export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
+  const { t, dir } = useI18n();
+  const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
+  const filterChips = [t.filterAll, t.urgencyCritical, "O-", t.filterNearby];
+
   const [search, setSearch] = useState("");
-  const [activeChip, setActiveChip] = useState("All");
+  const [activeChip, setActiveChip] = useState(t.filterAll);
   const { requests: bloodRequests } = useBloodRequests();
 
   const filtered = bloodRequests.filter((r) => {
@@ -18,10 +21,10 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
       r.patientId.toLowerCase().includes(search.toLowerCase()) ||
       r.hospital.toLowerCase().includes(search.toLowerCase());
     const matchesChip =
-      activeChip === "All" ||
-      (activeChip === "Critical" && r.urgency === "Critical") ||
+      activeChip === t.filterAll ||
+      (activeChip === t.urgencyCritical && r.urgency === "Critical") ||
       (activeChip === "O-" && r.bloodType === "O-") ||
-      activeChip === "Nearby";
+      activeChip === t.filterNearby;
     return matchesSearch && matchesChip;
   });
 
@@ -33,18 +36,18 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
           className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
           style={{ borderColor: "rgba(11,36,50,0.08)" }}
         >
-          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432" }} />
+          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432", transform: chevronFlip }} />
         </button>
-        <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>Blood requests</div>
+        <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{t.bloodRequestsTitle}</div>
       </div>
 
       <div className="relative mb-3.5">
-        <Search className="absolute left-[15px] top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: "#9AA9B2" }} />
+        <Search className="absolute start-[15px] top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: "#9AA9B2" }} />
         <input
-          placeholder="Search patient ID or type…"
+          placeholder={t.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full h-12 rounded-2xl border-[1.5px] bg-white pl-[42px] pr-3.5 text-sm outline-none"
+          className="w-full h-12 rounded-2xl border-[1.5px] bg-white ps-[42px] pe-3.5 text-sm outline-none"
           style={{ borderColor: "rgba(11,36,50,0.1)", color: "#0B2432" }}
         />
       </div>
@@ -86,13 +89,13 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
                   </div>
                 </div>
                 <span className="text-[11.5px] font-extrabold px-[11px] py-1.5 rounded-full" style={{ background: badge.bg, color: badge.fg }}>
-                  {r.urgency}
+                  {urgencyLabel(r.urgency, t)}
                 </span>
               </div>
               <div className="mt-[13px] flex items-center gap-2.5">
                 <span className="font-extrabold text-[13px] px-[11px] py-1.5 rounded-[11px]" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
-                <span className="text-[12.5px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units)}</span>
-                <span className="ml-auto text-[12.5px]" style={{ color: "#8496A0" }}>{r.time}</span>
+                <span className="text-[12.5px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t)}</span>
+                <span className="ms-auto text-[12.5px]" style={{ color: "#8496A0" }}>{r.time}</span>
               </div>
             </div>
           );
@@ -100,11 +103,11 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
       </div>
 
       <button
-        className="cursor-pointer absolute bottom-[104px] right-5 h-[52px] px-5 rounded-[26px] text-white text-[15px] font-extrabold flex items-center gap-2 shadow-[0_16px_30px_-12px_rgba(14,139,168,0.9)] z-20"
+        className="cursor-pointer absolute bottom-[104px] end-5 h-[52px] px-5 rounded-[26px] text-white text-[15px] font-extrabold flex items-center gap-2 shadow-[0_16px_30px_-12px_rgba(14,139,168,0.9)] z-20"
         style={{ background: "linear-gradient(135deg,#0E8BA8,#23A6C4)" }}
       >
         <Plus className="w-[19px] h-[19px]" strokeWidth={2.4} />
-        New
+        {t.newLabel}
       </button>
     </div>
   );

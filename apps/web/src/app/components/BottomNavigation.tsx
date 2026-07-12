@@ -1,4 +1,5 @@
 import { Home, Search, User, LayoutList } from "lucide-react";
+import { useI18n } from "../i18n/LangContext";
 
 interface BottomNavigationProps {
   activeScreen: string;
@@ -9,6 +10,7 @@ interface BottomNavigationProps {
 const visibleOn = ["home", "matching", "profile", "hospital"];
 
 export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomNavigationProps) {
+  const { t } = useI18n();
   if (!userType || !visibleOn.includes(activeScreen)) return null;
 
   const isHospital = userType === "hospital";
@@ -16,10 +18,10 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
   const accentSoft = isHospital ? "#E4F6FB" : "#FFECEC";
 
   const navItems = [
-    { id: "home", icon: Home, label: "Home" },
-    ...(isHospital ? [{ id: "hospital", icon: LayoutList, label: "Requests" }] : []),
-    { id: "matching", icon: Search, label: isHospital ? "Donors" : "Find" },
-    { id: "profile", icon: User, label: "Profile" },
+    { id: "home", icon: Home, label: t.navHome },
+    ...(isHospital ? [{ id: "hospital", icon: LayoutList, label: t.requestsNav }] : []),
+    { id: "matching", icon: Search, label: isHospital ? t.donorsNav : t.navFind },
+    { id: "profile", icon: User, label: t.navProfile },
   ];
 
   return (

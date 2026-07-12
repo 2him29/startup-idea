@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Droplet, Check } from "lucide-react";
 import { upsertDonorProfile } from "@weare/core";
+import { useI18n } from "../i18n/LangContext";
 
 interface DonorRegistrationProps {
   onBack: () => void;
@@ -10,6 +11,9 @@ interface DonorRegistrationProps {
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps) {
+  const { t, dir } = useI18n();
+  const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
+
   const [fullName, setFullName] = useState("");
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
@@ -47,28 +51,28 @@ export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps
           className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
           style={{ borderColor: "rgba(11,36,50,0.08)" }}
         >
-          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432" }} />
+          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432", transform: chevronFlip }} />
         </button>
         <div>
-          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>Become a donor</div>
-          <div className="text-[12.5px]" style={{ color: "#8496A0" }}>Takes about 2 minutes</div>
+          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{t.becomeDonor}</div>
+          <div className="text-[12.5px]" style={{ color: "#8496A0" }}>{t.twoMinutes}</div>
         </div>
       </div>
 
       <div className="rounded-2xl px-4 py-3.5 flex gap-[11px] items-start" style={{ background: "#FFECEC", border: "1px solid #FBD3D3" }}>
         <Droplet className="w-[19px] h-[19px] shrink-0 mt-0.5" style={{ color: "#E5484D" }} fill="#E5484D" />
         <span className="text-[13px] leading-relaxed" style={{ color: "#8A3438" }}>
-          Your details help us match you with patients in need. Everything stays confidential.
+          {t.registerBlurb}
         </span>
       </div>
 
       <form onSubmit={handleSubmit}>
         <div className="mt-[18px] bg-white border rounded-[20px] p-[18px] shadow-[0_10px_24px_-20px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-          <div className="text-sm font-extrabold mb-3.5" style={{ color: "#0B2432" }}>Personal information</div>
+          <div className="text-sm font-extrabold mb-3.5" style={{ color: "#0B2432", textAlign: "start" }}>{t.personalInfo}</div>
 
-          <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75" }}>Full name</label>
+          <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.fullName}</label>
           <input
-            placeholder="John Doe"
+            placeholder="Yacine B."
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
@@ -78,7 +82,7 @@ export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps
 
           <div className="flex gap-3 mb-4">
             <div className="flex-1">
-              <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75" }}>Age</label>
+              <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.age}</label>
               <input
                 placeholder="28"
                 type="number"
@@ -90,7 +94,7 @@ export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps
               />
             </div>
             <div className="flex-1">
-              <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75" }}>Weight (kg)</label>
+              <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.weight}</label>
               <input
                 placeholder="70"
                 type="number"
@@ -103,7 +107,7 @@ export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps
             </div>
           </div>
 
-          <label className="block text-[12.5px] font-bold mb-2.5" style={{ color: "#5A6B75" }}>Blood type</label>
+          <label className="block text-[12.5px] font-bold mb-2.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.bloodType}</label>
           <div className="grid grid-cols-4 gap-2.5">
             {bloodTypes.map((b) => {
               const active = b === selectedBlood;
@@ -127,7 +131,7 @@ export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps
         </div>
 
         <div className="mt-3.5 bg-white border rounded-[20px] p-[18px]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-          <div className="text-sm font-extrabold mb-3.5" style={{ color: "#0B2432" }}>Eligibility</div>
+          <div className="text-sm font-extrabold mb-3.5" style={{ color: "#0B2432", textAlign: "start" }}>{t.eligibilitySection}</div>
           <label className="flex gap-3 items-start cursor-pointer">
             <span
               onClick={(e) => { e.preventDefault(); setMedicallyEligible((v) => !v); }}
@@ -136,8 +140,8 @@ export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps
             >
               {medicallyEligible && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
             </span>
-            <span className="text-[13px] leading-relaxed" style={{ color: "#0B2432" }}>
-              I'm in good health, weigh 50kg+, and I'm 18–65 years old.
+            <span className="text-[13px] leading-relaxed" style={{ color: "#0B2432", textAlign: "start" }}>
+              {t.eligibilityConsent}
             </span>
           </label>
           <div className="h-3" />
@@ -149,8 +153,8 @@ export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps
             >
               {agreedToTerms && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
             </span>
-            <span className="text-[13px] leading-relaxed" style={{ color: "#0B2432" }}>
-              I agree to the terms and privacy policy.
+            <span className="text-[13px] leading-relaxed" style={{ color: "#0B2432", textAlign: "start" }}>
+              {t.agreeTerms}
             </span>
           </label>
         </div>
@@ -167,7 +171,7 @@ export function DonorRegistration({ onBack, onComplete }: DonorRegistrationProps
           className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 mt-[18px] w-full h-[54px] rounded-2xl text-white text-base font-extrabold shadow-[0_16px_28px_-14px_rgba(229,72,77,0.8)]"
           style={{ background: "linear-gradient(135deg,#E5484D,#F4677E)" }}
         >
-          {submitting ? "Saving…" : "Complete registration"}
+          {submitting ? "…" : t.completeReg}
         </button>
       </form>
     </div>

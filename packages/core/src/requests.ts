@@ -1,4 +1,5 @@
 import { colors } from "@weare/ui-tokens";
+import type { Strings } from "./i18n";
 
 export type Urgency = "Critical" | "High" | "Medium" | "Low";
 
@@ -30,6 +31,16 @@ export const bloodRequests: BloodRequest[] = [
   { id: "4", hospital: "County Hospital", patientId: "P-2024-004", bloodType: "AB+", units: 2, urgency: "Low", distance: "5.53 km", time: "5 hr ago", hospitalLat: 36.728, hospitalLng: 3.078 },
 ];
 
-export function unitsLabel(units: number) {
+export function unitsLabel(units: number, t?: Strings) {
+  if (t) return `${units} ${t.units}`;
   return `${units} ${units > 1 ? "units" : "unit"}`;
+}
+
+export function urgencyLabel(urgency: Urgency, t: Strings): string {
+  switch (urgency) {
+    case "Critical": return t.urgencyCritical;
+    case "High": return t.urgencyHigh;
+    case "Medium": return t.urgencyMedium;
+    case "Low": return t.urgencyLow;
+  }
 }

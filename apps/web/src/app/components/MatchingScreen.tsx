@@ -2,7 +2,8 @@ import { ArrowLeft, MapPin, Droplet } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { unitsLabel, urgencyStyle, useBloodRequests, type BloodRequest } from "@weare/core";
+import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, type BloodRequest } from "@weare/core";
+import { useI18n } from "../i18n/LangContext";
 
 interface MatchingScreenProps {
   onBack: () => void;
@@ -22,8 +23,10 @@ function urgencyIcon(color: string) {
 }
 
 export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScreenProps) {
+  const { t, dir } = useI18n();
   const accent = userType === "hospital" ? "#0E8BA8" : "#E5484D";
   const { requests: bloodRequests } = useBloodRequests();
+  const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
   const mappable = bloodRequests.filter(
     (r): r is BloodRequest & { hospitalLat: number; hospitalLng: number } =>
@@ -38,11 +41,11 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
           className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
           style={{ borderColor: "rgba(11,36,50,0.08)" }}
         >
-          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432" }} />
+          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432", transform: chevronFlip }} />
         </button>
         <div>
-          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>Urgent requests</div>
-          <div className="text-[12.5px]" style={{ color: "#8496A0" }}>Sorted by distance · {bloodRequests.length} nearby</div>
+          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{t.urgentRequests}</div>
+          <div className="text-[12.5px]" style={{ color: "#8496A0" }}>{t.sortedDistance} · {bloodRequests.length} {t.nearby}</div>
         </div>
       </div>
 
@@ -63,7 +66,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                       className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full"
                       style={{ background: urgencyStyle[r.urgency].bg, color: urgencyStyle[r.urgency].fg }}
                     >
-                      {r.urgency}
+                      {urgencyLabel(r.urgency, t)}
                     </span>
                     <span className="text-[11px]" style={{ color: "#6B7C88" }}>{r.bloodType} · {r.distance}</span>
                   </div>
@@ -72,16 +75,16 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                     className="cursor-pointer mt-1.5 text-[12px] font-extrabold"
                     style={{ color: accent }}
                   >
-                    View →
+                    {t.view} →
                   </button>
                 </div>
               </Popup>
             </Marker>
           ))}
         </MapContainer>
-        <div className="absolute top-3 right-3 bg-white rounded-xl px-[11px] py-2 shadow-[0_6px_14px_-8px_rgba(11,36,50,0.5)]" style={{ zIndex: 1000 }}>
-          <div className="text-xs font-extrabold" style={{ color: accent }}>Live map</div>
-          <div className="text-[11px]" style={{ color: "#8496A0" }}>{bloodRequests.length} nearby</div>
+        <div className="absolute top-3 end-3 bg-white rounded-xl px-[11px] py-2 shadow-[0_6px_14px_-8px_rgba(11,36,50,0.5)]" style={{ zIndex: 1000 }}>
+          <div className="text-xs font-extrabold" style={{ color: accent }}>{t.liveMap}</div>
+          <div className="text-[11px]" style={{ color: "#8496A0" }}>{bloodRequests.length} {t.nearby}</div>
         </div>
       </div>
 
@@ -94,7 +97,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
               key={r.id}
               onClick={() => onOpenDetail(r)}
               className="cursor-pointer text-left w-full border rounded-[20px] p-4 bg-white shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
-              style={{ borderColor: "rgba(11,36,50,0.06)", animation: "waRise .4s ease both" }}
+              style={{ borderColor: "rgba(11,36,50,0.06)", animation: "waRise .4s ease both", textAlign: "start" }}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-[13px]">
@@ -113,13 +116,13 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                   </div>
                 </div>
                 <span className="text-[11.5px] font-extrabold px-[11px] py-1.5 rounded-full" style={{ background: badge.bg, color: badge.fg }}>
-                  {r.urgency}
+                  {urgencyLabel(r.urgency, t)}
                 </span>
               </div>
               <div className="mt-3.5 flex items-center gap-2.5">
                 <span className="font-extrabold text-sm px-3 py-1.5 rounded-xl" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
-                <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units)}</span>
-                <span className="ml-auto text-[13px] font-extrabold" style={{ color: accent }}>View →</span>
+                <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t)}</span>
+                <span className="ms-auto text-[13px] font-extrabold" style={{ color: accent }}>{t.view} →</span>
               </div>
             </button>
           );

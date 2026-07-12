@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { signIn, signUpDonor, signUpHospital, type Profile } from "@weare/core";
 import { QatraMark } from "./QatraMark";
+import { useI18n } from "../i18n/LangContext";
 
 interface AuthScreenProps {
   role: "donor" | "hospital";
@@ -10,6 +11,7 @@ interface AuthScreenProps {
 }
 
 export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
+  const { t, lang, dir } = useI18n();
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -17,10 +19,29 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const accent = role === "hospital" ? "#0E8BA8" : "#E5484D";
-  const gradient = role === "hospital"
+  const isHospital = role === "hospital";
+  const accent = isHospital ? "#0E8BA8" : "#E5484D";
+  const gradient = isHospital
     ? "linear-gradient(135deg,#0E8BA8,#23A6C4)"
     : "linear-gradient(135deg,#E5484D,#F4677E)";
+  const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
+
+  // Auth-flow micro-copy is computed per role/mode/lang (matches the design
+  // prototype's own approach -- these are too situational for the shared
+  // dictionary, which only holds static per-screen strings).
+  const authTitle = mode === "signup"
+    ? (lang === "fr" ? "Créer un compte" : lang === "ar" ? "إنشاء حساب" : "Create account")
+    : (lang === "fr" ? "Se connecter" : lang === "ar" ? "تسجيل الدخول" : "Log in");
+  const authAccountLabel = isHospital
+    ? (lang === "fr" ? "Compte hôpital" : lang === "ar" ? "حساب مستشفى" : "Hospital account")
+    : (lang === "fr" ? "Compte donneur" : lang === "ar" ? "حساب متبرع" : "Donor account");
+  const authSwitch = mode === "signup"
+    ? (lang === "fr" ? "Déjà un compte ? Se connecter" : lang === "ar" ? "لديك حساب؟ سجّل الدخول" : "Already have an account? Log in")
+    : (lang === "fr" ? "Nouveau ? Créer un compte" : lang === "ar" ? "جديد؟ أنشئ حساباً" : "New here? Create an account");
+  const nameLabel = isHospital
+    ? (lang === "fr" ? "Nom de l'hôpital" : lang === "ar" ? "اسم المستشفى" : "Hospital name")
+    : t.fullName;
+  const namePlaceholder = isHospital ? "CHU Mustapha Pacha" : lang === "ar" ? "ياسين ب." : "Yacine B.";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +51,7 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
       const profile =
         mode === "login"
           ? await signIn({ email, password })
-          : role === "hospital"
+          : isHospital
           ? await signUpHospital({ hospitalName: name, email, password })
           : await signUpDonor({ fullName: name, email, password });
       onAuthenticated(profile);
@@ -53,15 +74,11 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
           className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
           style={{ borderColor: "rgba(11,36,50,0.08)" }}
         >
-          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432" }} />
+          <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432", transform: chevronFlip }} />
         </button>
         <div>
-          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>
-            {mode === "signup" ? "Create account" : "Log in"}
-          </div>
-          <div className="text-[12.5px]" style={{ color: "#8496A0" }}>
-            {role === "hospital" ? "Hospital account" : "Donor account"}
-          </div>
+          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{authTitle}</div>
+          <div className="text-[12.5px]" style={{ color: "#8496A0" }}>{authAccountLabel}</div>
         </div>
       </div>
 
@@ -73,13 +90,13 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
         <div className="bg-white border rounded-[20px] p-[18px] shadow-[0_10px_24px_-20px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
           {mode === "signup" && (
             <>
-              <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75" }}>
-                {role === "hospital" ? "Hospital name" : "Full name"}
+              <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>
+                {nameLabel}
               </label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={role === "hospital" ? "City General Hospital" : "John Doe"}
+                placeholder={namePlaceholder}
                 required
                 className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none mb-3.5"
                 style={{ borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432" }}
@@ -87,7 +104,7 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
             </>
           )}
 
-          <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75" }}>Email</label>
+          <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.email}</label>
           <input
             type="email"
             value={email}
@@ -98,7 +115,7 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
             style={{ borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432" }}
           />
 
-          <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75" }}>Password</label>
+          <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.password}</label>
           <input
             type="password"
             value={password}
@@ -123,7 +140,7 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
           className="cursor-pointer disabled:opacity-60 mt-[18px] w-full h-[54px] rounded-2xl text-white text-base font-extrabold shadow-[0_16px_28px_-14px_rgba(0,0,0,0.3)]"
           style={{ background: gradient }}
         >
-          {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Log in"}
+          {loading ? "…" : authTitle}
         </button>
 
         <button
@@ -135,7 +152,7 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
           className="cursor-pointer mt-3.5 w-full text-center text-[13.5px] font-semibold"
           style={{ color: accent }}
         >
-          {mode === "signup" ? "Already have an account? Log in" : "New here? Create an account"}
+          {authSwitch}
         </button>
       </form>
       </div>

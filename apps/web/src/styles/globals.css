@@ -192,6 +192,10 @@ body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
+html[lang="ar"] body {
+  font-family: 'Cairo', sans-serif;
+}
+
 @keyframes waPulse {
   0% { box-shadow: 0 0 0 0 rgba(229, 72, 77, .45); }
   70% { box-shadow: 0 0 0 12px rgba(229, 72, 77, 0); }
@@ -202,6 +206,10 @@ body {
   0% { transform: scale(.6); opacity: 0; }
   60% { transform: scale(1.08); }
   100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes waDash {
+  to { stroke-dashoffset: 0; }
 }
 
 @keyframes waRise {

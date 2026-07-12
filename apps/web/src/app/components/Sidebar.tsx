@@ -1,5 +1,7 @@
 import { Home, Search, User, LayoutList } from "lucide-react";
 import { QatraMark, QatraWordmark } from "./QatraMark";
+import { LangSwitcher } from "./LangSwitcher";
+import { useI18n } from "../i18n/LangContext";
 
 interface SidebarProps {
   activeScreen: string;
@@ -8,6 +10,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
+  const { t } = useI18n();
   if (!userType) return null;
 
   const isHospital = userType === "hospital";
@@ -15,21 +18,23 @@ export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
   const accentSoft = isHospital ? "#E4F6FB" : "#FFECEC";
 
   const navItems = [
-    { id: "home", icon: Home, label: "Home" },
-    ...(isHospital ? [{ id: "hospital", icon: LayoutList, label: "Requests" }] : []),
-    { id: "matching", icon: Search, label: isHospital ? "Donors" : "Find" },
-    { id: "profile", icon: User, label: "Profile" },
+    { id: "home", icon: Home, label: t.navHome },
+    ...(isHospital ? [{ id: "hospital", icon: LayoutList, label: t.requestsNav }] : []),
+    { id: "matching", icon: Search, label: isHospital ? t.donorsNav : t.navFind },
+    { id: "profile", icon: User, label: t.navProfile },
   ];
 
   return (
     <div
       className="hidden md:flex md:flex-col md:w-[240px] md:shrink-0 md:h-screen md:sticky md:top-0 px-5 py-6"
-      style={{ borderRight: "1px solid rgba(11,36,50,0.07)", background: "#FFFFFF" }}
+      style={{ borderInlineEnd: "1px solid rgba(11,36,50,0.07)", background: "#FFFFFF" }}
     >
-      <div className="flex items-center gap-2.5 px-2 mb-8">
+      <div className="flex items-center gap-2.5 px-2 mb-6">
         <QatraMark size={32} radius={10} />
         <QatraWordmark size={22} />
       </div>
+
+      <LangSwitcher className="mb-6 self-start" />
 
       <nav className="flex flex-col gap-1">
         {navItems.map((item) => {
@@ -39,10 +44,11 @@ export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className="cursor-pointer border-none flex items-center gap-3 px-3 py-3 rounded-[14px] text-left"
+              className="cursor-pointer border-none flex items-center gap-3 px-3 py-3 rounded-[14px]"
               style={{
                 background: isActive ? accentSoft : "transparent",
                 color: isActive ? accent : "#5A6B75",
+                textAlign: "start",
               }}
             >
               <Icon className="w-5 h-5 shrink-0" strokeWidth={2} />
