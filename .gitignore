@@ -7,3 +7,6 @@ dist-ssr/
 .DS_Store
 Thumbs.db
 .claude/
+
+# Design handoff bundles dropped into the repo for reference -- not app code.
+/Health Service Mobile App/

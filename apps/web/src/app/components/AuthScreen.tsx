@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { signIn, signUpDonor, signUpHospital, type Profile } from "@weare/core";
+import { QatraMark } from "./QatraMark";
 
 interface AuthScreenProps {
   role: "donor" | "hospital";
@@ -62,6 +63,10 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
             {role === "hospital" ? "Hospital account" : "Donor account"}
           </div>
         </div>
+      </div>
+
+      <div className="flex flex-col items-center text-center mb-[22px]">
+        <QatraMark size={66} radius={20} style={{ boxShadow: "0 16px 30px -14px rgba(11,36,50,0.4)" }} />
       </div>
 
       <form onSubmit={handleSubmit}>

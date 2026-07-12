@@ -1,5 +1,5 @@
 import { Home, Search, User, LayoutList } from "lucide-react";
-import { Logo } from "./Logo";
+import { QatraMark, QatraWordmark } from "./QatraMark";
 
 interface SidebarProps {
   activeScreen: string;
@@ -27,10 +27,8 @@ export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
       style={{ borderRight: "1px solid rgba(11,36,50,0.07)", background: "#FFFFFF" }}
     >
       <div className="flex items-center gap-2.5 px-2 mb-8">
-        <Logo size={28} />
-        <span className="text-xl font-extrabold tracking-[-0.5px]" style={{ color: "#0B2432" }}>
-          We<span style={{ color: accent }}>Are</span>
-        </span>
+        <QatraMark size={32} radius={10} />
+        <QatraWordmark size={22} />
       </div>
 
       <nav className="flex flex-col gap-1">

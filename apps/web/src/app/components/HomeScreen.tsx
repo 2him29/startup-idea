@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Droplet, Users, Bell, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle } from "lucide-react";
-import { Logo } from "./Logo";
+import { QatraMark, QatraWordmark } from "./QatraMark";
 
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
@@ -32,18 +32,22 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
         style={{ background: "radial-gradient(130% 90% at 50% -10%, #FFE1E0 0%, #FFF3F2 40%, #F4FBFC 100%)" }}
       >
         <div className="flex-1 flex flex-col items-center justify-center text-center">
-          <div
-            className="w-[82px] h-[82px] md:w-[110px] md:h-[110px] rounded-[26px] md:rounded-[32px] bg-white flex items-center justify-center shadow-[0_18px_40px_-14px_rgba(229,72,77,0.5)]"
+          <QatraMark
+            size={98}
+            radius={28}
+            className="md:hidden shadow-[0_20px_44px_-16px_rgba(11,36,50,0.5)]"
             style={{ animation: "waPop .5s ease both" }}
-          >
-            <Logo size={46} className="md:hidden" />
-            <Logo size={62} className="hidden md:block" />
-          </div>
-          <h1 className="mt-[22px] md:mt-8 text-[38px] md:text-[64px] font-extrabold tracking-[-1.2px] md:tracking-[-2px]" style={{ color: "#0B2432" }}>
-            We<span style={{ color: "#E5484D" }}>Are</span>
-          </h1>
-          <p className="mt-[10px] md:mt-3 text-base md:text-xl leading-relaxed max-w-[260px] md:max-w-md" style={{ color: "#5A6B75" }}>
-            Every drop connects a life. Match donors and hospitals in real time.
+          />
+          <QatraMark
+            size={130}
+            radius={36}
+            className="hidden md:flex shadow-[0_20px_44px_-16px_rgba(11,36,50,0.5)]"
+            style={{ animation: "waPop .5s ease both" }}
+          />
+          <QatraWordmark size={50} className="mt-5 md:mt-6" />
+          <div className="mt-0.5 text-[13px] font-extrabold tracking-[4px] uppercase" style={{ color: "#E5484D" }}>Qatra</div>
+          <p className="mt-[10px] md:mt-3 text-base md:text-xl leading-relaxed max-w-[270px] md:max-w-md" style={{ color: "#5A6B75" }}>
+            Every drop connects a life. Match donors and hospitals across Algeria, in real time.
           </p>
 
           <div className="w-full md:w-full md:max-w-4xl mt-[34px] md:mt-14 flex flex-col md:flex-row gap-3.5 md:gap-5">
@@ -129,10 +133,8 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
       {/* header */}
       <div className="flex items-center justify-between mb-[18px]">
         <div className="flex items-center gap-2.5">
-          <Logo size={30} />
-          <span className="text-xl font-extrabold tracking-[-0.5px]" style={{ color: "#0B2432" }}>
-            We<span style={{ color: isDonor ? "#E5484D" : "#0E8BA8" }}>Are</span>
-          </span>
+          <QatraMark size={34} radius={11} />
+          <QatraWordmark size={24} />
         </div>
         <button className="relative w-11 h-11 rounded-[14px] border bg-white flex items-center justify-center shadow-[0_6px_14px_-8px_rgba(11,36,50,0.3)]" style={{ borderColor: "rgba(11,36,50,0.08)" }}>
           <Bell className="w-[21px] h-[21px]" style={{ color: "#0B2432" }} />
