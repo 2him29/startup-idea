@@ -7,6 +7,7 @@ import { MatchingScreen } from "./components/MatchingScreen";
 import { RequestDetail } from "./components/RequestDetail";
 import { MatchConfirm } from "./components/MatchConfirm";
 import { CompensateScreen } from "./components/CompensateScreen";
+import { HospitalConsole } from "./components/HospitalConsole";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { Sidebar } from "./components/Sidebar";
@@ -100,6 +101,8 @@ export default function App() {
         return <MatchConfirm onBackHome={handleBack} request={selectedRequest} />;
       case "compensate":
         return <CompensateScreen onBack={handleBack} onComplete={handleBack} />;
+      case "console":
+        return <HospitalConsole onBack={handleBack} />;
       case "profile":
         return (
           <ProfileScreen
@@ -124,19 +127,23 @@ export default function App() {
   const screen = renderScreen();
   // Pre-login (splash/auth) has no sidebar, so let it use the full viewport
   // as a real landing page instead of sitting in the same content column
-  // that's deliberately width-capped for signed-in dashboard screens.
-  const isFullBleed = !userType;
+  // that's deliberately width-capped for signed-in dashboard screens. The
+  // hospital console brings its own sidebar/layout, so it's full-bleed too.
+  const isConsole = currentScreen === "console";
+  const isFullBleed = !userType || isConsole;
 
   return (
     <div className="size-full bg-background md:flex">
-      <Sidebar activeScreen={currentScreen} onNavigate={handleNavigate} userType={userType} />
+      {!isConsole && <Sidebar activeScreen={currentScreen} onNavigate={handleNavigate} userType={userType} />}
       <div className="max-w-md mx-auto h-full relative md:max-w-none md:mx-0 md:flex-1 md:h-screen md:overflow-y-auto">
         {isFullBleed ? screen : <div className="md:px-10 md:py-8">{screen}</div>}
-        <BottomNavigation
-          activeScreen={currentScreen}
-          onNavigate={handleNavigate}
-          userType={userType}
-        />
+        {!isConsole && (
+          <BottomNavigation
+            activeScreen={currentScreen}
+            onNavigate={handleNavigate}
+            userType={userType}
+          />
+        )}
       </div>
     </div>
   );

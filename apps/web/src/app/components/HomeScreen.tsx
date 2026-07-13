@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Droplet, Users, Bell, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame } from "lucide-react";
+import { RESERVE, RESERVE_STATUS } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LangSwitcher } from "./LangSwitcher";
 import { useI18n } from "../i18n/LangContext";
@@ -10,19 +11,6 @@ interface HomeScreenProps {
   onSetUserType: (type: "donor" | "hospital") => void;
   onDemoLogin: (role: "donor" | "hospital") => Promise<void>;
 }
-
-const RESERVE = [
-  { type: "O-", width: "18%", color: "#E5484D", statusKey: "critical" as const },
-  { type: "A+", width: "46%", color: "#F5871F", statusKey: "low" as const },
-  { type: "B+", width: "82%", color: "#12B76A", statusKey: "healthy" as const },
-  { type: "AB+", width: "90%", color: "#12B76A", statusKey: "healthy" as const },
-];
-
-const RESERVE_STATUS = {
-  en: { critical: "Critical", low: "Low", healthy: "Healthy" },
-  fr: { critical: "Critique", low: "Faible", healthy: "Sain" },
-  ar: { critical: "حرج", low: "منخفض", healthy: "جيد" },
-};
 
 export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }: HomeScreenProps) {
   const { t, lang, dir } = useI18n();
