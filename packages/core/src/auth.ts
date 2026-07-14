@@ -111,3 +111,45 @@ export async function upsertDonorProfile(params: { bloodType: string; age: numbe
   });
   if (error) throw error;
 }
+
+export interface DonorProfile {
+  bloodType: string;
+  age: number | null;
+  weightKg: number | null;
+}
+
+interface DonorProfileRow {
+  blood_type: string;
+  age: number | null;
+  weight_kg: number | null;
+}
+
+export async function getDonorProfile(): Promise<DonorProfile | null> {
+  const supabase = getSupabase();
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  if (!sessionData.session) return null;
+
+  const { data, error } = await supabase
+    .from("donor_profiles")
+    .select("blood_type, age, weight_kg")
+    .eq("id", sessionData.session.user.id)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  const row = data as DonorProfileRow;
+  return { bloodType: row.blood_type, age: row.age, weightKg: row.weight_kg };
+}
+
+export async function updateFullName(fullName: string): Promise<void> {
+  const supabase = getSupabase();
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  if (!sessionData.session) throw new Error("Must be signed in to update profile");
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ full_name: fullName })
+    .eq("id", sessionData.session.user.id);
+  if (error) throw error;
+}

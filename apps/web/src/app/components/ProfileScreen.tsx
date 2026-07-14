@@ -5,6 +5,7 @@ import { useI18n } from "../i18n/LangContext";
 
 interface ProfileScreenProps {
   onBack: () => void;
+  onNavigate: (screen: string) => void;
   userType: "donor" | "hospital" | null;
   profile: Profile | null;
   onSignOut: () => void;
@@ -42,7 +43,7 @@ function ToggleRow({ label, defaultOn }: { label: string; defaultOn: boolean }) 
   );
 }
 
-export function ProfileScreen({ onBack, profile, onSignOut }: ProfileScreenProps) {
+export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: ProfileScreenProps) {
   const { t, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
   const displayName = profile?.fullName ?? "Yacine B.";
@@ -144,12 +145,12 @@ export function ProfileScreen({ onBack, profile, onSignOut }: ProfileScreenProps
       </div>
 
       <div className="mt-5 flex flex-col gap-0.5">
-        <button className="cursor-pointer w-full text-start border-none bg-transparent py-[15px] px-1 flex items-center gap-[13px]">
+        <button onClick={() => onNavigate("edit-profile")} className="cursor-pointer w-full text-start border-none bg-transparent py-[15px] px-1 flex items-center gap-[13px]">
           <User className="w-5 h-5" style={{ color: "#E5484D" }} />
           <span className="flex-1 text-[15px] font-semibold" style={{ color: "#0B2432" }}>{t.editProfile}</span>
           <ChevronRight className="w-[18px] h-[18px]" style={{ color: "#C0CCD2", transform: chevronFlip }} />
         </button>
-        <button className="cursor-pointer w-full text-start border-none bg-transparent py-[15px] px-1 flex items-center gap-[13px]">
+        <button onClick={() => onNavigate("settings")} className="cursor-pointer w-full text-start border-none bg-transparent py-[15px] px-1 flex items-center gap-[13px]">
           <Settings className="w-5 h-5" style={{ color: "#E5484D" }} />
           <span className="flex-1 text-[15px] font-semibold" style={{ color: "#0B2432" }}>{t.settingsLabel}</span>
           <ChevronRight className="w-[18px] h-[18px]" style={{ color: "#C0CCD2", transform: chevronFlip }} />

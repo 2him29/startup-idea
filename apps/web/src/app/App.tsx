@@ -9,12 +9,14 @@ import { MatchConfirm } from "./components/MatchConfirm";
 import { CompensateScreen } from "./components/CompensateScreen";
 import { HospitalConsole } from "./components/HospitalConsole";
 import { ProfileScreen } from "./components/ProfileScreen";
+import { EditProfileScreen } from "./components/EditProfileScreen";
+import { SettingsScreen } from "./components/SettingsScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { Sidebar } from "./components/Sidebar";
 import { bloodRequests, signInDemo, signOut, useSession, type BloodRequest, type Profile } from "@weare/core";
 
 export default function App() {
-  const { profile, loading: sessionLoading } = useSession();
+  const { profile, loading: sessionLoading, refresh: refreshProfile } = useSession();
   const [currentScreen, setCurrentScreen] = useState<string>("home");
   const [userType, setUserType] = useState<"donor" | "hospital" | null>(null);
   const [pendingRole, setPendingRole] = useState<"donor" | "hospital" | null>(null);
@@ -107,11 +109,23 @@ export default function App() {
         return (
           <ProfileScreen
             onBack={handleBack}
+            onNavigate={handleNavigate}
             userType={userType}
             profile={profile}
             onSignOut={handleSignOut}
           />
         );
+      case "edit-profile":
+        return (
+          <EditProfileScreen
+            onBack={() => setCurrentScreen("profile")}
+            userType={userType}
+            profile={profile}
+            onSaved={refreshProfile}
+          />
+        );
+      case "settings":
+        return <SettingsScreen onBack={() => setCurrentScreen("profile")} />;
       default:
         return (
           <HomeScreen

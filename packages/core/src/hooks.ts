@@ -71,7 +71,13 @@ export function useSession() {
     };
   }, []);
 
-  return { profile, loading };
+  /** Re-fetch the profile on demand, e.g. right after an edit-profile save. */
+  const refresh = async () => {
+    const p = await getCurrentProfile();
+    setProfile(p);
+  };
+
+  return { profile, loading, refresh };
 }
 
 /**

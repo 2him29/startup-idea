@@ -54,6 +54,7 @@ export interface Strings {
   compensatePledged: string; thankYouPrefix: string; thankYouSuffix: string;
   patientRowLabel: string; fileRowLabel: string; referenceLabel: string;
   pledging: string; genericError: string;
+  saveChanges: string; changesSaved: string; languageLabel: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -102,6 +103,7 @@ export const I18N: Record<Lang, Strings> = {
     compensatePledged: "Compensation pledged", thankYouPrefix: "Thank you for standing in for", thankYouSuffix: "Show this reference at the donation desk to release their unit.",
     patientRowLabel: "Patient", fileRowLabel: "File №", referenceLabel: "Reference",
     pledging: "Pledging…", genericError: "Something went wrong",
+    saveChanges: "Save changes", changesSaved: "Changes saved", languageLabel: "Language",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -148,6 +150,7 @@ export const I18N: Record<Lang, Strings> = {
     compensatePledged: "Don de compensation promis", thankYouPrefix: "Merci de vous porter garant pour", thankYouSuffix: "Présentez cette référence au bureau de don pour libérer son unité.",
     patientRowLabel: "Patient", fileRowLabel: "Dossier №", referenceLabel: "Référence",
     pledging: "Envoi…", genericError: "Une erreur s'est produite",
+    saveChanges: "Enregistrer", changesSaved: "Modifications enregistrées", languageLabel: "Langue",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -194,5 +197,6 @@ export const I18N: Record<Lang, Strings> = {
     compensatePledged: "تم التعهد بالتعويض", thankYouPrefix: "شكراً لتعويضك عن", thankYouSuffix: "أظهر هذا المرجع عند مكتب التبرع لتحرير وحدته.",
     patientRowLabel: "المريض", fileRowLabel: "رقم الملف", referenceLabel: "المرجع",
     pledging: "جارٍ التعهد…", genericError: "حدث خطأ ما",
+    saveChanges: "حفظ التغييرات", changesSaved: "تم حفظ التغييرات", languageLabel: "اللغة",
   },
 };
