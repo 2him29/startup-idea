@@ -27,7 +27,7 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 z-[15] px-4 pt-[9px] md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-[15] px-4 pt-[9px] md:hidden"
       style={{
         background: "rgba(255,255,255,0.92)",
         backdropFilter: "blur(12px)",
