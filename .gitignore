@@ -10,3 +10,6 @@ Thumbs.db
 
 # Design handoff bundles dropped into the repo for reference -- not app code.
 /Health Service Mobile App/
+
+# Editor settings stay local
+.vscode/
