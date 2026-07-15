@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { LayoutDashboard, ClipboardList, Users, Package, Bell, Droplet, Printer, Download } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Users, Package, Droplet, Printer, Download } from "lucide-react";
 import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useBloodRequests, urgencyStyle, urgencyLabel, unitsLabel, RESERVE, RESERVE_STATUS, useSession, type BloodRequest, type Strings } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { useI18n } from "../i18n/LangContext";
 import { RequestRowSkeleton } from "./Skeletons";
+import { NotificationsBell } from "./NotificationsBell";
+import { NewRequestSheet } from "./NewRequestSheet";
+import { useToast } from "./Toast";
 
 function printRequests(requests: BloodRequest[], t: Strings, dir: "ltr" | "rtl") {
   const win = window.open("", "_blank");
@@ -75,10 +78,12 @@ type Tab = "dashboard" | "requests" | "donors" | "reserve";
 
 export function HospitalConsole({ onBack }: HospitalConsoleProps) {
   const { t, lang, dir } = useI18n();
-  const { requests: bloodRequests, loading: requestsLoading } = useBloodRequests();
+  const { requests: bloodRequests, loading: requestsLoading, refresh } = useBloodRequests();
   const { profile } = useSession();
+  const toast = useToast();
   const [tab, setTab] = useState<Tab>("dashboard");
   const [sosActive, setSosActive] = useState(false);
+  const [showNewRequest, setShowNewRequest] = useState(false);
 
   const criticalCount = bloodRequests.filter((r) => r.urgency === "Critical").length;
   const initial = profile?.fullName?.trim()?.[0]?.toUpperCase() ?? "H";
@@ -135,7 +140,10 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
           <div className="text-[13px] font-bold">{t.deskSosCta}</div>
           <div className="text-[11.5px] opacity-90 mt-[3px] leading-relaxed">{t.deskSosSub}</div>
           <button
-            onClick={() => setSosActive((v) => !v)}
+            onClick={() => {
+              toast(sosActive ? "info" : "success", sosActive ? t.sosStoppedToast : t.sosStartedToast);
+              setSosActive(!sosActive);
+            }}
             className="cursor-pointer mt-[11px] w-full h-[38px] rounded-[10px] border-none bg-white text-[13px] font-extrabold"
             style={{ color: "#0E8BA8" }}
           >
@@ -152,9 +160,7 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
             <div className="text-[13px] mt-0.5" style={{ color: "#8496A0" }}>CHU Mustapha Pacha · Alger · {t.updatedNow}</div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="cursor-pointer w-10 h-10 rounded-[11px] border bg-white flex items-center justify-center" style={{ borderColor: "rgba(11,36,50,0.08)" }}>
-              <Bell className="w-[19px] h-[19px]" style={{ color: "#0B2432" }} strokeWidth={1.9} />
-            </button>
+            <NotificationsBell size={40} requests={bloodRequests} onOpen={() => setTab("requests")} />
             <span
               className="w-10 h-10 rounded-full flex items-center justify-center text-white font-extrabold text-sm"
               style={{ background: "linear-gradient(135deg,#0E8BA8,#12B76A)" }}
@@ -177,7 +183,10 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
               <div className="text-xs opacity-85">{t.deskSosLiveSub}</div>
             </div>
             <button
-              onClick={() => setSosActive(false)}
+              onClick={() => {
+                setSosActive(false);
+                toast("info", t.sosStoppedToast);
+              }}
               className="cursor-pointer text-xs font-bold px-[13px] py-[7px] rounded-full border bg-transparent text-white"
               style={{ borderColor: "rgba(255,255,255,0.3)" }}
             >
@@ -196,7 +205,7 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
 
         {tab === "dashboard" && (
           <div className="grid gap-[18px] mt-[18px]" style={{ gridTemplateColumns: "1.5fr 1fr" }}>
-            <RequestsCard requests={bloodRequests} loading={requestsLoading} title={t.openRequests} viewAllLabel={t.viewAll} t={t} dir={dir} />
+            <RequestsCard requests={bloodRequests} loading={requestsLoading} title={t.openRequests} viewAllLabel={t.viewAll} onViewAll={() => setTab("requests")} t={t} dir={dir} />
             <div className="flex flex-col gap-[18px]">
               <ReserveCard lang={lang} title={t.reserveTitle} />
               <DonorsMiniMap title={t.donorsNearby} compatibleLabel={t.compatibleDonors} />
@@ -206,7 +215,7 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
 
         {tab === "requests" && (
           <div className="mt-[18px]">
-            <RequestsCard requests={bloodRequests} loading={requestsLoading} title={t.openRequests} viewAllLabel={t.viewAll} t={t} dir={dir} full />
+            <RequestsCard requests={bloodRequests} loading={requestsLoading} title={t.openRequests} viewAllLabel={t.newLabel} onViewAll={() => setShowNewRequest(true)} t={t} dir={dir} full />
           </div>
         )}
 
@@ -221,6 +230,8 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
             <ReserveCard lang={lang} title={t.reserveTitle} />
           </div>
         )}
+
+        {showNewRequest && <NewRequestSheet onClose={() => setShowNewRequest(false)} onPublished={refresh} />}
       </div>
     </div>
   );
@@ -240,6 +251,7 @@ function RequestsCard({
   loading,
   title,
   viewAllLabel,
+  onViewAll,
   t,
   dir,
   full,
@@ -248,6 +260,7 @@ function RequestsCard({
   loading: boolean;
   title: string;
   viewAllLabel: string;
+  onViewAll: () => void;
   t: ReturnType<typeof useI18n>["t"];
   dir: ReturnType<typeof useI18n>["dir"];
   full?: boolean;
@@ -276,7 +289,7 @@ function RequestsCard({
           >
             <Download className="w-4 h-4" />
           </button>
-          <span className="text-xs font-bold ms-1" style={{ color: "#0E8BA8" }}>{viewAllLabel}</span>
+          <button onClick={onViewAll} className="cursor-pointer border-none bg-transparent text-xs font-bold ms-1" style={{ color: "#0E8BA8" }}>{viewAllLabel}</button>
         </div>
       </div>
       <div className={full ? "grid grid-cols-2 gap-x-6" : "flex flex-col"}>

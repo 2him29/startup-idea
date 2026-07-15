@@ -3,6 +3,7 @@ import { ArrowLeft, Search, Droplet, Plus } from "lucide-react";
 import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { RequestCardSkeleton } from "./Skeletons";
+import { NewRequestSheet } from "./NewRequestSheet";
 
 interface HospitalDashboardProps {
   onBack: () => void;
@@ -15,7 +16,8 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
 
   const [search, setSearch] = useState("");
   const [activeChip, setActiveChip] = useState(t.filterAll);
-  const { requests: bloodRequests, loading } = useBloodRequests();
+  const [showNewRequest, setShowNewRequest] = useState(false);
+  const { requests: bloodRequests, loading, refresh } = useBloodRequests();
 
   const filtered = bloodRequests.filter((r) => {
     const matchesSearch =
@@ -105,12 +107,15 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
       </div>
 
       <button
-        className="cursor-pointer absolute bottom-[104px] end-5 h-[52px] px-5 rounded-[26px] text-white text-[15px] font-extrabold flex items-center gap-2 shadow-[0_16px_30px_-12px_rgba(14,139,168,0.9)] z-20"
+        onClick={() => setShowNewRequest(true)}
+        className="cursor-pointer fixed bottom-[104px] end-5 h-[52px] px-5 rounded-[26px] text-white text-[15px] font-extrabold flex items-center gap-2 shadow-[0_16px_30px_-12px_rgba(14,139,168,0.9)] z-20"
         style={{ background: "linear-gradient(135deg,#0E8BA8,#23A6C4)" }}
       >
         <Plus className="w-[19px] h-[19px]" strokeWidth={2.4} />
         {t.newLabel}
       </button>
+
+      {showNewRequest && <NewRequestSheet onClose={() => setShowNewRequest(false)} onPublished={refresh} />}
     </div>
   );
 }

@@ -63,6 +63,9 @@ export interface Strings {
   preferencesLabel: string; ramadanToggle: string; defaultWilayaLabel: string; allWilayas: string;
   aboutLabel: string; versionLabel: string;
   daysLeft: string; offlineBanner: string;
+  noNotifications: string; newRequestTitle: string; patientIdLabel: string;
+  publishRequest: string; requestPublished: string; publishing: string;
+  sosStartedToast: string; sosStoppedToast: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -126,6 +129,9 @@ export const I18N: Record<Lang, Strings> = {
     defaultWilayaLabel: "Default wilaya for requests", allWilayas: "All wilayas",
     aboutLabel: "About", versionLabel: "Version",
     daysLeft: "days left", offlineBanner: "You're offline — showing the latest saved data",
+    noNotifications: "You're all caught up", newRequestTitle: "New blood request", patientIdLabel: "Patient ID",
+    publishRequest: "Publish request", requestPublished: "Request published — nearby donors will see it", publishing: "Publishing…",
+    sosStartedToast: "SOS broadcast started", sosStoppedToast: "SOS broadcast stopped",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -187,6 +193,9 @@ export const I18N: Record<Lang, Strings> = {
     defaultWilayaLabel: "Wilaya par défaut pour les demandes", allWilayas: "Toutes les wilayas",
     aboutLabel: "À propos", versionLabel: "Version",
     daysLeft: "jours restants", offlineBanner: "Hors ligne — affichage des dernières données enregistrées",
+    noNotifications: "Rien de nouveau", newRequestTitle: "Nouvelle demande de sang", patientIdLabel: "ID patient",
+    publishRequest: "Publier la demande", requestPublished: "Demande publiée — les donneurs à proximité la verront", publishing: "Publication…",
+    sosStartedToast: "Diffusion SOS lancée", sosStoppedToast: "Diffusion SOS arrêtée",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -248,5 +257,8 @@ export const I18N: Record<Lang, Strings> = {
     defaultWilayaLabel: "الولاية الافتراضية للطلبات", allWilayas: "كل الولايات",
     aboutLabel: "حول التطبيق", versionLabel: "الإصدار",
     daysLeft: "يوماً متبقياً", offlineBanner: "أنت غير متصل — تُعرض آخر البيانات المحفوظة",
+    noNotifications: "لا إشعارات جديدة", newRequestTitle: "طلب دم جديد", patientIdLabel: "رقم المريض",
+    publishRequest: "نشر الطلب", requestPublished: "نُشر الطلب — سيراه المتبرعون القريبون", publishing: "جارٍ النشر…",
+    sosStartedToast: "بدأ بث النداء العاجل", sosStoppedToast: "توقف بث النداء العاجل",
   },
 };

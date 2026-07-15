@@ -46,3 +46,36 @@ export async function fetchBloodRequests(): Promise<BloodRequest[]> {
   if (error) throw error;
   return (data as unknown as BloodRequestRow[]).map(toBloodRequest);
 }
+
+/**
+ * Publish a new open request for the signed-in hospital account's own
+ * hospital (RLS rejects inserts for hospitals the caller doesn't own).
+ */
+export async function createBloodRequest(params: {
+  patientId: string;
+  bloodType: string;
+  units: number;
+  urgency: Urgency;
+}): Promise<void> {
+  const supabase = getSupabase();
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  if (!sessionData.session) throw new Error("Must be signed in to publish a request");
+
+  const { data: hospital, error: hospitalError } = await supabase
+    .from("hospitals")
+    .select("id")
+    .eq("owner_id", sessionData.session.user.id)
+    .maybeSingle();
+  if (hospitalError) throw hospitalError;
+  if (!hospital) throw new Error("No hospital is linked to this account");
+
+  const { error } = await supabase.from("blood_requests").insert({
+    hospital_id: hospital.id,
+    patient_id: params.patientId.trim(),
+    blood_type: params.bloodType,
+    units: params.units,
+    urgency: params.urgency,
+  });
+  if (error) throw error;
+}

@@ -2,6 +2,7 @@
   import { createRoot } from "react-dom/client";
   import { configureSupabase } from "@weare/core";
   import { LangProvider } from "./app/i18n/LangContext.tsx";
+  import { ToastProvider } from "./app/components/Toast.tsx";
   import App from "./app/App.tsx";
   import "./styles/index.css";
 
@@ -9,6 +10,8 @@
 
   createRoot(document.getElementById("root")!).render(
     <LangProvider>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </LangProvider>
   );

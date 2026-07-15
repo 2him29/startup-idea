@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Droplet, Users, Bell, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame, Share2 } from "lucide-react";
+import { Droplet, Users, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame, Share2 } from "lucide-react";
 import { RESERVE, RESERVE_STATUS, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, shareToWhatsApp, type Profile } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LangSwitcher } from "./LangSwitcher";
+import { NotificationsBell } from "./NotificationsBell";
 import { useI18n } from "../i18n/LangContext";
 import { getBoolPref, isRamadanNow } from "../prefs";
 import { useCountUp } from "../useCountUp";
@@ -177,10 +178,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
         </div>
         <div className="flex items-center gap-2.5">
           <LangSwitcher className="md:hidden" />
-          <button className="relative w-11 h-11 rounded-[14px] border bg-white flex items-center justify-center shadow-[0_6px_14px_-8px_rgba(11,36,50,0.3)] shrink-0" style={{ borderColor: "rgba(11,36,50,0.08)" }}>
-            <Bell className="w-[21px] h-[21px]" style={{ color: "#0B2432" }} />
-            <span className="absolute top-[9px] end-[10px] w-[9px] h-[9px] rounded-full bg-[#E5484D] border-2 border-white" />
-          </button>
+          <NotificationsBell requests={bloodRequests} onOpen={() => onNavigate("matching")} />
         </div>
       </div>
 

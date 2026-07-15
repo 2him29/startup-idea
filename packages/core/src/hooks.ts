@@ -32,7 +32,13 @@ export function useBloodRequests() {
     };
   }, []);
 
-  return { requests, loading };
+  /** Re-fetch on demand, e.g. right after publishing a new request. */
+  const refresh = async () => {
+    const data = await fetchBloodRequests();
+    setRequests(data);
+  };
+
+  return { requests, loading, refresh };
 }
 
 /**

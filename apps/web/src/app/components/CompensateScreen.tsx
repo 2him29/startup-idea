@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, HeartHandshake, Shield, ChevronDown, Check, Navigation } from "lucide-react";
 import {
   createCompensation,
+  openDirections,
   useHospitals,
   type Compensation,
 } from "@weare/core";
@@ -102,6 +103,7 @@ export function CompensateScreen({ onBack, onComplete }: CompensateScreenProps) 
 
         <div className="mt-[22px] w-full flex flex-col gap-[11px]">
           <button
+            onClick={() => openDirections({ name: selectedHospital?.name })}
             className="cursor-pointer w-full h-[52px] rounded-2xl text-white text-[15px] font-extrabold flex items-center justify-center gap-2"
             style={{ background: "linear-gradient(135deg,#0E8BA8,#23A6C4)" }}
           >

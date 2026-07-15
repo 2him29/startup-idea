@@ -223,6 +223,29 @@ html[lang="ar"] body {
   to { transform: translateY(0); opacity: 1; }
 }
 
+@keyframes waToastIn {
+  from { transform: translateY(20px) scale(.92); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes waToastOut {
+  from { transform: translateY(0) scale(1); opacity: 1; }
+  to { transform: translateY(12px) scale(.95); opacity: 0; }
+}
+
+/* Notification panel + bottom-sheet entrances. */
+@keyframes waPanel {
+  from { transform: translateY(-8px) scale(.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes waSheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes waFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* Shimmer placeholder shown while live data is loading. */
 @keyframes waShimmer {
   from { background-position: 200% 0; }

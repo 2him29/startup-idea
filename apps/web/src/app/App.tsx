@@ -18,6 +18,25 @@ import { bloodRequests, signInDemo, signOut, useSession, type BloodRequest, type
 import { useI18n } from "./i18n/LangContext";
 import { WifiOff } from "lucide-react";
 
+/**
+ * Plays the screen-entrance animation on every route change, then removes the
+ * animation style entirely: a lingering transform (even translateY(0)) would
+ * turn this wrapper into the containing block for position:fixed descendants
+ * like FABs and bottom sheets, pinning them to the content instead of the
+ * viewport.
+ */
+function ScreenTransition({ children }: { children: React.ReactNode }) {
+  const [animating, setAnimating] = useState(true);
+  return (
+    <div
+      style={animating ? { animation: "waScreen .28s ease both" } : undefined}
+      onAnimationEnd={() => setAnimating(false)}
+    >
+      {children}
+    </div>
+  );
+}
+
 /** Live online/offline status from the browser's connectivity events. */
 function useOnline(): boolean {
   const [online, setOnline] = useState(() => navigator.onLine);
@@ -184,9 +203,9 @@ export default function App() {
       )}
       {!isConsole && <Sidebar activeScreen={currentScreen} onNavigate={handleNavigate} userType={userType} />}
       <div className="max-w-md mx-auto h-full relative md:max-w-none md:mx-0 md:flex-1 md:h-screen md:overflow-y-auto">
-        <div key={currentScreen} style={{ animation: "waScreen .28s ease both" }}>
+        <ScreenTransition key={currentScreen}>
           {isFullBleed ? screen : <div className="md:px-10 md:py-8">{screen}</div>}
-        </div>
+        </ScreenTransition>
         {!isConsole && (
           <BottomNavigation
             activeScreen={currentScreen}

@@ -1,5 +1,5 @@
 import { Check, Navigation } from "lucide-react";
-import type { BloodRequest } from "@weare/core";
+import { openDirections, type BloodRequest } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 interface MatchConfirmProps {
@@ -44,6 +44,7 @@ export function MatchConfirm({ onBackHome, request }: MatchConfirmProps) {
 
       <div className="mt-[22px] w-full flex flex-col gap-[11px]">
         <button
+          onClick={() => openDirections({ lat: request.hospitalLat, lng: request.hospitalLng, name: request.hospital })}
           className="cursor-pointer w-full h-[52px] rounded-2xl text-white text-[15px] font-extrabold flex items-center justify-center gap-2"
           style={{ background: "linear-gradient(135deg,#0E8BA8,#23A6C4)" }}
         >
