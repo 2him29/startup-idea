@@ -17,6 +17,9 @@ function figmaAssetResolver() {
 }
 
 export default defineConfig({
+  // GitHub Pages serves the app from /<repo-name>/ instead of the domain
+  // root; set GHPAGES=1 when building for that deployment target.
+  base: process.env.GHPAGES ? "/startup-idea/" : "/",
   plugins: [
     figmaAssetResolver(),
     // The React and Tailwind plugins are both required for Make, even if
