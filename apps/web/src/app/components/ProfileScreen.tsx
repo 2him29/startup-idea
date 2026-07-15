@@ -1,7 +1,53 @@
 import { useState } from "react";
-import { ArrowLeft, Droplet, Heart, Award, Calendar, User, Settings, ChevronRight } from "lucide-react";
-import type { Profile } from "@weare/core";
+import { ArrowLeft, Droplet, Heart, Award, Calendar, User, Settings, ChevronRight, Download } from "lucide-react";
+import type { Profile, Strings } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+
+interface DonationEntry {
+  id: number;
+  location: string;
+  date: string;
+  type: string;
+  units: number;
+}
+
+function downloadCertificate(donorName: string, entry: DonationEntry, t: Strings, dir: "ltr" | "rtl") {
+  const win = window.open("", "_blank");
+  if (!win) return;
+  const body = t.certBody
+    .replace("{date}", entry.date)
+    .replace("{location}", entry.location)
+    .replace("{type}", entry.type)
+    .replace("{units}", String(entry.units));
+  const reference = `#QC-${String(entry.id).padStart(4, "0")}`;
+  win.document.write(`
+    <html dir="${dir}">
+      <head>
+        <title>${t.certTitle}</title>
+        <style>
+          body { font-family: system-ui, sans-serif; padding: 60px; color: #0B2432; }
+          .card { border: 2px solid #0B2432; border-radius: 16px; padding: 48px; text-align: center; }
+          h1 { font-size: 22px; letter-spacing: 0.5px; margin-bottom: 32px; }
+          .name { font-size: 28px; font-weight: 800; margin: 16px 0; color: #E5484D; }
+          p { font-size: 15px; line-height: 1.7; max-width: 480px; margin: 0 auto; }
+          .ref { margin-top: 32px; font-size: 13px; color: #8496A0; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h1>قطرة · ${t.certTitle}</h1>
+          <p>${t.certIntro}</p>
+          <div class="name">${donorName}</div>
+          <p>${body}</p>
+          <p style="margin-top:20px;">${t.certThanks}</p>
+          <div class="ref">${reference}</div>
+        </div>
+      </body>
+    </html>
+  `);
+  win.document.close();
+  win.print();
+}
 
 interface ProfileScreenProps {
   onBack: () => void;
@@ -140,6 +186,14 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
               <div className="text-xs" style={{ color: "#8496A0" }}>{h.date} · {h.type}</div>
             </div>
             <span className="text-xs font-bold" style={{ color: "#6B7C88" }}>{h.units}u</span>
+            <button
+              onClick={() => downloadCertificate(displayName, h, t, dir)}
+              title={t.downloadCertificate}
+              className="cursor-pointer w-8 h-8 rounded-lg border-none bg-transparent flex items-center justify-center shrink-0"
+              style={{ color: "#8496A0" }}
+            >
+              <Download className="w-4 h-4" />
+            </button>
           </div>
         ))}
       </div>

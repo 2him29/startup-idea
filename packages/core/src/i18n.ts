@@ -58,6 +58,7 @@ export interface Strings {
   shareMessage: string; shareLabel: string;
   drivesTitle: string; drivesSub: string;
   urgencyHeader: string; printLabel: string; exportLabel: string;
+  downloadCertificate: string; certTitle: string; certIntro: string; certBody: string; certThanks: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -111,6 +112,11 @@ export const I18N: Record<Lang, Strings> = {
     shareLabel: "Share",
     drivesTitle: "Blood drives", drivesSub: "Community donation events near you",
     urgencyHeader: "Urgency", printLabel: "Print", exportLabel: "Export CSV",
+    downloadCertificate: "Download certificate",
+    certTitle: "Certificate of Blood Donation",
+    certIntro: "This certifies that",
+    certBody: "donated blood on {date} at {location} ({type}, {units} unit(s)).",
+    certThanks: "Thank you for this life-saving contribution.",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -162,6 +168,11 @@ export const I18N: Record<Lang, Strings> = {
     shareLabel: "Partager",
     drivesTitle: "Collectes de sang", drivesSub: "Événements de don organisés près de chez vous",
     urgencyHeader: "Urgence", printLabel: "Imprimer", exportLabel: "Exporter en CSV",
+    downloadCertificate: "Télécharger l'attestation",
+    certTitle: "Attestation de don de sang",
+    certIntro: "Ceci certifie que",
+    certBody: "a donné son sang le {date} à {location} ({type}, {units} unité(s)).",
+    certThanks: "Merci pour cette contribution qui sauve des vies.",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -213,5 +224,10 @@ export const I18N: Record<Lang, Strings> = {
     shareLabel: "مشاركة",
     drivesTitle: "حملات التبرع", drivesSub: "فعاليات تبرع مجتمعية بالقرب منك",
     urgencyHeader: "الحالة", printLabel: "طباعة", exportLabel: "تصدير CSV",
+    downloadCertificate: "تحميل الشهادة",
+    certTitle: "شهادة التبرع بالدم",
+    certIntro: "تشهد هذه الوثيقة بأن",
+    certBody: "تبرّع بالدم بتاريخ {date} في {location} ({type}، {units} وحدة/وحدات).",
+    certThanks: "شكراً لهذه المساهمة التي تنقذ الأرواح.",
   },
 };
