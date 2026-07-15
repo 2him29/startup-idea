@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { useBloodRequests, urgencyStyle, urgencyLabel, unitsLabel, RESERVE, RESERVE_STATUS, useSession, type BloodRequest, type Strings } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { useI18n } from "../i18n/LangContext";
+import { RequestRowSkeleton } from "./Skeletons";
 
 function printRequests(requests: BloodRequest[], t: Strings, dir: "ltr" | "rtl") {
   const win = window.open("", "_blank");
@@ -74,7 +75,7 @@ type Tab = "dashboard" | "requests" | "donors" | "reserve";
 
 export function HospitalConsole({ onBack }: HospitalConsoleProps) {
   const { t, lang, dir } = useI18n();
-  const { requests: bloodRequests } = useBloodRequests();
+  const { requests: bloodRequests, loading: requestsLoading } = useBloodRequests();
   const { profile } = useSession();
   const [tab, setTab] = useState<Tab>("dashboard");
   const [sosActive, setSosActive] = useState(false);
@@ -195,7 +196,7 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
 
         {tab === "dashboard" && (
           <div className="grid gap-[18px] mt-[18px]" style={{ gridTemplateColumns: "1.5fr 1fr" }}>
-            <RequestsCard requests={bloodRequests} title={t.openRequests} viewAllLabel={t.viewAll} t={t} dir={dir} />
+            <RequestsCard requests={bloodRequests} loading={requestsLoading} title={t.openRequests} viewAllLabel={t.viewAll} t={t} dir={dir} />
             <div className="flex flex-col gap-[18px]">
               <ReserveCard lang={lang} title={t.reserveTitle} />
               <DonorsMiniMap title={t.donorsNearby} compatibleLabel={t.compatibleDonors} />
@@ -205,7 +206,7 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
 
         {tab === "requests" && (
           <div className="mt-[18px]">
-            <RequestsCard requests={bloodRequests} title={t.openRequests} viewAllLabel={t.viewAll} t={t} dir={dir} full />
+            <RequestsCard requests={bloodRequests} loading={requestsLoading} title={t.openRequests} viewAllLabel={t.viewAll} t={t} dir={dir} full />
           </div>
         )}
 
@@ -236,6 +237,7 @@ function StatCard({ label, value, color }: { label: string; value: number; color
 
 function RequestsCard({
   requests,
+  loading,
   title,
   viewAllLabel,
   t,
@@ -243,6 +245,7 @@ function RequestsCard({
   full,
 }: {
   requests: ReturnType<typeof useBloodRequests>["requests"];
+  loading: boolean;
   title: string;
   viewAllLabel: string;
   t: ReturnType<typeof useI18n>["t"];
@@ -277,7 +280,8 @@ function RequestsCard({
         </div>
       </div>
       <div className={full ? "grid grid-cols-2 gap-x-6" : "flex flex-col"}>
-        {requests.map((r) => {
+        {loading && [0, 1, 2, 3].map((i) => <RequestRowSkeleton key={`sk-${i}`} />)}
+        {!loading && requests.map((r) => {
           const badge = urgencyStyle[r.urgency];
           return (
             <div key={r.id} className="flex items-center gap-3 py-3" style={{ borderBottom: "1px solid rgba(11,36,50,0.05)" }}>

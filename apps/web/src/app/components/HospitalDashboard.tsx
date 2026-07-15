@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, Search, Droplet, Plus } from "lucide-react";
 import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { RequestCardSkeleton } from "./Skeletons";
 
 interface HospitalDashboardProps {
   onBack: () => void;
@@ -14,7 +15,7 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
 
   const [search, setSearch] = useState("");
   const [activeChip, setActiveChip] = useState(t.filterAll);
-  const { requests: bloodRequests } = useBloodRequests();
+  const { requests: bloodRequests, loading } = useBloodRequests();
 
   const filtered = bloodRequests.filter((r) => {
     const matchesSearch =
@@ -70,7 +71,8 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
       </div>
 
       <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
-        {filtered.map((r) => {
+        {loading && [0, 1, 2].map((i) => <RequestCardSkeleton key={`sk-${i}`} />)}
+        {!loading && filtered.map((r) => {
           const badge = urgencyStyle[r.urgency];
           return (
             <div

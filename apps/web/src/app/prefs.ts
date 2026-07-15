@@ -25,6 +25,20 @@ export function getDefaultWilaya(): string | null {
   return window.localStorage.getItem(KEYS.defaultWilaya);
 }
 
+/**
+ * True during the actual month of Ramadan (9th Hijri month, Umm al-Qura
+ * calendar). Used as the Ramadan banner's default so it appears on its own
+ * each year; the Settings toggle still overrides in either direction.
+ */
+export function isRamadanNow(): boolean {
+  try {
+    const month = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", { month: "numeric" }).format(new Date());
+    return parseInt(month, 10) === 9;
+  } catch {
+    return false;
+  }
+}
+
 export function setDefaultWilaya(wilaya: string | null): void {
   if (wilaya) window.localStorage.setItem(KEYS.defaultWilaya, wilaya);
   else window.localStorage.removeItem(KEYS.defaultWilaya);

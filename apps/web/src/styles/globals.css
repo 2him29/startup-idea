@@ -223,6 +223,18 @@ html[lang="ar"] body {
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* Shimmer placeholder shown while live data is loading. */
+@keyframes waShimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+.wa-skeleton {
+  background: linear-gradient(90deg, #EEF2F4 25%, #F8FBFC 50%, #EEF2F4 75%);
+  background-size: 200% 100%;
+  animation: waShimmer 1.4s linear infinite;
+  border-radius: 10px;
+}
+
 /* Tactile press feedback on every interactive control. Scoped to the app's own
    buttons (they all carry cursor-pointer) so Leaflet's controls are untouched. */
 button.cursor-pointer {

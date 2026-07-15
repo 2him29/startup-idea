@@ -62,7 +62,7 @@ export interface Strings {
   phoneLabel: string; wilayaField: string; lastDonationLabel: string;
   preferencesLabel: string; ramadanToggle: string; defaultWilayaLabel: string; allWilayas: string;
   aboutLabel: string; versionLabel: string;
-  daysLeft: string;
+  daysLeft: string; offlineBanner: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -125,7 +125,7 @@ export const I18N: Record<Lang, Strings> = {
     preferencesLabel: "Preferences", ramadanToggle: "Ramadan mode (night donation banner)",
     defaultWilayaLabel: "Default wilaya for requests", allWilayas: "All wilayas",
     aboutLabel: "About", versionLabel: "Version",
-    daysLeft: "days left",
+    daysLeft: "days left", offlineBanner: "You're offline — showing the latest saved data",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -186,7 +186,7 @@ export const I18N: Record<Lang, Strings> = {
     preferencesLabel: "Préférences", ramadanToggle: "Mode Ramadan (bannière don de nuit)",
     defaultWilayaLabel: "Wilaya par défaut pour les demandes", allWilayas: "Toutes les wilayas",
     aboutLabel: "À propos", versionLabel: "Version",
-    daysLeft: "jours restants",
+    daysLeft: "jours restants", offlineBanner: "Hors ligne — affichage des dernières données enregistrées",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -247,6 +247,6 @@ export const I18N: Record<Lang, Strings> = {
     preferencesLabel: "التفضيلات", ramadanToggle: "وضع رمضان (لافتة التبرع الليلي)",
     defaultWilayaLabel: "الولاية الافتراضية للطلبات", allWilayas: "كل الولايات",
     aboutLabel: "حول التطبيق", versionLabel: "الإصدار",
-    daysLeft: "يوماً متبقياً",
+    daysLeft: "يوماً متبقياً", offlineBanner: "أنت غير متصل — تُعرض آخر البيانات المحفوظة",
   },
 };

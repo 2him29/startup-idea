@@ -4,7 +4,7 @@ import { RESERVE, RESERVE_STATUS, useBloodRequests, useDonorProfile, computeElig
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LangSwitcher } from "./LangSwitcher";
 import { useI18n } from "../i18n/LangContext";
-import { getBoolPref } from "../prefs";
+import { getBoolPref, isRamadanNow } from "../prefs";
 import { useCountUp } from "../useCountUp";
 
 interface HomeScreenProps {
@@ -28,7 +28,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
   const { t, lang, dir } = useI18n();
   const [demoLoading, setDemoLoading] = useState<"donor" | "hospital" | null>(null);
   const [demoError, setDemoError] = useState<string | null>(null);
-  const [ramadanMode] = useState(() => getBoolPref("ramadan", true));
+  const [ramadanMode] = useState(() => getBoolPref("ramadan", isRamadanNow()));
   const { requests: bloodRequests } = useBloodRequests();
   const { donorProfile } = useDonorProfile();
   const urgentRequest = bloodRequests.find((r) => r.urgency === "Critical") ?? bloodRequests[0];

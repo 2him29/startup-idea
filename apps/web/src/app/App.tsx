@@ -15,9 +15,29 @@ import { SettingsScreen } from "./components/SettingsScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { Sidebar } from "./components/Sidebar";
 import { bloodRequests, signInDemo, signOut, useSession, type BloodRequest, type Profile } from "@weare/core";
+import { useI18n } from "./i18n/LangContext";
+import { WifiOff } from "lucide-react";
+
+/** Live online/offline status from the browser's connectivity events. */
+function useOnline(): boolean {
+  const [online, setOnline] = useState(() => navigator.onLine);
+  useEffect(() => {
+    const up = () => setOnline(true);
+    const down = () => setOnline(false);
+    window.addEventListener("online", up);
+    window.addEventListener("offline", down);
+    return () => {
+      window.removeEventListener("online", up);
+      window.removeEventListener("offline", down);
+    };
+  }, []);
+  return online;
+}
 
 export default function App() {
   const { profile, loading: sessionLoading, refresh: refreshProfile } = useSession();
+  const { t } = useI18n();
+  const online = useOnline();
   const [currentScreen, setCurrentScreen] = useState<string>("home");
   const [userType, setUserType] = useState<"donor" | "hospital" | null>(null);
   const [pendingRole, setPendingRole] = useState<"donor" | "hospital" | null>(null);
@@ -153,6 +173,15 @@ export default function App() {
 
   return (
     <div className="size-full bg-background md:flex">
+      {!online && (
+        <div
+          className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 px-4 py-2 text-white text-[12.5px] font-bold"
+          style={{ background: "#5A6B75" }}
+        >
+          <WifiOff className="w-3.5 h-3.5 shrink-0" />
+          {t.offlineBanner}
+        </div>
+      )}
       {!isConsole && <Sidebar activeScreen={currentScreen} onNavigate={handleNavigate} userType={userType} />}
       <div className="max-w-md mx-auto h-full relative md:max-w-none md:mx-0 md:flex-1 md:h-screen md:overflow-y-auto">
         <div key={currentScreen} style={{ animation: "waScreen .28s ease both" }}>

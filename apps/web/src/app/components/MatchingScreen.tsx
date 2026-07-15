@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, wilayaLabel, type BloodRequest } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { getDefaultWilaya } from "../prefs";
+import { RequestCardSkeleton } from "./Skeletons";
 
 interface MatchingScreenProps {
   onBack: () => void;
@@ -27,7 +28,7 @@ function urgencyIcon(color: string) {
 export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScreenProps) {
   const { t, lang, dir } = useI18n();
   const accent = userType === "hospital" ? "#0E8BA8" : "#E5484D";
-  const { requests: allRequests } = useBloodRequests();
+  const { requests: allRequests, loading } = useBloodRequests();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
   const wilayasPresent = Array.from(new Set(allRequests.map((r) => r.wilaya).filter((w): w is string => !!w)));
@@ -133,7 +134,8 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
 
       {/* request list */}
       <div className="mt-5 flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
-        {bloodRequests.map((r) => {
+        {loading && [0, 1, 2].map((i) => <RequestCardSkeleton key={`sk-${i}`} />)}
+        {!loading && bloodRequests.map((r) => {
           const badge = urgencyStyle[r.urgency];
           return (
             <button

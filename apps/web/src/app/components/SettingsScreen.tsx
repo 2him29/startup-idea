@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, Check, ChevronDown } from "lucide-react";
 import { LANGS, WILAYAS, type Lang } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
-import { getBoolPref, setBoolPref, getDefaultWilaya, setDefaultWilaya } from "../prefs";
+import { getBoolPref, setBoolPref, getDefaultWilaya, setDefaultWilaya, isRamadanNow } from "../prefs";
 
 interface SettingsScreenProps {
   onBack: () => void;
@@ -98,7 +98,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
 
       <SectionTitle>{t.preferencesLabel}</SectionTitle>
       <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-        <PrefToggleRow label={t.ramadanToggle} prefKey="ramadan" defaultOn divider />
+        <PrefToggleRow label={t.ramadanToggle} prefKey="ramadan" defaultOn={isRamadanNow()} divider />
         <div className="px-[15px] py-[15px]">
           <label className="block text-sm font-semibold mb-2" style={{ color: "#0B2432", textAlign: "start" }}>
             {t.defaultWilayaLabel}
