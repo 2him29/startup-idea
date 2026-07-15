@@ -57,6 +57,7 @@ export interface Strings {
   saveChanges: string; changesSaved: string; languageLabel: string;
   shareMessage: string; shareLabel: string;
   drivesTitle: string; drivesSub: string;
+  urgencyHeader: string; printLabel: string; exportLabel: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -109,6 +110,7 @@ export const I18N: Record<Lang, Strings> = {
     shareMessage: "Urgent: {bloodType} blood needed at {hospital} ({distance} away, {units} units). Every donor counts — please share.",
     shareLabel: "Share",
     drivesTitle: "Blood drives", drivesSub: "Community donation events near you",
+    urgencyHeader: "Urgency", printLabel: "Print", exportLabel: "Export CSV",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -159,6 +161,7 @@ export const I18N: Record<Lang, Strings> = {
     shareMessage: "Urgent : don de sang {bloodType} nécessaire à {hospital} ({distance}, {units} unités). Chaque donneur compte — merci de partager.",
     shareLabel: "Partager",
     drivesTitle: "Collectes de sang", drivesSub: "Événements de don organisés près de chez vous",
+    urgencyHeader: "Urgence", printLabel: "Imprimer", exportLabel: "Exporter en CSV",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -209,5 +212,6 @@ export const I18N: Record<Lang, Strings> = {
     shareMessage: "عاجل: مطلوب دم من فصيلة {bloodType} في {hospital} (على بعد {distance}، {units} وحدات). كل متبرع يهم — الرجاء المشاركة.",
     shareLabel: "مشاركة",
     drivesTitle: "حملات التبرع", drivesSub: "فعاليات تبرع مجتمعية بالقرب منك",
+    urgencyHeader: "الحالة", printLabel: "طباعة", exportLabel: "تصدير CSV",
   },
 };

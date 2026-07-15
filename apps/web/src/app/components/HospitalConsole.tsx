@@ -1,10 +1,58 @@
 import { useState } from "react";
-import { LayoutDashboard, ClipboardList, Users, Package, Bell, Droplet } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Users, Package, Bell, Droplet, Printer, Download } from "lucide-react";
 import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useBloodRequests, urgencyStyle, urgencyLabel, unitsLabel, RESERVE, RESERVE_STATUS, useSession } from "@weare/core";
+import { useBloodRequests, urgencyStyle, urgencyLabel, unitsLabel, RESERVE, RESERVE_STATUS, useSession, type BloodRequest, type Strings } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { useI18n } from "../i18n/LangContext";
+
+function printRequests(requests: BloodRequest[], t: Strings, dir: "ltr" | "rtl") {
+  const win = window.open("", "_blank");
+  if (!win) return;
+  const rows = requests
+    .map(
+      (r) =>
+        `<tr><td>${r.patientId}</td><td>${r.hospital}</td><td>${r.bloodType}</td><td>${unitsLabel(r.units, t)}</td><td>${urgencyLabel(r.urgency, t)}</td><td>${r.time}</td></tr>`
+    )
+    .join("");
+  win.document.write(`
+    <html dir="${dir}">
+      <head>
+        <title>${t.openRequests}</title>
+        <style>
+          body { font-family: system-ui, sans-serif; padding: 24px; color: #0B2432; }
+          h1 { font-size: 18px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+          th, td { text-align: start; padding: 8px 10px; border-bottom: 1px solid #E2E8EA; font-size: 13px; }
+          th { color: #6B7C88; font-weight: 700; }
+        </style>
+      </head>
+      <body>
+        <h1>${t.openRequests}</h1>
+        <table>
+          <thead><tr><th>${t.requestedBy}</th><th>${t.hospitalLabel}</th><th>${t.bloodType}</th><th>${t.unitsNeeded}</th><th>${t.urgencyHeader}</th><th>${t.posted}</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </body>
+    </html>
+  `);
+  win.document.close();
+  win.print();
+}
+
+function exportRequestsCsv(requests: BloodRequest[], t: Strings) {
+  const header = "Patient ID,Hospital,Blood Type,Units,Urgency,Time\n";
+  const rows = requests
+    .map((r) => [r.patientId, r.hospital, r.bloodType, r.units, urgencyLabel(r.urgency, t), r.time].join(","))
+    .join("\n");
+  const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "blood_requests.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 interface HospitalConsoleProps {
   onBack: () => void;
@@ -147,7 +195,7 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
 
         {tab === "dashboard" && (
           <div className="grid gap-[18px] mt-[18px]" style={{ gridTemplateColumns: "1.5fr 1fr" }}>
-            <RequestsCard requests={bloodRequests} title={t.openRequests} viewAllLabel={t.viewAll} t={t} />
+            <RequestsCard requests={bloodRequests} title={t.openRequests} viewAllLabel={t.viewAll} t={t} dir={dir} />
             <div className="flex flex-col gap-[18px]">
               <ReserveCard lang={lang} title={t.reserveTitle} />
               <DonorsMiniMap title={t.donorsNearby} compatibleLabel={t.compatibleDonors} />
@@ -157,7 +205,7 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
 
         {tab === "requests" && (
           <div className="mt-[18px]">
-            <RequestsCard requests={bloodRequests} title={t.openRequests} viewAllLabel={t.viewAll} t={t} full />
+            <RequestsCard requests={bloodRequests} title={t.openRequests} viewAllLabel={t.viewAll} t={t} dir={dir} full />
           </div>
         )}
 
@@ -191,12 +239,14 @@ function RequestsCard({
   title,
   viewAllLabel,
   t,
+  dir,
   full,
 }: {
   requests: ReturnType<typeof useBloodRequests>["requests"];
   title: string;
   viewAllLabel: string;
   t: ReturnType<typeof useI18n>["t"];
+  dir: ReturnType<typeof useI18n>["dir"];
   full?: boolean;
 }) {
   return (
@@ -206,7 +256,25 @@ function RequestsCard({
     >
       <div className="flex items-center justify-between mb-3.5">
         <span className="text-[15px] font-extrabold" style={{ color: "#0B2432" }}>{title}</span>
-        <span className="text-xs font-bold" style={{ color: "#0E8BA8" }}>{viewAllLabel}</span>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => printRequests(requests, t, dir)}
+            title={t.printLabel}
+            className="cursor-pointer w-8 h-8 rounded-lg border-none bg-transparent flex items-center justify-center"
+            style={{ color: "#8496A0" }}
+          >
+            <Printer className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => exportRequestsCsv(requests, t)}
+            title={t.exportLabel}
+            className="cursor-pointer w-8 h-8 rounded-lg border-none bg-transparent flex items-center justify-center"
+            style={{ color: "#8496A0" }}
+          >
+            <Download className="w-4 h-4" />
+          </button>
+          <span className="text-xs font-bold ms-1" style={{ color: "#0E8BA8" }}>{viewAllLabel}</span>
+        </div>
       </div>
       <div className={full ? "grid grid-cols-2 gap-x-6" : "flex flex-col"}>
         {requests.map((r) => {
