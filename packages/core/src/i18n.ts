@@ -55,6 +55,7 @@ export interface Strings {
   patientRowLabel: string; fileRowLabel: string; referenceLabel: string;
   pledging: string; genericError: string;
   saveChanges: string; changesSaved: string; languageLabel: string;
+  shareMessage: string; shareLabel: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -67,7 +68,7 @@ export const I18N: Record<Lang, Strings> = {
     welcome: "Welcome back", eligible: "eligible", eligibleNow: "You're eligible to donate",
     donations: "Donations", livesSaved: "Lives saved", streak: "Streak",
     ramadanTitle: "Ramadan night donation", ramadanSub: "Centers open tonight until 3:00 — after Tarawih",
-    sosLabel: "SOS · URGENT", sosTitle: "Critical A+ request nearby", units: "units", respond: "Respond",
+    sosLabel: "SOS · URGENT", sosTitle: "Critical {bloodType} request nearby", units: "units", respond: "Respond",
     reserveTitle: "National reserve", updatedNow: "live", view: "View",
     quickActions: "Quick actions", findRequests: "Find urgent requests", findRequestsSub: "3 near you right now",
     compensateTitle: "Compensate for a patient", compensateSub: "Donate in a patient's name",
@@ -104,6 +105,8 @@ export const I18N: Record<Lang, Strings> = {
     patientRowLabel: "Patient", fileRowLabel: "File №", referenceLabel: "Reference",
     pledging: "Pledging…", genericError: "Something went wrong",
     saveChanges: "Save changes", changesSaved: "Changes saved", languageLabel: "Language",
+    shareMessage: "Urgent: {bloodType} blood needed at {hospital} ({distance} away, {units} units). Every donor counts — please share.",
+    shareLabel: "Share",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -114,7 +117,7 @@ export const I18N: Record<Lang, Strings> = {
     welcome: "Bon retour", eligible: "éligible", eligibleNow: "Vous pouvez donner",
     donations: "Dons", livesSaved: "Vies sauvées", streak: "Série",
     ramadanTitle: "Don de nuit — Ramadan", ramadanSub: "Centres ouverts ce soir jusqu'à 3h — après les Tarawih",
-    sosLabel: "SOS · URGENT", sosTitle: "Demande A+ critique à proximité", units: "unités", respond: "Répondre",
+    sosLabel: "SOS · URGENT", sosTitle: "Demande {bloodType} critique à proximité", units: "unités", respond: "Répondre",
     reserveTitle: "Réserve nationale", updatedNow: "en direct", view: "Voir",
     quickActions: "Actions rapides", findRequests: "Demandes urgentes", findRequestsSub: "3 près de vous",
     compensateTitle: "Compenser pour un patient", compensateSub: "Donner au nom d'un patient",
@@ -151,6 +154,8 @@ export const I18N: Record<Lang, Strings> = {
     patientRowLabel: "Patient", fileRowLabel: "Dossier №", referenceLabel: "Référence",
     pledging: "Envoi…", genericError: "Une erreur s'est produite",
     saveChanges: "Enregistrer", changesSaved: "Modifications enregistrées", languageLabel: "Langue",
+    shareMessage: "Urgent : don de sang {bloodType} nécessaire à {hospital} ({distance}, {units} unités). Chaque donneur compte — merci de partager.",
+    shareLabel: "Partager",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -161,7 +166,7 @@ export const I18N: Record<Lang, Strings> = {
     welcome: "مرحباً بعودتك", eligible: "مؤهل", eligibleNow: "يمكنك التبرع الآن",
     donations: "تبرعات", livesSaved: "أرواح أُنقذت", streak: "التتابع",
     ramadanTitle: "تبرع ليلي — رمضان", ramadanSub: "المراكز مفتوحة الليلة حتى 3 صباحاً — بعد التراويح",
-    sosLabel: "نداء · عاجل", sosTitle: "طلب A+ حرج قريب منك", units: "وحدات", respond: "استجب",
+    sosLabel: "نداء · عاجل", sosTitle: "طلب {bloodType} حرج قريب منك", units: "وحدات", respond: "استجب",
     reserveTitle: "المخزون الوطني", updatedNow: "مباشر", view: "عرض",
     quickActions: "إجراءات سريعة", findRequests: "الطلبات العاجلة", findRequestsSub: "3 بالقرب منك الآن",
     compensateTitle: "تعويض عن مريض", compensateSub: "تبرّع باسم مريض",
@@ -198,5 +203,7 @@ export const I18N: Record<Lang, Strings> = {
     patientRowLabel: "المريض", fileRowLabel: "رقم الملف", referenceLabel: "المرجع",
     pledging: "جارٍ التعهد…", genericError: "حدث خطأ ما",
     saveChanges: "حفظ التغييرات", changesSaved: "تم حفظ التغييرات", languageLabel: "اللغة",
+    shareMessage: "عاجل: مطلوب دم من فصيلة {bloodType} في {hospital} (على بعد {distance}، {units} وحدات). كل متبرع يهم — الرجاء المشاركة.",
+    shareLabel: "مشاركة",
   },
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Droplet, Users, Bell, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame } from "lucide-react";
-import { RESERVE, RESERVE_STATUS } from "@weare/core";
+import { Droplet, Users, Bell, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame, Share2 } from "lucide-react";
+import { RESERVE, RESERVE_STATUS, useBloodRequests, formatShareMessage, shareToWhatsApp } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LangSwitcher } from "./LangSwitcher";
 import { useI18n } from "../i18n/LangContext";
@@ -17,6 +17,8 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
   const [demoLoading, setDemoLoading] = useState<"donor" | "hospital" | null>(null);
   const [demoError, setDemoError] = useState<string | null>(null);
   const [ramadanMode] = useState(true);
+  const { requests: bloodRequests } = useBloodRequests();
+  const urgentRequest = bloodRequests.find((r) => r.urgency === "Critical") ?? bloodRequests[0];
 
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
@@ -223,21 +225,42 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
           </div>
 
           {/* SOS broadcast */}
-          <button
-            onClick={() => onNavigate("matching")}
-            className="cursor-pointer text-left w-full mt-3.5 rounded-[20px] px-[18px] py-4 text-white flex items-center gap-[14px]"
-            style={{ background: "linear-gradient(135deg,#2B1416,#3a1a1d)", animation: "waPulse 2.4s infinite", textAlign: "start" }}
-          >
-            <span className="w-[42px] h-[42px] rounded-xl bg-[#E5484D] flex items-center justify-center shrink-0">
-              <Droplet className="w-[22px] h-[22px]" fill="white" stroke="none" />
-            </span>
-            <span className="flex-1">
-              <span className="block text-[11px] font-extrabold tracking-[1px]" style={{ color: "#F4677E" }}>{t.sosLabel}</span>
-              <span className="block text-[15px] font-bold mt-px">{t.sosTitle}</span>
-              <span className="block text-xs opacity-85 mt-px">CHU Mustapha · 2.3 km · 2 {t.units}</span>
-            </span>
-            <span className="text-xs font-extrabold bg-[#E5484D] px-[11px] py-1.5 rounded-full">{t.respond}</span>
-          </button>
+          {urgentRequest && (
+            <div
+              onClick={() => onNavigate("matching")}
+              className="cursor-pointer w-full mt-3.5 rounded-[20px] px-[18px] py-4 text-white flex items-center gap-[14px]"
+              style={{ background: "linear-gradient(135deg,#2B1416,#3a1a1d)", animation: "waPulse 2.4s infinite", textAlign: "start" }}
+            >
+              <span className="w-[42px] h-[42px] rounded-xl bg-[#E5484D] flex items-center justify-center shrink-0">
+                <Droplet className="w-[22px] h-[22px]" fill="white" stroke="none" />
+              </span>
+              <span className="flex-1 min-w-0">
+                <span className="block text-[11px] font-extrabold tracking-[1px]" style={{ color: "#F4677E" }}>{t.sosLabel}</span>
+                <span className="block text-[15px] font-bold mt-px">{t.sosTitle.replace("{bloodType}", urgentRequest.bloodType)}</span>
+                <span className="block text-xs opacity-85 mt-px truncate">
+                  {urgentRequest.hospital} · {urgentRequest.distance} · {urgentRequest.units} {t.units}
+                </span>
+              </span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  shareToWhatsApp(
+                    formatShareMessage(t, {
+                      hospital: urgentRequest.hospital,
+                      bloodType: urgentRequest.bloodType,
+                      distance: urgentRequest.distance,
+                      units: urgentRequest.units,
+                    })
+                  );
+                }}
+                aria-label={t.shareLabel}
+                className="cursor-pointer w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0 border-none"
+              >
+                <Share2 className="w-4 h-4 text-white" strokeWidth={2.2} />
+              </button>
+              <span className="text-xs font-extrabold bg-[#E5484D] px-[11px] py-1.5 rounded-full shrink-0">{t.respond}</span>
+            </div>
+          )}
 
           {/* national reserve */}
           <div className="mt-[22px] flex items-center justify-between">
