@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Droplet, Users, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame, Share2 } from "lucide-react";
+import { Droplet, Users, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame, Share2, Building2 } from "lucide-react";
 import { RESERVE, RESERVE_STATUS, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, shareToWhatsApp, type Profile } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LangSwitcher } from "./LangSwitcher";
@@ -362,6 +362,20 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
               <span className="flex-1">
                 <span className="block text-[15px] font-bold" style={{ color: "#0B2432" }}>{t.schedule}</span>
                 <span className="block text-[12.5px]" style={{ color: "#6B7C88" }}>{t.scheduleSub}</span>
+              </span>
+              <ChevronRight className="w-[19px] h-[19px]" style={{ color: "#C0CCD2", transform: chevronFlip }} />
+            </button>
+            <button
+              onClick={() => onNavigate("hospitals")}
+              className="cursor-pointer text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
+              style={{ borderColor: "rgba(11,36,50,0.06)", textAlign: "start" }}
+            >
+              <span className="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0" style={{ background: "#EAF6EF" }}>
+                <Building2 className="w-[21px] h-[21px]" style={{ color: "#12B76A" }} />
+              </span>
+              <span className="flex-1">
+                <span className="block text-[15px] font-bold" style={{ color: "#0B2432" }}>{t.hospitalsTitle}</span>
+                <span className="block text-[12.5px]" style={{ color: "#6B7C88" }}>{t.hospitalsSub}</span>
               </span>
               <ChevronRight className="w-[19px] h-[19px]" style={{ color: "#C0CCD2", transform: chevronFlip }} />
             </button>

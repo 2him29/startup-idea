@@ -5,6 +5,9 @@ export type CompensationStatus = "pledged" | "completed" | "cancelled";
 export interface Hospital {
   id: string;
   name: string;
+  wilaya: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface CompensationInput {
@@ -27,6 +30,9 @@ export interface Compensation {
 interface HospitalRow {
   id: string;
   name: string;
+  wilaya: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 interface CompensationRow {
@@ -41,10 +47,12 @@ interface CompensationRow {
 /** Static fallback so the hospital <select> has content before the first fetch
  *  resolves (or when Supabase env isn't configured yet in local dev). */
 export const fallbackHospitals: Hospital[] = [
-  { id: "h-mustapha", name: "CHU Mustapha Pacha — Alger" },
-  { id: "h-husseindey", name: "EPH Hussein Dey — Alger" },
-  { id: "h-benimessous", name: "CHU Beni Messous — Alger" },
-  { id: "h-blida", name: "CAC Blida" },
+  { id: "h-mustapha", name: "CHU Mustapha Pacha – Alger", wilaya: "Alger", latitude: 36.7575, longitude: 3.053 },
+  { id: "h-parnet", name: "Hôpital Nafissa Hamoud (ex-Parnet) – Hussein Dey", wilaya: "Alger", latitude: 36.744, longitude: 3.096 },
+  { id: "h-benimessous", name: "CHU Beni Messous – Issad Hassani", wilaya: "Alger", latitude: 36.7797, longitude: 2.9797 },
+  { id: "h-oran", name: "CHU Oran – Dr Benzerdjeb", wilaya: "Oran", latitude: 35.6971, longitude: -0.6337 },
+  { id: "h-constantine", name: "CHU Benbadis – Constantine", wilaya: "Constantine", latitude: 36.3575, longitude: 6.6147 },
+  { id: "h-blida", name: "CHU Frantz Fanon – Blida", wilaya: "Blida", latitude: 36.4203, longitude: 2.8277 },
 ];
 
 function reference(id: string): string {
@@ -63,15 +71,21 @@ function toCompensation(row: CompensationRow): Compensation {
   };
 }
 
-/** Hospitals the donor can compensate at, alphabetical. */
+/** Hospitals the donor can compensate at (and the directory screen), alphabetical. */
 export async function fetchHospitals(): Promise<Hospital[]> {
   const { data, error } = await getSupabase()
     .from("hospitals")
-    .select("id, name")
+    .select("id, name, wilaya, latitude, longitude")
     .order("name", { ascending: true });
 
   if (error) throw error;
-  return (data as HospitalRow[]).map((r) => ({ id: r.id, name: r.name }));
+  return (data as HospitalRow[]).map((r) => ({
+    id: r.id,
+    name: r.name,
+    wilaya: r.wilaya,
+    latitude: r.latitude,
+    longitude: r.longitude,
+  }));
 }
 
 /**

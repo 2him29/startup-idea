@@ -66,6 +66,7 @@ export interface Strings {
   noNotifications: string; newRequestTitle: string; patientIdLabel: string;
   publishRequest: string; requestPublished: string; publishing: string;
   sosStartedToast: string; sosStoppedToast: string;
+  hospitalsTitle: string; hospitalsSub: string; openInMaps: string; hospSearchPh: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -132,6 +133,7 @@ export const I18N: Record<Lang, Strings> = {
     noNotifications: "You're all caught up", newRequestTitle: "New blood request", patientIdLabel: "Patient ID",
     publishRequest: "Publish request", requestPublished: "Request published — nearby donors will see it", publishing: "Publishing…",
     sosStartedToast: "SOS broadcast started", sosStoppedToast: "SOS broadcast stopped",
+    hospitalsTitle: "Hospitals & blood centers", hospitalsSub: "Find the nearest center", openInMaps: "Open in Google Maps", hospSearchPh: "Search by name or wilaya…",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -196,6 +198,7 @@ export const I18N: Record<Lang, Strings> = {
     noNotifications: "Rien de nouveau", newRequestTitle: "Nouvelle demande de sang", patientIdLabel: "ID patient",
     publishRequest: "Publier la demande", requestPublished: "Demande publiée — les donneurs à proximité la verront", publishing: "Publication…",
     sosStartedToast: "Diffusion SOS lancée", sosStoppedToast: "Diffusion SOS arrêtée",
+    hospitalsTitle: "Hôpitaux et centres de sang", hospitalsSub: "Trouvez le centre le plus proche", openInMaps: "Ouvrir dans Google Maps", hospSearchPh: "Rechercher par nom ou wilaya…",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -260,5 +263,6 @@ export const I18N: Record<Lang, Strings> = {
     noNotifications: "لا إشعارات جديدة", newRequestTitle: "طلب دم جديد", patientIdLabel: "رقم المريض",
     publishRequest: "نشر الطلب", requestPublished: "نُشر الطلب — سيراه المتبرعون القريبون", publishing: "جارٍ النشر…",
     sosStartedToast: "بدأ بث النداء العاجل", sosStoppedToast: "توقف بث النداء العاجل",
+    hospitalsTitle: "المستشفيات ومراكز الدم", hospitalsSub: "اعثر على أقرب مركز", openInMaps: "افتح في خرائط جوجل", hospSearchPh: "ابحث بالاسم أو الولاية…",
   },
 };
