@@ -1,5 +1,5 @@
 import { ArrowLeft, Droplet, Heart, Award, Calendar, User, Settings, ChevronRight, Download } from "lucide-react";
-import type { Profile, Strings } from "@weare/core";
+import { useDonorProfile, computeEligibility, type Profile, type Strings } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 interface DonationEntry {
@@ -68,10 +68,15 @@ const donationHistory = [
 ];
 
 export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: ProfileScreenProps) {
-  const { t, dir } = useI18n();
+  const { t, lang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
   const displayName = profile?.fullName ?? "Yacine B.";
   const displayEmail = profile?.email ?? "yacine.b@email.com";
+  const { donorProfile } = useDonorProfile();
+  const eligibility = computeEligibility(donorProfile?.lastDonationDate ?? null);
+  const nextEligibleText = eligibility.nextEligibleDate
+    ? new Intl.DateTimeFormat(lang, { day: "numeric", month: "long", year: "numeric" }).format(eligibility.nextEligibleDate)
+    : t.ready;
 
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
@@ -100,7 +105,7 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
           <div className="text-xl font-extrabold">{displayName}</div>
           <div className="text-[13px] opacity-90">{displayEmail}</div>
           <span className="inline-block mt-2 text-xs font-extrabold bg-white/[0.22] border border-white/35 px-[11px] py-1 rounded-full">
-            {t.bloodType} A+
+            {t.bloodType} {donorProfile?.bloodType ?? "A+"}
           </span>
         </div>
       </div>
@@ -132,9 +137,11 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
         </span>
         <div className="flex-1">
           <div className="text-[12.5px] opacity-90">{t.nextEligible}</div>
-          <div className="text-[17px] font-extrabold">May 15, 2025</div>
+          <div className="text-[17px] font-extrabold">{nextEligibleText}</div>
         </div>
-        <span className="text-xs font-extrabold bg-white/[0.22] px-[11px] py-1.5 rounded-full">{t.ready}</span>
+        <span className="text-xs font-extrabold bg-white/[0.22] px-[11px] py-1.5 rounded-full">
+          {eligibility.eligible ? t.ready : `${eligibility.daysLeft} ${t.daysLeft}`}
+        </span>
       </div>
 
       <div className="mt-5 text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432" }}>{t.history}</div>

@@ -1,25 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Droplet, Users, Bell, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame, Share2 } from "lucide-react";
-import { RESERVE, RESERVE_STATUS, useBloodRequests, formatShareMessage, shareToWhatsApp } from "@weare/core";
+import { RESERVE, RESERVE_STATUS, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, shareToWhatsApp, type Profile } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LangSwitcher } from "./LangSwitcher";
 import { useI18n } from "../i18n/LangContext";
 import { getBoolPref } from "../prefs";
+import { useCountUp } from "../useCountUp";
 
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
   userType: "donor" | "hospital" | null;
+  profile: Profile | null;
   onSetUserType: (type: "donor" | "hospital") => void;
   onDemoLogin: (role: "donor" | "hospital") => Promise<void>;
 }
 
-export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }: HomeScreenProps) {
+/** Today in the Islamic (Umm al-Qura) calendar, in the active language -- built into the browser, no library. */
+function hijriToday(lang: string): string | null {
+  try {
+    return new Intl.DateTimeFormat(`${lang}-u-ca-islamic-umalqura`, { day: "numeric", month: "long" }).format(new Date());
+  } catch {
+    return null;
+  }
+}
+
+export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDemoLogin }: HomeScreenProps) {
   const { t, lang, dir } = useI18n();
   const [demoLoading, setDemoLoading] = useState<"donor" | "hospital" | null>(null);
   const [demoError, setDemoError] = useState<string | null>(null);
   const [ramadanMode] = useState(() => getBoolPref("ramadan", true));
   const { requests: bloodRequests } = useBloodRequests();
+  const { donorProfile } = useDonorProfile();
   const urgentRequest = bloodRequests.find((r) => r.urgency === "Critical") ?? bloodRequests[0];
+
+  const eligibility = computeEligibility(donorProfile?.lastDonationDate ?? null);
+  // Ring sweeps from empty to the real progress once the donor profile loads.
+  const ringTarget = 264 * (1 - eligibility.progress);
+  const [ringOffset, setRingOffset] = useState(264);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setRingOffset(ringTarget));
+    return () => cancelAnimationFrame(id);
+  }, [ringTarget]);
+
+  const donationsCount = useCountUp(12);
+  const livesCount = useCountUp(36);
+  const streakCount = useCountUp(6);
+  const hijri = hijriToday(lang);
 
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
@@ -163,7 +189,7 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
           {/* eligibility ring hero */}
           <div
             className="rounded-[26px] p-[22px] text-white relative overflow-hidden shadow-[0_22px_40px_-20px_rgba(229,72,77,0.8)]"
-            style={{ background: "linear-gradient(135deg,#E5484D 0%, #F4677E 100%)" }}
+            style={{ background: "linear-gradient(135deg,#E5484D 0%, #F4677E 100%)", animation: "waRise .45s ease both" }}
           >
             <div className="flex items-center gap-[18px]">
               <div className="relative shrink-0" style={{ width: 96, height: 96 }}>
@@ -171,20 +197,32 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
                   <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="9" />
                   <circle
                     cx="48" cy="48" r="42" fill="none" stroke="#fff" strokeWidth="9" strokeLinecap="round"
-                    strokeDasharray="264" strokeDashoffset="20" style={{ animation: "waDash 1s ease both" }}
+                    strokeDasharray="264" strokeDashoffset={ringOffset}
+                    style={{ transition: "stroke-dashoffset 1s ease" }}
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl font-extrabold leading-none">A+</span>
-                  <span className="text-[10px] opacity-90 mt-0.5">{t.eligible}</span>
+                  <span className="text-2xl font-extrabold leading-none">{donorProfile?.bloodType ?? "A+"}</span>
+                  <span className="text-[10px] opacity-90 mt-0.5">
+                    {eligibility.eligible ? t.eligible : `${eligibility.daysLeft}/90`}
+                  </span>
                 </div>
               </div>
               <div className="flex-1">
                 <span className="text-[13px] opacity-90 font-semibold">{t.welcome},</span>
-                <div className="text-[22px] font-extrabold tracking-[-0.4px]">Yacine B.</div>
+                <div className="text-[22px] font-extrabold tracking-[-0.4px]">{profile?.fullName ?? "Yacine B."}</div>
                 <div className="mt-2.5 inline-flex items-center gap-[7px] bg-white/[0.18] px-3 py-1.5 rounded-xl">
-                  <span className="w-[9px] h-[9px] rounded-full bg-[#7BE3A6] shadow-[0_0_0_4px_rgba(123,227,166,0.3)]" />
-                  <span className="text-[12.5px] font-bold">{t.eligibleNow}</span>
+                  <span
+                    className="w-[9px] h-[9px] rounded-full"
+                    style={
+                      eligibility.eligible
+                        ? { background: "#7BE3A6", boxShadow: "0 0 0 4px rgba(123,227,166,0.3)" }
+                        : { background: "#F5C26B", boxShadow: "0 0 0 4px rgba(245,194,107,0.3)" }
+                    }
+                  />
+                  <span className="text-[12.5px] font-bold">
+                    {eligibility.eligible ? t.eligibleNow : `${eligibility.daysLeft} ${t.daysLeft}`}
+                  </span>
                 </div>
               </div>
             </div>
@@ -194,7 +232,7 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
           {ramadanMode && (
             <div
               className="mt-3.5 rounded-[20px] px-[17px] py-[15px] text-white flex items-center gap-[13px] relative overflow-hidden"
-              style={{ background: "linear-gradient(135deg,#3A2A6B,#5B3FA0)" }}
+              style={{ background: "linear-gradient(135deg,#3A2A6B,#5B3FA0)", animation: "waRise .45s ease .06s both" }}
             >
               <Moon className="absolute opacity-20" style={{ width: 90, height: 90, insetInlineEnd: -10, top: -14 }} fill="white" stroke="none" />
               <span className="w-[42px] h-[42px] rounded-xl bg-white/[0.18] flex items-center justify-center shrink-0">
@@ -202,24 +240,24 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
               </span>
               <div className="flex-1">
                 <div className="text-[14.5px] font-bold">{t.ramadanTitle}</div>
-                <div className="text-xs opacity-90 mt-px">{t.ramadanSub}</div>
+                <div className="text-xs opacity-90 mt-px">{t.ramadanSub}{hijri ? ` · ${hijri}` : ""}</div>
               </div>
             </div>
           )}
 
           {/* stats */}
-          <div className="grid grid-cols-3 gap-[11px] mt-3.5">
+          <div className="grid grid-cols-3 gap-[11px] mt-3.5" style={{ animation: "waRise .45s ease .12s both" }}>
             <div className="bg-white border rounded-2xl p-3.5 text-center shadow-[0_8px_18px_-14px_rgba(11,36,50,0.4)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-              <div className="text-2xl font-extrabold" style={{ color: "#E5484D" }}>12</div>
+              <div className="text-2xl font-extrabold" style={{ color: "#E5484D" }}>{donationsCount}</div>
               <div className="text-[11.5px] font-semibold mt-0.5" style={{ color: "#6B7C88" }}>{t.donations}</div>
             </div>
             <div className="bg-white border rounded-2xl p-3.5 text-center shadow-[0_8px_18px_-14px_rgba(11,36,50,0.4)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-              <div className="text-2xl font-extrabold" style={{ color: "#E5484D" }}>36</div>
+              <div className="text-2xl font-extrabold" style={{ color: "#E5484D" }}>{livesCount}</div>
               <div className="text-[11.5px] font-semibold mt-0.5" style={{ color: "#6B7C88" }}>{t.livesSaved}</div>
             </div>
             <div className="bg-white border rounded-2xl p-3.5 text-center shadow-[0_8px_18px_-14px_rgba(11,36,50,0.4)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
               <div className="text-2xl font-extrabold flex items-center justify-center gap-1" style={{ color: "#F5871F" }}>
-                <Flame className="w-4 h-4" fill="#F5871F" />6
+                <Flame className="w-4 h-4" fill="#F5871F" />{streakCount}
               </div>
               <div className="text-[11.5px] font-semibold mt-0.5" style={{ color: "#6B7C88" }}>{t.streak}</div>
             </div>
@@ -230,7 +268,7 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
             <div
               onClick={() => onNavigate("matching")}
               className="cursor-pointer w-full mt-3.5 rounded-[20px] px-[18px] py-4 text-white flex items-center gap-[14px]"
-              style={{ background: "linear-gradient(135deg,#2B1416,#3a1a1d)", animation: "waPulse 2.4s infinite", textAlign: "start" }}
+              style={{ background: "linear-gradient(135deg,#2B1416,#3a1a1d)", animation: "waRise .45s ease .18s both, waPulse 2.4s .8s infinite", textAlign: "start" }}
             >
               <span className="w-[42px] h-[42px] rounded-xl bg-[#E5484D] flex items-center justify-center shrink-0">
                 <Droplet className="w-[22px] h-[22px]" fill="white" stroke="none" />
@@ -268,7 +306,7 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
             <span className="text-base font-extrabold" style={{ color: "#0B2432" }}>{t.reserveTitle}</span>
             <span className="text-xs font-bold" style={{ color: "#8496A0" }}>Alger · {t.updatedNow}</span>
           </div>
-          <div className="mt-3 bg-white border rounded-[20px] p-4 shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+          <div className="mt-3 bg-white border rounded-[20px] p-4 shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.06)", animation: "waRise .45s ease .24s both" }}>
             <div className="flex flex-col gap-[13px]">
               {RESERVE.map((b) => (
                 <div key={b.type} className="flex items-center gap-3">
@@ -286,7 +324,7 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
 
           {/* quick actions */}
           <div className="mt-[22px] text-base font-extrabold" style={{ color: "#0B2432" }}>{t.quickActions}</div>
-          <div className="mt-3 flex flex-col gap-[11px]">
+          <div className="mt-3 flex flex-col gap-[11px]" style={{ animation: "waRise .45s ease .3s both" }}>
             <button
               onClick={() => onNavigate("matching")}
               className="cursor-pointer text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
@@ -363,7 +401,7 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
           >
             <Users className="absolute opacity-[0.15]" style={{ width: 140, height: 140, insetInlineEnd: -20, top: -20 }} stroke="white" fill="none" strokeWidth={1.5} />
             <span className="text-[13px] opacity-90 font-semibold">{t.signedInAs}</span>
-            <div className="text-[21px] font-extrabold tracking-[-0.4px]">CHU Mustapha Pacha</div>
+            <div className="text-[21px] font-extrabold tracking-[-0.4px]">{profile?.fullName ?? "CHU Mustapha Pacha"}</div>
             <div className="mt-4 flex gap-2.5">
               <div className="flex-1 bg-white/[0.16] rounded-[14px] px-[13px] py-[11px]">
                 <div className="text-[22px] font-extrabold">8</div>

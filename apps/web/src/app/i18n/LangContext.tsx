@@ -12,7 +12,13 @@ const LangContext = createContext<LangContextValue | null>(null);
 
 function readStoredLang(): Lang {
   const stored = typeof window !== "undefined" ? window.localStorage.getItem(STORAGE_KEY) : null;
-  return stored === "en" || stored === "fr" || stored === "ar" ? stored : "en";
+  if (stored === "en" || stored === "fr" || stored === "ar") return stored;
+  // First launch: match the device language. Most Algerian phones are set to
+  // Arabic or French -- defaulting those users to English reads as foreign.
+  const device = typeof navigator !== "undefined" ? navigator.language.toLowerCase() : "";
+  if (device.startsWith("ar")) return "ar";
+  if (device.startsWith("fr")) return "fr";
+  return "en";
 }
 
 export function LangProvider({ children }: { children: ReactNode }) {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchBloodRequests } from "./api";
 import { bloodRequests as fallbackRequests, type BloodRequest } from "./requests";
-import { getCurrentProfile, type Profile } from "./auth";
+import { getCurrentProfile, getDonorProfile, type DonorProfile, type Profile } from "./auth";
 import { getSupabase } from "./supabaseClient";
 import { fetchHospitals, fallbackHospitals, type Hospital } from "./compensations";
 import { fetchBloodDrives, fallbackDrives, type BloodDrive } from "./drives";
@@ -108,6 +108,53 @@ export function useHospitals() {
   }, []);
 
   return { hospitals, loading };
+}
+
+/** The signed-in donor's medical details (blood type, vitals, last donation). */
+export function useDonorProfile() {
+  const [donorProfile, setDonorProfile] = useState<DonorProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    getDonorProfile()
+      .then((d) => {
+        if (!cancelled) setDonorProfile(d);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch donor profile", err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { donorProfile, loading };
+}
+
+/** Days between donations before a donor is eligible again (whole-blood rule used in Algeria). */
+export const ELIGIBILITY_INTERVAL_DAYS = 90;
+
+export interface Eligibility {
+  eligible: boolean;
+  /** 0..1 progress toward the next eligible date (1 = eligible now). */
+  progress: number;
+  daysLeft: number;
+  nextEligibleDate: Date | null;
+}
+
+/** Eligibility from the last donation date; a donor with no recorded donation is eligible. */
+export function computeEligibility(lastDonationDate: string | null): Eligibility {
+  if (!lastDonationDate) return { eligible: true, progress: 1, daysLeft: 0, nextEligibleDate: null };
+  const last = new Date(lastDonationDate + "T00:00:00");
+  const next = new Date(last.getTime() + ELIGIBILITY_INTERVAL_DAYS * 86400000);
+  const elapsedDays = (Date.now() - last.getTime()) / 86400000;
+  const progress = Math.max(0, Math.min(1, elapsedDays / ELIGIBILITY_INTERVAL_DAYS));
+  const daysLeft = Math.max(0, Math.ceil(ELIGIBILITY_INTERVAL_DAYS - elapsedDays));
+  return { eligible: daysLeft === 0, progress, daysLeft, nextEligibleDate: next };
 }
 
 /** Upcoming community blood drives for the Drives screen. Mirrors useBloodRequests's fallback pattern. */

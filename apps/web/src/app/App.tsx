@@ -74,6 +74,7 @@ export default function App() {
           <HomeScreen
             onNavigate={handleNavigate}
             userType={userType}
+            profile={profile}
             onSetUserType={handleSelectRole}
             onDemoLogin={handleDemoLogin}
           />
@@ -134,6 +135,7 @@ export default function App() {
           <HomeScreen
             onNavigate={handleNavigate}
             userType={userType}
+            profile={profile}
             onSetUserType={handleSelectRole}
             onDemoLogin={handleDemoLogin}
           />
@@ -153,7 +155,9 @@ export default function App() {
     <div className="size-full bg-background md:flex">
       {!isConsole && <Sidebar activeScreen={currentScreen} onNavigate={handleNavigate} userType={userType} />}
       <div className="max-w-md mx-auto h-full relative md:max-w-none md:mx-0 md:flex-1 md:h-screen md:overflow-y-auto">
-        {isFullBleed ? screen : <div className="md:px-10 md:py-8">{screen}</div>}
+        <div key={currentScreen} style={{ animation: "waScreen .28s ease both" }}>
+          {isFullBleed ? screen : <div className="md:px-10 md:py-8">{screen}</div>}
+        </div>
         {!isConsole && (
           <BottomNavigation
             activeScreen={currentScreen}

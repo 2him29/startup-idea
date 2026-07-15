@@ -216,3 +216,26 @@ html[lang="ar"] body {
   from { transform: translateY(10px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* Whole-screen entrance played on every route change (keyed wrapper in App.tsx). */
+@keyframes waScreen {
+  from { transform: translateY(14px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Tactile press feedback on every interactive control. Scoped to the app's own
+   buttons (they all carry cursor-pointer) so Leaflet's controls are untouched. */
+button.cursor-pointer {
+  transition: transform .12s ease;
+}
+button.cursor-pointer:active {
+  transform: scale(.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
