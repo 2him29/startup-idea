@@ -8,6 +8,7 @@ import { RequestDetail } from "./components/RequestDetail";
 import { MatchConfirm } from "./components/MatchConfirm";
 import { CompensateScreen } from "./components/CompensateScreen";
 import { HospitalConsole } from "./components/HospitalConsole";
+import { DrivesScreen } from "./components/DrivesScreen";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { EditProfileScreen } from "./components/EditProfileScreen";
 import { SettingsScreen } from "./components/SettingsScreen";
@@ -105,6 +106,8 @@ export default function App() {
         return <CompensateScreen onBack={handleBack} onComplete={handleBack} />;
       case "console":
         return <HospitalConsole onBack={handleBack} />;
+      case "drives":
+        return <DrivesScreen onBack={handleBack} />;
       case "profile":
         return (
           <ProfileScreen

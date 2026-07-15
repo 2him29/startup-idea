@@ -4,6 +4,7 @@ import { bloodRequests as fallbackRequests, type BloodRequest } from "./requests
 import { getCurrentProfile, type Profile } from "./auth";
 import { getSupabase } from "./supabaseClient";
 import { fetchHospitals, fallbackHospitals, type Hospital } from "./compensations";
+import { fetchBloodDrives, fallbackDrives, type BloodDrive } from "./drives";
 
 /**
  * Live open requests from Supabase, shared by the Find screen and the
@@ -107,4 +108,29 @@ export function useHospitals() {
   }, []);
 
   return { hospitals, loading };
+}
+
+/** Upcoming community blood drives for the Drives screen. Mirrors useBloodRequests's fallback pattern. */
+export function useBloodDrives() {
+  const [drives, setDrives] = useState<BloodDrive[]>(fallbackDrives);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchBloodDrives()
+      .then((data) => {
+        if (!cancelled) setDrives(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch blood drives, using fallback data", err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { drives, loading };
 }

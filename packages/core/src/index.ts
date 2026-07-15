@@ -8,3 +8,4 @@ export * from "./i18n";
 export * from "./reserve";
 export * from "./wilayas";
 export * from "./share";
+export * from "./drives";

@@ -56,6 +56,7 @@ export interface Strings {
   pledging: string; genericError: string;
   saveChanges: string; changesSaved: string; languageLabel: string;
   shareMessage: string; shareLabel: string;
+  drivesTitle: string; drivesSub: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -72,7 +73,7 @@ export const I18N: Record<Lang, Strings> = {
     reserveTitle: "National reserve", updatedNow: "live", view: "View",
     quickActions: "Quick actions", findRequests: "Find urgent requests", findRequestsSub: "3 near you right now",
     compensateTitle: "Compensate for a patient", compensateSub: "Donate in a patient's name",
-    schedule: "Schedule a donation", scheduleSub: "Book your next appointment",
+    schedule: "Blood drives near you", scheduleSub: "See upcoming donation events",
     urgentRequests: "Urgent requests", sortedDistance: "Sorted by distance", nearby: "nearby", liveMap: "Live map",
     requestDetails: "Request details", requestedBy: "Requested by", bloodType: "Blood type", unitsNeeded: "Units needed",
     distance: "Distance", details: "Details", posted: "Posted", responseWindow: "Response window: 4 hours",
@@ -107,6 +108,7 @@ export const I18N: Record<Lang, Strings> = {
     saveChanges: "Save changes", changesSaved: "Changes saved", languageLabel: "Language",
     shareMessage: "Urgent: {bloodType} blood needed at {hospital} ({distance} away, {units} units). Every donor counts — please share.",
     shareLabel: "Share",
+    drivesTitle: "Blood drives", drivesSub: "Community donation events near you",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -121,7 +123,7 @@ export const I18N: Record<Lang, Strings> = {
     reserveTitle: "Réserve nationale", updatedNow: "en direct", view: "Voir",
     quickActions: "Actions rapides", findRequests: "Demandes urgentes", findRequestsSub: "3 près de vous",
     compensateTitle: "Compenser pour un patient", compensateSub: "Donner au nom d'un patient",
-    schedule: "Planifier un don", scheduleSub: "Réservez votre rendez-vous",
+    schedule: "Collectes près de vous", scheduleSub: "Voir les événements de don à venir",
     urgentRequests: "Demandes urgentes", sortedDistance: "Par distance", nearby: "à proximité", liveMap: "Carte live",
     requestDetails: "Détails de la demande", requestedBy: "Demandé par", bloodType: "Groupe", unitsNeeded: "Unités",
     distance: "Distance", details: "Détails", posted: "Publié", responseWindow: "Fenêtre : 4 heures",
@@ -156,6 +158,7 @@ export const I18N: Record<Lang, Strings> = {
     saveChanges: "Enregistrer", changesSaved: "Modifications enregistrées", languageLabel: "Langue",
     shareMessage: "Urgent : don de sang {bloodType} nécessaire à {hospital} ({distance}, {units} unités). Chaque donneur compte — merci de partager.",
     shareLabel: "Partager",
+    drivesTitle: "Collectes de sang", drivesSub: "Événements de don organisés près de chez vous",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -170,7 +173,7 @@ export const I18N: Record<Lang, Strings> = {
     reserveTitle: "المخزون الوطني", updatedNow: "مباشر", view: "عرض",
     quickActions: "إجراءات سريعة", findRequests: "الطلبات العاجلة", findRequestsSub: "3 بالقرب منك الآن",
     compensateTitle: "تعويض عن مريض", compensateSub: "تبرّع باسم مريض",
-    schedule: "جدولة تبرع", scheduleSub: "احجز موعدك القادم",
+    schedule: "حملات قريبة منك", scheduleSub: "شاهد فعاليات التبرع القادمة",
     urgentRequests: "طلبات عاجلة", sortedDistance: "حسب المسافة", nearby: "بالقرب", liveMap: "خريطة مباشرة",
     requestDetails: "تفاصيل الطلب", requestedBy: "الطالب", bloodType: "الفصيلة", unitsNeeded: "الوحدات",
     distance: "المسافة", details: "التفاصيل", posted: "نُشر", responseWindow: "مدة الاستجابة: 4 ساعات",
@@ -205,5 +208,6 @@ export const I18N: Record<Lang, Strings> = {
     saveChanges: "حفظ التغييرات", changesSaved: "تم حفظ التغييرات", languageLabel: "اللغة",
     shareMessage: "عاجل: مطلوب دم من فصيلة {bloodType} في {hospital} (على بعد {distance}، {units} وحدات). كل متبرع يهم — الرجاء المشاركة.",
     shareLabel: "مشاركة",
+    drivesTitle: "حملات التبرع", drivesSub: "فعاليات تبرع مجتمعية بالقرب منك",
   },
 };

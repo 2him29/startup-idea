@@ -315,7 +315,7 @@ export function HomeScreen({ onNavigate, userType, onSetUserType, onDemoLogin }:
               <ChevronRight className="w-[19px] h-[19px]" style={{ color: "#C0CCD2", transform: chevronFlip }} />
             </button>
             <button
-              onClick={() => onNavigate("donor-registration")}
+              onClick={() => onNavigate("drives")}
               className="cursor-pointer text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
               style={{ borderColor: "rgba(11,36,50,0.06)", textAlign: "start" }}
             >
