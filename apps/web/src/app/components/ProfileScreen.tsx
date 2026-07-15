@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ArrowLeft, Droplet, Heart, Award, Calendar, User, Settings, ChevronRight, Download } from "lucide-react";
 import type { Profile, Strings } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
@@ -68,27 +67,6 @@ const donationHistory = [
   { id: 3, location: "St. Mary's Hospital", date: "Sep 5, 2024", type: "Platelets", units: 1 },
 ];
 
-function ToggleRow({ label, defaultOn }: { label: string; defaultOn: boolean }) {
-  const { dir } = useI18n();
-  const [on, setOn] = useState(defaultOn);
-  const knobSide = (on && dir !== "rtl") || (!on && dir === "rtl") ? "right" : "left";
-  return (
-    <div className="flex items-center justify-between px-[15px] py-[15px]">
-      <span className="text-sm font-semibold" style={{ color: "#0B2432" }}>{label}</span>
-      <button
-        onClick={() => setOn((v) => !v)}
-        className="cursor-pointer w-11 h-[26px] rounded-full relative transition-colors"
-        style={{ background: on ? "#12B76A" : "#D6DEE2" }}
-      >
-        <span
-          className="absolute top-[3px] w-5 h-5 rounded-full bg-white transition-all"
-          style={{ [knobSide]: "3px" } as React.CSSProperties}
-        />
-      </button>
-    </div>
-  );
-}
-
 export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: ProfileScreenProps) {
   const { t, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
@@ -157,17 +135,6 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
           <div className="text-[17px] font-extrabold">May 15, 2025</div>
         </div>
         <span className="text-xs font-extrabold bg-white/[0.22] px-[11px] py-1.5 rounded-full">{t.ready}</span>
-      </div>
-
-      <div className="mt-5 text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432" }}>{t.notifications}</div>
-      <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-        <div style={{ borderBottom: "1px solid rgba(11,36,50,0.05)" }}>
-          <ToggleRow label={t.notifUrgent} defaultOn={true} />
-        </div>
-        <div style={{ borderBottom: "1px solid rgba(11,36,50,0.05)" }}>
-          <ToggleRow label={t.notifRamadan} defaultOn={true} />
-        </div>
-        <ToggleRow label={t.notifNearby} defaultOn={false} />
       </div>
 
       <div className="mt-5 text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432" }}>{t.history}</div>

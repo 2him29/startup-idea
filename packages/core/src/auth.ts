@@ -7,12 +7,16 @@ export interface Profile {
   role: UserRole;
   fullName: string;
   email: string | null;
+  phone: string | null;
+  wilaya: string | null;
 }
 
 interface ProfileRow {
   id: string;
   role: UserRole;
   full_name: string;
+  phone: string | null;
+  wilaya: string | null;
 }
 
 /**
@@ -23,14 +27,14 @@ interface ProfileRow {
 async function fetchProfile(userId: string, email: string | null): Promise<Profile | null> {
   const { data, error } = await getSupabase()
     .from("profiles")
-    .select("id, role, full_name")
+    .select("id, role, full_name, phone, wilaya")
     .eq("id", userId)
     .maybeSingle();
 
   if (error) throw error;
   if (!data) return null;
   const row = data as ProfileRow;
-  return { id: row.id, role: row.role, fullName: row.full_name, email };
+  return { id: row.id, role: row.role, fullName: row.full_name, email, phone: row.phone, wilaya: row.wilaya };
 }
 
 export async function signUpDonor(params: { fullName: string; email: string; password: string }): Promise<Profile> {
@@ -44,7 +48,7 @@ export async function signUpDonor(params: { fullName: string; email: string; pas
     .insert({ id: userId, role: "donor", full_name: params.fullName });
   if (profileError) throw profileError;
 
-  return { id: userId, role: "donor", fullName: params.fullName, email: params.email };
+  return { id: userId, role: "donor", fullName: params.fullName, email: params.email, phone: null, wilaya: null };
 }
 
 export async function signUpHospital(params: { hospitalName: string; email: string; password: string }): Promise<Profile> {
@@ -63,7 +67,7 @@ export async function signUpHospital(params: { hospitalName: string; email: stri
     .insert({ owner_id: userId, name: params.hospitalName });
   if (hospitalError) throw hospitalError;
 
-  return { id: userId, role: "hospital", fullName: params.hospitalName, email: params.email };
+  return { id: userId, role: "hospital", fullName: params.hospitalName, email: params.email, phone: null, wilaya: null };
 }
 
 export async function signIn(params: { email: string; password: string }): Promise<Profile> {
@@ -97,7 +101,12 @@ export async function getCurrentProfile(): Promise<Profile | null> {
   return fetchProfile(data.session.user.id, data.session.user.email ?? null);
 }
 
-export async function upsertDonorProfile(params: { bloodType: string; age: number | null; weightKg: number | null }): Promise<void> {
+export async function upsertDonorProfile(params: {
+  bloodType: string;
+  age: number | null;
+  weightKg: number | null;
+  lastDonationDate?: string | null;
+}): Promise<void> {
   const supabase = getSupabase();
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   if (sessionError) throw sessionError;
@@ -108,6 +117,7 @@ export async function upsertDonorProfile(params: { bloodType: string; age: numbe
     blood_type: params.bloodType,
     age: params.age,
     weight_kg: params.weightKg,
+    ...(params.lastDonationDate !== undefined ? { last_donation_date: params.lastDonationDate } : {}),
   });
   if (error) throw error;
 }
@@ -116,12 +126,14 @@ export interface DonorProfile {
   bloodType: string;
   age: number | null;
   weightKg: number | null;
+  lastDonationDate: string | null;
 }
 
 interface DonorProfileRow {
   blood_type: string;
   age: number | null;
   weight_kg: number | null;
+  last_donation_date: string | null;
 }
 
 export async function getDonorProfile(): Promise<DonorProfile | null> {
@@ -132,16 +144,16 @@ export async function getDonorProfile(): Promise<DonorProfile | null> {
 
   const { data, error } = await supabase
     .from("donor_profiles")
-    .select("blood_type, age, weight_kg")
+    .select("blood_type, age, weight_kg, last_donation_date")
     .eq("id", sessionData.session.user.id)
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
   const row = data as DonorProfileRow;
-  return { bloodType: row.blood_type, age: row.age, weightKg: row.weight_kg };
+  return { bloodType: row.blood_type, age: row.age, weightKg: row.weight_kg, lastDonationDate: row.last_donation_date };
 }
 
-export async function updateFullName(fullName: string): Promise<void> {
+export async function updateProfileDetails(params: { fullName: string; phone: string | null; wilaya: string | null }): Promise<void> {
   const supabase = getSupabase();
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   if (sessionError) throw sessionError;
@@ -149,7 +161,21 @@ export async function updateFullName(fullName: string): Promise<void> {
 
   const { error } = await supabase
     .from("profiles")
-    .update({ full_name: fullName })
+    .update({ full_name: params.fullName, phone: params.phone, wilaya: params.wilaya })
     .eq("id", sessionData.session.user.id);
+  if (error) throw error;
+}
+
+/** For hospital accounts: keep the owned hospitals row's name/wilaya in sync with the profile edit. */
+export async function updateOwnedHospital(params: { name: string; wilaya: string | null }): Promise<void> {
+  const supabase = getSupabase();
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  if (!sessionData.session) throw new Error("Must be signed in to update hospital");
+
+  const { error } = await supabase
+    .from("hospitals")
+    .update({ name: params.name, ...(params.wilaya ? { wilaya: params.wilaya } : {}) })
+    .eq("owner_id", sessionData.session.user.id);
   if (error) throw error;
 }

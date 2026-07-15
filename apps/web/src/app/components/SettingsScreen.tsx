@@ -1,6 +1,8 @@
-import { ArrowLeft, Check } from "lucide-react";
-import { LANGS, type Lang } from "@weare/core";
+import { useState } from "react";
+import { ArrowLeft, Check, ChevronDown } from "lucide-react";
+import { LANGS, WILAYAS, type Lang } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { getBoolPref, setBoolPref, getDefaultWilaya, setDefaultWilaya } from "../prefs";
 
 interface SettingsScreenProps {
   onBack: () => void;
@@ -8,9 +10,56 @@ interface SettingsScreenProps {
 
 const LANG_LABEL: Record<Lang, string> = { en: "English", fr: "Français", ar: "العربية" };
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-5 text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432", textAlign: "start" }}>
+      {children}
+    </div>
+  );
+}
+
+function PrefToggleRow({
+  label,
+  prefKey,
+  defaultOn,
+  divider,
+}: {
+  label: string;
+  prefKey: "ramadan" | "notifUrgent" | "notifRamadan" | "notifNearby";
+  defaultOn: boolean;
+  divider?: boolean;
+}) {
+  const { dir } = useI18n();
+  const [on, setOn] = useState(() => getBoolPref(prefKey, defaultOn));
+  const knobSide = (on && dir !== "rtl") || (!on && dir === "rtl") ? "right" : "left";
+  return (
+    <div
+      className="flex items-center justify-between px-[15px] py-[15px]"
+      style={divider ? { borderBottom: "1px solid rgba(11,36,50,0.05)" } : undefined}
+    >
+      <span className="text-sm font-semibold" style={{ color: "#0B2432", textAlign: "start" }}>{label}</span>
+      <button
+        onClick={() => {
+          const next = !on;
+          setOn(next);
+          setBoolPref(prefKey, next);
+        }}
+        className="cursor-pointer w-11 h-[26px] rounded-full relative transition-colors shrink-0"
+        style={{ background: on ? "#12B76A" : "#D6DEE2" }}
+      >
+        <span
+          className="absolute top-[3px] w-5 h-5 rounded-full bg-white transition-all"
+          style={{ [knobSide]: "3px" } as React.CSSProperties}
+        />
+      </button>
+    </div>
+  );
+}
+
 export function SettingsScreen({ onBack }: SettingsScreenProps) {
   const { t, lang, setLang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
+  const [wilaya, setWilaya] = useState<string>(() => getDefaultWilaya() ?? "");
 
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
@@ -25,7 +74,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
         <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{t.settingsLabel}</div>
       </div>
 
-      <div className="text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432", textAlign: "start" }}>{t.languageLabel}</div>
+      <SectionTitle>{t.languageLabel}</SectionTitle>
       <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
         {LANGS.map((l, i) => (
           <button
@@ -40,7 +89,50 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
         ))}
       </div>
 
-      <div className="mt-8 text-center text-xs" style={{ color: "#B8C4CA" }}>Qatra · قطرة v1.0.0</div>
+      <SectionTitle>{t.notifications}</SectionTitle>
+      <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+        <PrefToggleRow label={t.notifUrgent} prefKey="notifUrgent" defaultOn divider />
+        <PrefToggleRow label={t.notifRamadan} prefKey="notifRamadan" defaultOn divider />
+        <PrefToggleRow label={t.notifNearby} prefKey="notifNearby" defaultOn={false} />
+      </div>
+
+      <SectionTitle>{t.preferencesLabel}</SectionTitle>
+      <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+        <PrefToggleRow label={t.ramadanToggle} prefKey="ramadan" defaultOn divider />
+        <div className="px-[15px] py-[15px]">
+          <label className="block text-sm font-semibold mb-2" style={{ color: "#0B2432", textAlign: "start" }}>
+            {t.defaultWilayaLabel}
+          </label>
+          <div className="relative">
+            <select
+              value={wilaya}
+              onChange={(e) => {
+                setWilaya(e.target.value);
+                setDefaultWilaya(e.target.value || null);
+              }}
+              className="w-full h-11 rounded-[13px] border-[1.5px] px-3.5 text-[14px] outline-none appearance-none"
+              style={{ borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432", textAlign: "start" }}
+            >
+              <option value="">{t.allWilayas}</option>
+              {WILAYAS.map((w) => (
+                <option key={w.code} value={w.fr}>
+                  {w.code} — {w[lang]}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ insetInlineEnd: "14px", color: "#8496A0" }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <SectionTitle>{t.aboutLabel}</SectionTitle>
+      <div className="bg-white border rounded-2xl overflow-hidden px-[15px] py-[15px] flex items-center justify-between" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+        <span className="text-sm font-semibold" style={{ color: "#0B2432" }}>{t.versionLabel}</span>
+        <span className="text-sm" style={{ color: "#8496A0" }}>Qatra · قطرة 1.0.0</span>
+      </div>
     </div>
   );
 }

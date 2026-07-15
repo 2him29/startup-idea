@@ -5,6 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, wilayaLabel, type BloodRequest } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { getDefaultWilaya } from "../prefs";
 
 interface MatchingScreenProps {
   onBack: () => void;
@@ -30,8 +31,11 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
   const wilayasPresent = Array.from(new Set(allRequests.map((r) => r.wilaya).filter((w): w is string => !!w)));
-  const [selectedWilaya, setSelectedWilaya] = useState<string | null>(null);
-  const bloodRequests = selectedWilaya ? allRequests.filter((r) => r.wilaya === selectedWilaya) : allRequests;
+  const [selectedWilaya, setSelectedWilaya] = useState<string | null>(() => getDefaultWilaya());
+  // The saved preference may name a wilaya with no open requests right now --
+  // fall back to showing everything rather than an empty list.
+  const effectiveWilaya = selectedWilaya && wilayasPresent.includes(selectedWilaya) ? selectedWilaya : null;
+  const bloodRequests = effectiveWilaya ? allRequests.filter((r) => r.wilaya === effectiveWilaya) : allRequests;
 
   const mappable = bloodRequests.filter(
     (r): r is BloodRequest & { hospitalLat: number; hospitalLng: number } =>
@@ -42,13 +46,13 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
   // showing the Algiers view -- otherwise picking a distant wilaya leaves its
   // marker off-screen.
   const mapCenter: [number, number] =
-    selectedWilaya && mappable.length > 0
+    effectiveWilaya && mappable.length > 0
       ? [
           mappable.reduce((sum, r) => sum + r.hospitalLat, 0) / mappable.length,
           mappable.reduce((sum, r) => sum + r.hospitalLng, 0) / mappable.length,
         ]
       : ALGIERS_CENTER;
-  const mapZoom = selectedWilaya && mappable.length > 0 ? 12 : 11;
+  const mapZoom = effectiveWilaya && mappable.length > 0 ? 12 : 11;
 
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
@@ -69,7 +73,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
       {wilayasPresent.length > 1 && (
         <div className="flex gap-2 mb-3.5 flex-wrap">
           {[null, ...wilayasPresent].map((w) => {
-            const active = selectedWilaya === w;
+            const active = effectiveWilaya === w;
             return (
               <button
                 key={w ?? "all"}
@@ -90,7 +94,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
 
       {/* map */}
       <div className="rounded-[22px] overflow-hidden h-[220px] relative border shadow-[0_12px_26px_-18px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.08)" }}>
-        <MapContainer key={selectedWilaya ?? "all"} center={mapCenter} zoom={mapZoom} scrollWheelZoom style={{ width: "100%", height: "100%" }}>
+        <MapContainer key={effectiveWilaya ?? "all"} center={mapCenter} zoom={mapZoom} scrollWheelZoom style={{ width: "100%", height: "100%" }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

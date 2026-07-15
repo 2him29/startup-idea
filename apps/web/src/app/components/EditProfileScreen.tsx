@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check } from "lucide-react";
-import { getDonorProfile, updateFullName, upsertDonorProfile, type Profile } from "@weare/core";
+import { ArrowLeft, Check, ChevronDown } from "lucide-react";
+import {
+  getDonorProfile,
+  updateProfileDetails,
+  updateOwnedHospital,
+  upsertDonorProfile,
+  WILAYAS,
+  type Profile,
+} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 interface EditProfileScreenProps {
@@ -13,14 +20,17 @@ interface EditProfileScreenProps {
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditProfileScreenProps) {
-  const { t, dir } = useI18n();
+  const { t, lang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
   const isDonor = userType === "donor";
 
   const [fullName, setFullName] = useState(profile?.fullName ?? "");
+  const [phone, setPhone] = useState(profile?.phone ?? "");
+  const [wilaya, setWilaya] = useState(profile?.wilaya ?? "");
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
   const [selectedBlood, setSelectedBlood] = useState("A+");
+  const [lastDonation, setLastDonation] = useState("");
   const [loading, setLoading] = useState(isDonor);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +45,7 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
         setSelectedBlood(d.bloodType);
         setAge(d.age != null ? String(d.age) : "");
         setWeight(d.weightKg != null ? String(d.weightKg) : "");
+        setLastDonation(d.lastDonationDate ?? "");
       })
       .catch((err) => console.error("Failed to load donor profile", err))
       .finally(() => {
@@ -51,13 +62,20 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
     setSaved(false);
     setSaving(true);
     try {
-      await updateFullName(fullName.trim());
+      await updateProfileDetails({
+        fullName: fullName.trim(),
+        phone: phone.trim() || null,
+        wilaya: wilaya || null,
+      });
       if (isDonor) {
         await upsertDonorProfile({
           bloodType: selectedBlood,
           age: age ? Number(age) : null,
           weightKg: weight ? Number(weight) : null,
+          lastDonationDate: lastDonation || null,
         });
+      } else {
+        await updateOwnedHospital({ name: fullName.trim(), wilaya: wilaya || null });
       }
       await onSaved();
       setSaved(true);
@@ -69,6 +87,8 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
   };
 
   const inputStyle = { borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432" } as const;
+  const labelCls = "block text-[12.5px] font-bold mb-1.5";
+  const labelStyle = { color: "#5A6B75", textAlign: "start" } as const;
 
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
@@ -90,7 +110,7 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
           <div className="bg-white border rounded-[20px] p-[18px] shadow-[0_10px_24px_-20px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
             <div className="text-sm font-extrabold mb-3.5" style={{ color: "#0B2432", textAlign: "start" }}>{t.personalInfo}</div>
 
-            <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.fullName}</label>
+            <label className={labelCls} style={labelStyle}>{isDonor ? t.fullName : t.hospitalLabel}</label>
             <input
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
@@ -99,11 +119,42 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
               style={{ ...inputStyle, textAlign: "start" }}
             />
 
+            <label className={labelCls} style={labelStyle}>{t.phoneLabel}</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="05 XX XX XX XX"
+              className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none mb-3.5"
+              style={{ ...inputStyle, textAlign: "start", direction: "ltr" }}
+            />
+
+            <label className={labelCls} style={labelStyle}>{t.wilayaField}</label>
+            <div className="relative mb-3.5">
+              <select
+                value={wilaya}
+                onChange={(e) => setWilaya(e.target.value)}
+                className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none appearance-none"
+                style={{ ...inputStyle, textAlign: "start" }}
+              >
+                <option value="">—</option>
+                {WILAYAS.map((w) => (
+                  <option key={w.code} value={w.fr}>
+                    {w.code} — {w[lang]}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ insetInlineEnd: "14px", color: "#8496A0" }}
+              />
+            </div>
+
             {isDonor && (
               <>
                 <div className="flex gap-3 mb-4">
                   <div className="flex-1">
-                    <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.age}</label>
+                    <label className={labelCls} style={labelStyle}>{t.age}</label>
                     <input
                       type="number"
                       value={age}
@@ -113,7 +164,7 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.weight}</label>
+                    <label className={labelCls} style={labelStyle}>{t.weight}</label>
                     <input
                       type="number"
                       value={weight}
@@ -124,7 +175,16 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
                   </div>
                 </div>
 
-                <label className="block text-[12.5px] font-bold mb-2.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.bloodType}</label>
+                <label className={labelCls} style={labelStyle}>{t.lastDonationLabel}</label>
+                <input
+                  type="date"
+                  value={lastDonation}
+                  onChange={(e) => setLastDonation(e.target.value)}
+                  className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none mb-4"
+                  style={{ ...inputStyle, textAlign: "start" }}
+                />
+
+                <label className="block text-[12.5px] font-bold mb-2.5" style={labelStyle}>{t.bloodType}</label>
                 <div className="grid grid-cols-4 gap-2.5">
                   {bloodTypes.map((b) => {
                     const active = b === selectedBlood;
