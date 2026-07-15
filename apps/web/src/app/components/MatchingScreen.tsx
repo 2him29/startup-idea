@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { ArrowLeft, MapPin, Droplet } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, type BloodRequest } from "@weare/core";
+import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, wilayaLabel, type BloodRequest } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 interface MatchingScreenProps {
@@ -23,15 +24,31 @@ function urgencyIcon(color: string) {
 }
 
 export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScreenProps) {
-  const { t, dir } = useI18n();
+  const { t, lang, dir } = useI18n();
   const accent = userType === "hospital" ? "#0E8BA8" : "#E5484D";
-  const { requests: bloodRequests } = useBloodRequests();
+  const { requests: allRequests } = useBloodRequests();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
+
+  const wilayasPresent = Array.from(new Set(allRequests.map((r) => r.wilaya).filter((w): w is string => !!w)));
+  const [selectedWilaya, setSelectedWilaya] = useState<string | null>(null);
+  const bloodRequests = selectedWilaya ? allRequests.filter((r) => r.wilaya === selectedWilaya) : allRequests;
 
   const mappable = bloodRequests.filter(
     (r): r is BloodRequest & { hospitalLat: number; hospitalLng: number } =>
       r.hospitalLat != null && r.hospitalLng != null
   );
+
+  // Re-center the map on the filtered wilaya's own hospitals instead of always
+  // showing the Algiers view -- otherwise picking a distant wilaya leaves its
+  // marker off-screen.
+  const mapCenter: [number, number] =
+    selectedWilaya && mappable.length > 0
+      ? [
+          mappable.reduce((sum, r) => sum + r.hospitalLat, 0) / mappable.length,
+          mappable.reduce((sum, r) => sum + r.hospitalLng, 0) / mappable.length,
+        ]
+      : ALGIERS_CENTER;
+  const mapZoom = selectedWilaya && mappable.length > 0 ? 12 : 11;
 
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
@@ -49,9 +66,31 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
         </div>
       </div>
 
+      {wilayasPresent.length > 1 && (
+        <div className="flex gap-2 mb-3.5 flex-wrap">
+          {[null, ...wilayasPresent].map((w) => {
+            const active = selectedWilaya === w;
+            return (
+              <button
+                key={w ?? "all"}
+                onClick={() => setSelectedWilaya(w)}
+                className="cursor-pointer text-[12.5px] font-bold px-3.5 py-2 rounded-full border"
+                style={
+                  active
+                    ? { background: accent, color: "#fff", borderColor: accent }
+                    : { background: "#fff", color: "#5A6B75", borderColor: "rgba(11,36,50,0.1)" }
+                }
+              >
+                {w ? wilayaLabel(w, lang) : t.filterAll}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* map */}
       <div className="rounded-[22px] overflow-hidden h-[220px] relative border shadow-[0_12px_26px_-18px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.08)" }}>
-        <MapContainer center={ALGIERS_CENTER} zoom={11} scrollWheelZoom style={{ width: "100%", height: "100%" }}>
+        <MapContainer key={selectedWilaya ?? "all"} center={mapCenter} zoom={mapZoom} scrollWheelZoom style={{ width: "100%", height: "100%" }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

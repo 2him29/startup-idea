@@ -6,3 +6,4 @@ export * from "./compensations";
 export * from "./hooks";
 export * from "./i18n";
 export * from "./reserve";
+export * from "./wilayas";

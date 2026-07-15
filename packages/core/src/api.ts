@@ -9,7 +9,7 @@ interface BloodRequestRow {
   urgency: Urgency;
   distance_km: number | null;
   created_at: string;
-  hospitals: { name: string; latitude: number | null; longitude: number | null } | null;
+  hospitals: { name: string; latitude: number | null; longitude: number | null; wilaya: string | null } | null;
 }
 
 function relativeTime(iso: string): string {
@@ -31,6 +31,7 @@ function toBloodRequest(row: BloodRequestRow): BloodRequest {
     time: relativeTime(row.created_at),
     hospitalLat: row.hospitals?.latitude ?? null,
     hospitalLng: row.hospitals?.longitude ?? null,
+    wilaya: row.hospitals?.wilaya ?? null,
   };
 }
 
@@ -38,7 +39,7 @@ function toBloodRequest(row: BloodRequestRow): BloodRequest {
 export async function fetchBloodRequests(): Promise<BloodRequest[]> {
   const { data, error } = await getSupabase()
     .from("blood_requests")
-    .select("id, patient_id, blood_type, units, urgency, distance_km, created_at, hospitals(name, latitude, longitude)")
+    .select("id, patient_id, blood_type, units, urgency, distance_km, created_at, hospitals(name, latitude, longitude, wilaya)")
     .eq("status", "open")
     .order("created_at", { ascending: false });
 

@@ -1,0 +1,78 @@
+import type { Lang } from "./i18n";
+
+export interface Wilaya {
+  code: string;
+  en: string;
+  fr: string;
+  ar: string;
+}
+
+/** Algeria's 58 wilayas (administrative provinces), in code order. */
+export const WILAYAS: Wilaya[] = [
+  { code: "01", en: "Adrar", fr: "Adrar", ar: "أدرار" },
+  { code: "02", en: "Chlef", fr: "Chlef", ar: "الشلف" },
+  { code: "03", en: "Laghouat", fr: "Laghouat", ar: "الأغواط" },
+  { code: "04", en: "Oum El Bouaghi", fr: "Oum El Bouaghi", ar: "أم البواقي" },
+  { code: "05", en: "Batna", fr: "Batna", ar: "باتنة" },
+  { code: "06", en: "Béjaïa", fr: "Béjaïa", ar: "بجاية" },
+  { code: "07", en: "Biskra", fr: "Biskra", ar: "بسكرة" },
+  { code: "08", en: "Béchar", fr: "Béchar", ar: "بشار" },
+  { code: "09", en: "Blida", fr: "Blida", ar: "البليدة" },
+  { code: "10", en: "Bouira", fr: "Bouira", ar: "البويرة" },
+  { code: "11", en: "Tamanrasset", fr: "Tamanrasset", ar: "تمنراست" },
+  { code: "12", en: "Tébessa", fr: "Tébessa", ar: "تبسة" },
+  { code: "13", en: "Tlemcen", fr: "Tlemcen", ar: "تلمسان" },
+  { code: "14", en: "Tiaret", fr: "Tiaret", ar: "تيارت" },
+  { code: "15", en: "Tizi Ouzou", fr: "Tizi Ouzou", ar: "تيزي وزو" },
+  { code: "16", en: "Algiers", fr: "Alger", ar: "الجزائر" },
+  { code: "17", en: "Djelfa", fr: "Djelfa", ar: "الجلفة" },
+  { code: "18", en: "Jijel", fr: "Jijel", ar: "جيجل" },
+  { code: "19", en: "Sétif", fr: "Sétif", ar: "سطيف" },
+  { code: "20", en: "Saïda", fr: "Saïda", ar: "سعيدة" },
+  { code: "21", en: "Skikda", fr: "Skikda", ar: "سكيكدة" },
+  { code: "22", en: "Sidi Bel Abbès", fr: "Sidi Bel Abbès", ar: "سيدي بلعباس" },
+  { code: "23", en: "Annaba", fr: "Annaba", ar: "عنابة" },
+  { code: "24", en: "Guelma", fr: "Guelma", ar: "قالمة" },
+  { code: "25", en: "Constantine", fr: "Constantine", ar: "قسنطينة" },
+  { code: "26", en: "Médéa", fr: "Médéa", ar: "المدية" },
+  { code: "27", en: "Mostaganem", fr: "Mostaganem", ar: "مستغانم" },
+  { code: "28", en: "M'Sila", fr: "M'Sila", ar: "المسيلة" },
+  { code: "29", en: "Mascara", fr: "Mascara", ar: "معسكر" },
+  { code: "30", en: "Ouargla", fr: "Ouargla", ar: "ورقلة" },
+  { code: "31", en: "Oran", fr: "Oran", ar: "وهران" },
+  { code: "32", en: "El Bayadh", fr: "El Bayadh", ar: "البيض" },
+  { code: "33", en: "Illizi", fr: "Illizi", ar: "إليزي" },
+  { code: "34", en: "Bordj Bou Arréridj", fr: "Bordj Bou Arréridj", ar: "برج بوعريريج" },
+  { code: "35", en: "Boumerdès", fr: "Boumerdès", ar: "بومرداس" },
+  { code: "36", en: "El Tarf", fr: "El Tarf", ar: "الطارف" },
+  { code: "37", en: "Tindouf", fr: "Tindouf", ar: "تندوف" },
+  { code: "38", en: "Tissemsilt", fr: "Tissemsilt", ar: "تيسمسيلت" },
+  { code: "39", en: "El Oued", fr: "El Oued", ar: "الوادي" },
+  { code: "40", en: "Khenchela", fr: "Khenchela", ar: "خنشلة" },
+  { code: "41", en: "Souk Ahras", fr: "Souk Ahras", ar: "سوق أهراس" },
+  { code: "42", en: "Tipaza", fr: "Tipaza", ar: "تيبازة" },
+  { code: "43", en: "Mila", fr: "Mila", ar: "ميلة" },
+  { code: "44", en: "Aïn Defla", fr: "Aïn Defla", ar: "عين الدفلى" },
+  { code: "45", en: "Naâma", fr: "Naâma", ar: "النعامة" },
+  { code: "46", en: "Aïn Témouchent", fr: "Aïn Témouchent", ar: "عين تموشنت" },
+  { code: "47", en: "Ghardaïa", fr: "Ghardaïa", ar: "غرداية" },
+  { code: "48", en: "Relizane", fr: "Relizane", ar: "غليزان" },
+  { code: "49", en: "Timimoun", fr: "Timimoun", ar: "تيميمون" },
+  { code: "50", en: "Bordj Badji Mokhtar", fr: "Bordj Badji Mokhtar", ar: "برج باجي مختار" },
+  { code: "51", en: "Ouled Djellal", fr: "Ouled Djellal", ar: "أولاد جلال" },
+  { code: "52", en: "Béni Abbès", fr: "Béni Abbès", ar: "بني عباس" },
+  { code: "53", en: "In Salah", fr: "In Salah", ar: "عين صالح" },
+  { code: "54", en: "In Guezzam", fr: "In Guezzam", ar: "عين قزام" },
+  { code: "55", en: "Touggourt", fr: "Touggourt", ar: "تقرت" },
+  { code: "56", en: "Djanet", fr: "Djanet", ar: "جانت" },
+  { code: "57", en: "El M'Ghair", fr: "El M'Ghair", ar: "المغير" },
+  { code: "58", en: "El Meniaa", fr: "El Meniaa", ar: "المنيعة" },
+];
+
+/** Wilaya display name is stored canonically as the French name (matches existing hospital/seed data like "Alger"). */
+export function wilayaLabel(frName: string | null | undefined, lang: Lang): string {
+  if (!frName) return "—";
+  const w = WILAYAS.find((x) => x.fr === frName);
+  if (!w) return frName;
+  return w[lang];
+}
