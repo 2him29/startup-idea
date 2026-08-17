@@ -49,8 +49,13 @@ test.describe("donor journey", () => {
     await page.getByText("Find urgent requests").click();
     await expect(page.getByText("Urgent requests")).toBeVisible();
 
-    // The first request card in the list, whatever the live data happens to be.
-    await page.getByRole("button", { name: /View →/ }).first().click();
+    // The first request card in the list, whatever the live data happens to
+    // be. Waited for explicitly: the cards render only once the Supabase fetch
+    // resolves and the skeletons clear, so clicking straight away races the
+    // network rather than the app.
+    const firstCard = page.getByRole("button", { name: /View →/ }).first();
+    await firstCard.waitFor({ state: "visible", timeout: 30_000 });
+    await firstCard.click();
     await expect(page.getByText("Request details")).toBeVisible();
     await expect(page.getByRole("button", { name: "Respond to request" })).toBeVisible();
   });

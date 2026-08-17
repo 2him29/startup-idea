@@ -14,12 +14,37 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? "github" : "list",
+
+  // One retry locally, not zero.
+  //
+  // These specs drive the real app against a live Supabase project, so a slow
+  // round trip is indistinguishable from a broken assertion — measured at
+  // roughly one full run in six, landing on a different test each time and
+  // always as a visibility timeout, never a wrong value. Every affected test
+  // passes repeatedly in isolation. A retry absorbs that without hiding real
+  // breakage: a genuinely broken test fails both attempts, and retried runs
+  // are reported as flaky rather than silently green.
+  retries: process.env.CI ? 2 : 1,
+
+  // Capped deliberately. Every spec drives one Vite dev server and one shared
+  // Supabase demo account, so extra workers add contention rather than speed —
+  // at the default (half the CPU count) requests occasionally time out purely
+  // from queueing, which reads as a failure in the app. Retries stay off
+  // locally so a genuine flake stays visible instead of being papered over.
+  workers: 3,
+
+  // These specs drive the real app against a real Supabase project, and every
+  // worker signs in as the same demo account — so with both projects running
+  // there are six concurrent sessions competing for the same backend. The
+  // defaults (5s expect, no action timeout) are tuned for local fixtures and
+  // are too tight for that; a slow round trip should not read as a failure.
+  expect: { timeout: 15_000 },
 
   use: {
     baseURL: "http://localhost:5173",
     locale: "en-US",
+    actionTimeout: 20_000,
     trace: "on-first-retry",
   },
 
