@@ -8,6 +8,14 @@
   ],
   "scripts": {
     "dev": "npm run dev -w @weare/web",
-    "build": "npm run build -w @weare/web"
+    "build": "npm run build -w @weare/web",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "verify:db": "node supabase/tests/verify.mjs",
+    "typecheck": "tsc --noEmit --jsx react-jsx --module esnext --moduleResolution bundler --target es2022 --strict --skipLibCheck --allowImportingTsExtensions packages/core/src/index.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "embedded-postgres": "^18.4.0-beta.17"
   }
 }

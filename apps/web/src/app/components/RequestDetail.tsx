@@ -1,6 +1,7 @@
-import { ArrowLeft, Phone, Clock, MapPin, AlertTriangle } from "lucide-react";
-import { urgencyLabel, type BloodRequest } from "@weare/core";
+import { ArrowLeft, Phone, Clock, MapPin, AlertTriangle, Share2 } from "lucide-react";
+import { urgencyLabel, formatShareMessage, shareToWhatsApp, type BloodRequest } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 interface RequestDetailProps {
   onBack: () => void;
@@ -52,6 +53,12 @@ export function RequestDetail({ onBack, onRespond, request }: RequestDetailProps
         </div>
       </div>
 
+      {request.verifiedByName && (
+        <div className="mt-3.5">
+          <VerifiedBadge associationName={request.verifiedByName} />
+        </div>
+      )}
+
       <div className="mt-4 bg-white border rounded-[20px] p-[18px]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
         <div className="text-sm font-extrabold mb-3" style={{ color: "#0B2432", textAlign: "start" }}>{t.details}</div>
         <div className="flex flex-col gap-[13px]">
@@ -91,6 +98,24 @@ export function RequestDetail({ onBack, onRespond, request }: RequestDetailProps
           style={{ borderColor: "rgba(11,36,50,0.12)" }}
         >
           <Phone className="w-[21px] h-[21px]" style={{ color: "#0B2432" }} />
+        </button>
+        <button
+          onClick={() =>
+            shareToWhatsApp(
+              formatShareMessage(t, {
+                hospital: request.hospital,
+                bloodType: request.bloodType,
+                distance: request.distance,
+                units: request.units,
+                verifiedByName: request.verifiedByName,
+              })
+            )
+          }
+          aria-label={t.shareLabel}
+          className="cursor-pointer w-14 h-[54px] shrink-0 rounded-2xl border-[1.5px] bg-white flex items-center justify-center"
+          style={{ borderColor: "rgba(11,36,50,0.12)" }}
+        >
+          <Share2 className="w-[21px] h-[21px]" style={{ color: "#0B2432" }} />
         </button>
         <button
           onClick={onRespond}

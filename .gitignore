@@ -13,3 +13,12 @@ Thumbs.db
 
 # Editor settings stay local
 .vscode/
+
+# Playwright output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Throwaway Postgres cluster created by npm run verify:db
+/supabase/tests/.pgdata/

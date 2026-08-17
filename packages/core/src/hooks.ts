@@ -5,6 +5,10 @@ import { getCurrentProfile, getDonorProfile, type DonorProfile, type Profile } f
 import { getSupabase } from "./supabaseClient";
 import { fetchHospitals, fallbackHospitals, type Hospital } from "./compensations";
 import { fetchBloodDrives, fallbackDrives, type BloodDrive } from "./drives";
+import { ELIGIBILITY_INTERVAL_DAYS } from "./donors";
+import { fetchMyMemberships, type AssociationMembership } from "./associations";
+import { fetchRequestsForWilaya } from "./api";
+import { isPhoneVerified } from "./otp";
 
 /**
  * Live open requests from Supabase, shared by the Find screen and the
@@ -141,9 +145,6 @@ export function useDonorProfile() {
   return { donorProfile, loading };
 }
 
-/** Days between donations before a donor is eligible again (whole-blood rule used in Algeria). */
-export const ELIGIBILITY_INTERVAL_DAYS = 90;
-
 export interface Eligibility {
   eligible: boolean;
   /** 0..1 progress toward the next eligible date (1 = eligible now). */
@@ -152,15 +153,120 @@ export interface Eligibility {
   nextEligibleDate: Date | null;
 }
 
-/** Eligibility from the last donation date; a donor with no recorded donation is eligible. */
-export function computeEligibility(lastDonationDate: string | null): Eligibility {
-  if (!lastDonationDate) return { eligible: true, progress: 1, daysLeft: 0, nextEligibleDate: null };
-  const last = new Date(lastDonationDate + "T00:00:00");
+/**
+ * Eligibility from the last donation; a donor with no recorded donation is
+ * eligible. Accepts either storage format — the legacy date-only
+ * `last_donation_date` ("2026-05-01") or the newer `last_donation_at`
+ * timestamptz — because both columns are live during the patient-model
+ * migration. A bare date is read as local midnight, which is what the profile
+ * editor means when it stores one.
+ */
+export function computeEligibility(lastDonation: string | null): Eligibility {
+  if (!lastDonation) return { eligible: true, progress: 1, daysLeft: 0, nextEligibleDate: null };
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(lastDonation);
+  const last = new Date(isDateOnly ? `${lastDonation}T00:00:00` : lastDonation);
   const next = new Date(last.getTime() + ELIGIBILITY_INTERVAL_DAYS * 86400000);
   const elapsedDays = (Date.now() - last.getTime()) / 86400000;
   const progress = Math.max(0, Math.min(1, elapsedDays / ELIGIBILITY_INTERVAL_DAYS));
   const daysLeft = Math.max(0, Math.ceil(ELIGIBILITY_INTERVAL_DAYS - elapsedDays));
   return { eligible: daysLeft === 0, progress, daysLeft, nextEligibleDate: next };
+}
+
+/**
+ * The associations this user belongs to. Drives whether the association
+ * console is reachable at all: no membership, no console.
+ */
+export function useMyMemberships() {
+  const [memberships, setMemberships] = useState<AssociationMembership[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchMyMemberships()
+      .then((data) => {
+        if (!cancelled) setMemberships(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch association memberships", err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /** Only verified associations confer the right to vouch for a request. */
+  const verifying = memberships.filter((m) => m.association.isVerified);
+
+  return { memberships, verifying, loading };
+}
+
+/** Open requests in one wilaya — the association console's working list. */
+export function useWilayaRequests(wilaya: string | null) {
+  const [requests, setRequests] = useState<BloodRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!wilaya) {
+      setRequests([]);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    fetchRequestsForWilaya(wilaya)
+      .then((data) => {
+        if (!cancelled) setRequests(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch wilaya requests", err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [wilaya]);
+
+  const refresh = async () => {
+    if (!wilaya) return;
+    setRequests(await fetchRequestsForWilaya(wilaya));
+  };
+
+  return { requests, loading, refresh };
+}
+
+/**
+ * Whether the signed-in account has a verified phone. Gates the patient
+ * request form: RLS rejects the insert without it, so the UI checks first and
+ * routes to verification rather than letting the user fill in a form that
+ * cannot be submitted.
+ */
+export function usePhoneVerified() {
+  const [verified, setVerified] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    isPhoneVerified()
+      .then((v) => {
+        if (!cancelled) setVerified(v);
+      })
+      .catch((err) => console.error("Failed to check phone verification", err))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const refresh = async () => setVerified(await isPhoneVerified());
+
+  return { verified, loading, refresh };
 }
 
 /** Upcoming community blood drives for the Drives screen. Mirrors useBloodRequests's fallback pattern. */

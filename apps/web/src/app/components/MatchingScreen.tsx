@@ -7,6 +7,7 @@ import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, wilayaLabel, 
 import { useI18n } from "../i18n/LangContext";
 import { getDefaultWilaya } from "../prefs";
 import { RequestCardSkeleton } from "./Skeletons";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 interface MatchingScreenProps {
   onBack: () => void;
@@ -158,6 +159,11 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                       <MapPin className="w-[13px] h-[13px]" />
                       {r.distance} · {r.time}
                     </div>
+                    {r.verifiedByName && (
+                      <div className="mt-1.5">
+                        <VerifiedBadge associationName={r.verifiedByName} variant="compact" />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <span className="text-[11.5px] font-extrabold px-[11px] py-1.5 rounded-full" style={{ background: badge.bg, color: badge.fg }}>

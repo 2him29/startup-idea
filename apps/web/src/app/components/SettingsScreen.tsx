@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { ArrowLeft, Check, ChevronDown } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronRight, ShieldCheck } from "lucide-react";
 import { LANGS, WILAYAS, type Lang } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { getBoolPref, setBoolPref, getDefaultWilaya, setDefaultWilaya, isRamadanNow } from "../prefs";
 
 interface SettingsScreenProps {
   onBack: () => void;
+  onNavigate: (screen: string) => void;
 }
 
 const LANG_LABEL: Record<Lang, string> = { en: "English", fr: "Français", ar: "العربية" };
@@ -56,7 +57,7 @@ function PrefToggleRow({
   );
 }
 
-export function SettingsScreen({ onBack }: SettingsScreenProps) {
+export function SettingsScreen({ onBack, onNavigate }: SettingsScreenProps) {
   const { t, lang, setLang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
   const [wilaya, setWilaya] = useState<string>(() => getDefaultWilaya() ?? "");
@@ -127,6 +128,19 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
           </div>
         </div>
       </div>
+
+      <SectionTitle>{t.dataRightsTitle}</SectionTitle>
+      <button
+        onClick={() => onNavigate("data-rights")}
+        className="cursor-pointer w-full bg-white border rounded-2xl px-[15px] py-[15px] flex items-center gap-3"
+        style={{ borderColor: "rgba(11,36,50,0.06)", textAlign: "start" }}
+      >
+        <span className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: "#EAF6EF" }}>
+          <ShieldCheck className="w-[17px] h-[17px]" style={{ color: "#0E7A4B" }} />
+        </span>
+        <span className="flex-1 text-sm font-semibold" style={{ color: "#0B2432" }}>{t.dataRightsSub}</span>
+        <ChevronRight className="w-[19px] h-[19px] shrink-0" style={{ color: "#C0CCD2", transform: chevronFlip }} />
+      </button>
 
       <SectionTitle>{t.aboutLabel}</SectionTitle>
       <div className="bg-white border rounded-2xl overflow-hidden px-[15px] py-[15px] flex items-center justify-between" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
