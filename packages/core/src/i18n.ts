@@ -67,6 +67,26 @@ export interface Strings {
   publishRequest: string; requestPublished: string; publishing: string;
   sosStartedToast: string; sosStoppedToast: string;
   hospitalsTitle: string; hospitalsSub: string; openInMaps: string; hospSearchPh: string;
+
+  // --- Patient/association model (behind the patientModel feature flag) ---
+  verifiedByLabel: string; verifiedShort: string; notVerifiedShort: string; shareVerifiedSuffix: string;
+  postRequestTitle: string; postRequestSub: string; hospitalNameOptional: string; contactPhoneLabel: string;
+  patientFileOptional: string; postRequestCta: string; posting: string; requestPosted: string;
+  verifyPhoneTitle: string; verifyPhoneSub: string; sendCodeCta: string; sendingCode: string;
+  codeLabel: string; verifyCodeCta: string; verifyingCode: string; phoneVerifiedToast: string;
+  invalidPhone: string; verifyRequiredNote: string;
+  assocConsoleTitle: string; assocConsoleSub: string; verifyAction: string; unverifyAction: string;
+  verifiedToast: string; unverifiedToast: string; noRequestsWilaya: string;
+  assocPendingTitle: string; assocPendingSub: string;
+  assocApplyTitle: string; assocApplySub: string; assocNameLabel: string; assocTypeLabel: string;
+  assocTypeRedCrescent: string; assocTypeScouts: string; assocTypeStudent: string; assocTypeOther: string;
+  assocApplyCta: string; assocAppliedToast: string;
+  consentTitle: string; consentIntro: string; consentPoint1: string; consentPoint2: string; consentPoint3: string;
+  consentAgreeLabel: string; consentContinueCta: string; consentRequiredError: string;
+  dataRightsTitle: string; dataRightsSub: string; dsrExport: string; dsrCorrection: string; dsrDeletion: string;
+  dsrSubmittedToast: string; dsrDetailsPh: string;
+  navRequestLabel: string; navVerifyLabel: string;
+  eligibleInDays: string; eligibleLabel: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -134,6 +154,40 @@ export const I18N: Record<Lang, Strings> = {
     publishRequest: "Publish request", requestPublished: "Request published — nearby donors will see it", publishing: "Publishing…",
     sosStartedToast: "SOS broadcast started", sosStoppedToast: "SOS broadcast stopped",
     hospitalsTitle: "Hospitals & blood centers", hospitalsSub: "Find the nearest center", openInMaps: "Open in Google Maps", hospSearchPh: "Search by name or wilaya…",
+
+    verifiedByLabel: "Verified by {association}", verifiedShort: "Verified", notVerifiedShort: "Not verified",
+    shareVerifiedSuffix: "Verified by {association} via Qatra.",
+    postRequestTitle: "Request blood", postRequestSub: "For a patient or a family member",
+    hospitalNameOptional: "Hospital (optional)", contactPhoneLabel: "Contact phone",
+    patientFileOptional: "Patient file № (optional)", postRequestCta: "Post request", posting: "Posting…",
+    requestPosted: "Request posted — donors nearby will see it",
+    verifyPhoneTitle: "Verify your phone", verifyPhoneSub: "We'll send a code by SMS. This is what keeps requests trustworthy.",
+    sendCodeCta: "Send code", sendingCode: "Sending…", codeLabel: "6-digit code",
+    verifyCodeCta: "Verify", verifyingCode: "Verifying…", phoneVerifiedToast: "Phone verified",
+    invalidPhone: "Enter a valid Algerian mobile number (05/06/07…)",
+    verifyRequiredNote: "Verify your phone number before posting a request.",
+    assocConsoleTitle: "Association console", assocConsoleSub: "Open requests in {wilaya}",
+    verifyAction: "Verify", unverifyAction: "Remove verification",
+    verifiedToast: "Request verified", unverifiedToast: "Verification removed",
+    noRequestsWilaya: "No open requests in this wilaya right now",
+    assocPendingTitle: "Awaiting Qatra approval",
+    assocPendingSub: "You'll be able to verify requests in your wilaya once your association is approved.",
+    assocApplyTitle: "Register an association", assocApplySub: "Croissant-Rouge committee, scout group, or student association",
+    assocNameLabel: "Association name", assocTypeLabel: "Type",
+    assocTypeRedCrescent: "Croissant-Rouge Algérien", assocTypeScouts: "Scouts", assocTypeStudent: "Student association", assocTypeOther: "Other",
+    assocApplyCta: "Submit application", assocAppliedToast: "Application submitted — Qatra will review it",
+    consentTitle: "Consent to health data",
+    consentIntro: "Qatra needs your explicit permission to handle medical information. This is separate from the general terms, and you can withdraw it at any time.",
+    consentPoint1: "Your blood type and donation dates are used to match you with requests.",
+    consentPoint2: "Hospitals and verifying associations see only what a match requires — never your full history.",
+    consentPoint3: "You can request a copy, a correction, or deletion of your data at any time.",
+    consentAgreeLabel: "I consent to Qatra processing my blood type and donation history for matching.",
+    consentContinueCta: "Agree and continue", consentRequiredError: "Consent is required to continue",
+    dataRightsTitle: "Your data", dataRightsSub: "Request a copy, a correction, or deletion",
+    dsrExport: "Request a copy of my data", dsrCorrection: "Request a correction", dsrDeletion: "Request deletion",
+    dsrSubmittedToast: "Request submitted — we'll get back to you", dsrDetailsPh: "What should we correct or delete?",
+    navRequestLabel: "Request", navVerifyLabel: "Verify",
+    eligibleInDays: "Eligible in {days} days", eligibleLabel: "Eligible",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -199,6 +253,40 @@ export const I18N: Record<Lang, Strings> = {
     publishRequest: "Publier la demande", requestPublished: "Demande publiée — les donneurs à proximité la verront", publishing: "Publication…",
     sosStartedToast: "Diffusion SOS lancée", sosStoppedToast: "Diffusion SOS arrêtée",
     hospitalsTitle: "Hôpitaux et centres de sang", hospitalsSub: "Trouvez le centre le plus proche", openInMaps: "Ouvrir dans Google Maps", hospSearchPh: "Rechercher par nom ou wilaya…",
+
+    verifiedByLabel: "Vérifié par {association}", verifiedShort: "Vérifié", notVerifiedShort: "Non vérifié",
+    shareVerifiedSuffix: "Vérifié par {association} via Qatra.",
+    postRequestTitle: "Demander du sang", postRequestSub: "Pour un patient ou un proche",
+    hospitalNameOptional: "Hôpital (facultatif)", contactPhoneLabel: "Téléphone de contact",
+    patientFileOptional: "Dossier patient № (facultatif)", postRequestCta: "Publier la demande", posting: "Publication…",
+    requestPosted: "Demande publiée — les donneurs à proximité la verront",
+    verifyPhoneTitle: "Vérifiez votre téléphone", verifyPhoneSub: "Nous envoyons un code par SMS. C'est ce qui rend les demandes fiables.",
+    sendCodeCta: "Envoyer le code", sendingCode: "Envoi…", codeLabel: "Code à 6 chiffres",
+    verifyCodeCta: "Vérifier", verifyingCode: "Vérification…", phoneVerifiedToast: "Téléphone vérifié",
+    invalidPhone: "Saisissez un numéro de mobile algérien valide (05/06/07…)",
+    verifyRequiredNote: "Vérifiez votre numéro avant de publier une demande.",
+    assocConsoleTitle: "Console association", assocConsoleSub: "Demandes ouvertes à {wilaya}",
+    verifyAction: "Vérifier", unverifyAction: "Retirer la vérification",
+    verifiedToast: "Demande vérifiée", unverifiedToast: "Vérification retirée",
+    noRequestsWilaya: "Aucune demande ouverte dans cette wilaya pour le moment",
+    assocPendingTitle: "En attente d'approbation",
+    assocPendingSub: "Vous pourrez vérifier les demandes de votre wilaya une fois votre association approuvée.",
+    assocApplyTitle: "Enregistrer une association", assocApplySub: "Comité du Croissant-Rouge, groupe scout ou association estudiantine",
+    assocNameLabel: "Nom de l'association", assocTypeLabel: "Type",
+    assocTypeRedCrescent: "Croissant-Rouge Algérien", assocTypeScouts: "Scouts", assocTypeStudent: "Association estudiantine", assocTypeOther: "Autre",
+    assocApplyCta: "Envoyer la demande", assocAppliedToast: "Demande envoyée — Qatra va l'examiner",
+    consentTitle: "Consentement aux données de santé",
+    consentIntro: "Qatra a besoin de votre autorisation explicite pour traiter des informations médicales. C'est distinct des conditions générales, et vous pouvez la retirer à tout moment.",
+    consentPoint1: "Votre groupe sanguin et vos dates de don servent à vous jumeler avec des demandes.",
+    consentPoint2: "Les hôpitaux et les associations vérificatrices ne voient que le nécessaire — jamais tout votre historique.",
+    consentPoint3: "Vous pouvez demander une copie, une correction ou la suppression de vos données à tout moment.",
+    consentAgreeLabel: "Je consens à ce que Qatra traite mon groupe sanguin et mon historique de dons à des fins de jumelage.",
+    consentContinueCta: "Accepter et continuer", consentRequiredError: "Le consentement est nécessaire pour continuer",
+    dataRightsTitle: "Vos données", dataRightsSub: "Demander une copie, une correction ou la suppression",
+    dsrExport: "Demander une copie de mes données", dsrCorrection: "Demander une correction", dsrDeletion: "Demander la suppression",
+    dsrSubmittedToast: "Demande envoyée — nous vous répondrons", dsrDetailsPh: "Que devons-nous corriger ou supprimer ?",
+    navRequestLabel: "Demander", navVerifyLabel: "Vérifier",
+    eligibleInDays: "Éligible dans {days} jours", eligibleLabel: "Éligible",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -264,5 +352,39 @@ export const I18N: Record<Lang, Strings> = {
     publishRequest: "نشر الطلب", requestPublished: "نُشر الطلب — سيراه المتبرعون القريبون", publishing: "جارٍ النشر…",
     sosStartedToast: "بدأ بث النداء العاجل", sosStoppedToast: "توقف بث النداء العاجل",
     hospitalsTitle: "المستشفيات ومراكز الدم", hospitalsSub: "اعثر على أقرب مركز", openInMaps: "افتح في خرائط جوجل", hospSearchPh: "ابحث بالاسم أو الولاية…",
+
+    verifiedByLabel: "موثّق من {association}", verifiedShort: "موثّق", notVerifiedShort: "غير موثّق",
+    shareVerifiedSuffix: "موثّق من {association} عبر قطرة.",
+    postRequestTitle: "طلب دم", postRequestSub: "لمريض أو أحد الأقارب",
+    hospitalNameOptional: "المستشفى (اختياري)", contactPhoneLabel: "هاتف للتواصل",
+    patientFileOptional: "رقم ملف المريض (اختياري)", postRequestCta: "نشر الطلب", posting: "جارٍ النشر…",
+    requestPosted: "نُشر الطلب — سيراه المتبرعون القريبون",
+    verifyPhoneTitle: "وثّق رقم هاتفك", verifyPhoneSub: "سنرسل رمزاً عبر رسالة نصية. هذا ما يجعل الطلبات موثوقة.",
+    sendCodeCta: "إرسال الرمز", sendingCode: "جارٍ الإرسال…", codeLabel: "الرمز المكوّن من 6 أرقام",
+    verifyCodeCta: "تحقّق", verifyingCode: "جارٍ التحقق…", phoneVerifiedToast: "تم توثيق الهاتف",
+    invalidPhone: "أدخل رقم هاتف جزائري صالح (05/06/07…)",
+    verifyRequiredNote: "وثّق رقم هاتفك قبل نشر طلب.",
+    assocConsoleTitle: "لوحة الجمعية", assocConsoleSub: "الطلبات المفتوحة في {wilaya}",
+    verifyAction: "توثيق", unverifyAction: "إزالة التوثيق",
+    verifiedToast: "تم توثيق الطلب", unverifiedToast: "أُزيل التوثيق",
+    noRequestsWilaya: "لا توجد طلبات مفتوحة في هذه الولاية حالياً",
+    assocPendingTitle: "في انتظار موافقة قطرة",
+    assocPendingSub: "ستتمكن من توثيق الطلبات في ولايتك بمجرد الموافقة على جمعيتك.",
+    assocApplyTitle: "تسجيل جمعية", assocApplySub: "لجنة الهلال الأحمر، فوج كشفي، أو جمعية طلابية",
+    assocNameLabel: "اسم الجمعية", assocTypeLabel: "النوع",
+    assocTypeRedCrescent: "الهلال الأحمر الجزائري", assocTypeScouts: "الكشافة", assocTypeStudent: "جمعية طلابية", assocTypeOther: "أخرى",
+    assocApplyCta: "إرسال الطلب", assocAppliedToast: "أُرسل الطلب — ستراجعه قطرة",
+    consentTitle: "الموافقة على معالجة البيانات الصحية",
+    consentIntro: "تحتاج قطرة إلى إذنك الصريح لمعالجة المعلومات الطبية. هذا منفصل عن الشروط العامة، ويمكنك سحبه في أي وقت.",
+    consentPoint1: "تُستخدم فصيلة دمك وتواريخ تبرعك لتوفيقك مع الطلبات.",
+    consentPoint2: "لا ترى المستشفيات والجمعيات الموثِّقة إلا ما يتطلبه التوفيق — لا سجلّك الكامل.",
+    consentPoint3: "يمكنك طلب نسخة من بياناتك أو تصحيحها أو حذفها في أي وقت.",
+    consentAgreeLabel: "أوافق على معالجة قطرة لفصيلة دمي وسجل تبرعاتي لأغراض التوفيق.",
+    consentContinueCta: "أوافق وأتابع", consentRequiredError: "الموافقة مطلوبة للمتابعة",
+    dataRightsTitle: "بياناتك", dataRightsSub: "اطلب نسخة أو تصحيحاً أو حذفاً",
+    dsrExport: "طلب نسخة من بياناتي", dsrCorrection: "طلب تصحيح", dsrDeletion: "طلب الحذف",
+    dsrSubmittedToast: "أُرسل الطلب — سنعود إليك", dsrDetailsPh: "ما الذي نصححه أو نحذفه؟",
+    navRequestLabel: "طلب", navVerifyLabel: "توثيق",
+    eligibleInDays: "مؤهل خلال {days} يوماً", eligibleLabel: "مؤهل",
   },
 };
