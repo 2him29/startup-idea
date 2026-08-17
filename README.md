@@ -47,6 +47,36 @@ cd android && JAVA_HOME="C:\Program Files\Android\Android Studio\jbr" ./gradlew 
 
 **Demo accounts** (pre-seeded, not secret): one-click "View demo as Donor / Hospital" buttons on the splash screen.
 
+## Patient/association model (in progress, behind a flag)
+
+Qatra is migrating from *hospitals post requests* to **patients and families post requests, and associations verify them** — Croissant-Rouge committees, scout groups, and student associations act as an optional trust layer, and a hospital becomes plain text on a request rather than an account type.
+
+The new flow is gated on `VITE_PATIENT_MODEL=true` (see `apps/web/.env.example`). With it unset, the app runs the legacy hospital flow exactly as before — including the request queries, which select a different column list depending on the flag, because the new columns don't exist until the migrations are applied.
+
+**Enabling it:**
+```bash
+npx supabase db push          # applies the 20260817* migrations
+# then set VITE_PATIENT_MODEL=true in apps/web/.env
+```
+
+It also needs seed data that only you can create: a verified `associations` row, an `association_members` row linking a user to it, and a `platform_admins` row for whoever approves associations. `is_verified` is deliberately not client-writable — it changes only through the `verify_association()` database function, which checks platform-admin membership.
+
+**Compliance:** health-data consent is recorded per purpose with the version of the text shown (`packages/core/src/compliance.ts`), and data-subject requests (export/correction/deletion) go to a queue worked by a human. Search for `TODO(compliance)` for the open hosting question — data currently lands in a Supabase region outside Algeria. Qatra must never introduce donor payment, cash-equivalent rewards, or paid-priority matching; that invariant is documented at the top of `compliance.ts` as a code-review gate.
+
+## Tests
+
+```bash
+npm test              # Playwright, e2e/
+npm run test:ui       # interactive runner
+npm run verify:db     # migrations + RLS against a real Postgres
+```
+
+`npm run verify:db` spins up a throwaway PostgreSQL instance from real binaries (no Docker — Docker Desktop is unreliable on these machines), applies every migration in order, then exercises the RLS policies as different users, the backfill, `seed.sql`, and the contract between `api.ts`'s queries and the actual schema. It is **not** Supabase: the `auth` schema is stubbed and there is no PostgREST or GoTrue, so it cannot cover the HTTP API, auth, or the Playwright suite. It exists because "the SQL was hand-reviewed" is not verification — it caught the backfill silently linking zero rows.
+
+`e2e/legacy-flow.spec.ts` is the regression net for the pre-migration app across all three languages and both roles. `e2e/patient-model.spec.ts` covers the new flow and skips itself until the migrations are applied and the flag is on — its prerequisites are listed at the top of the file.
+
+The Playwright config pins `locale: "en-US"` on purpose: the app auto-detects device language on first launch, and these machines are set to French, so without the pin the UI comes up in French and every English assertion fails for the wrong reason.
+
 ## i18n
 
 All copy lives in `packages/core/src/i18n.ts` (EN/FR/AR). Arabic flips the whole layout via CSS logical properties. First launch auto-detects the device language.
