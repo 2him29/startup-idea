@@ -48,3 +48,19 @@ export async function signOut(page: Page): Promise<void> {
   await page.evaluate(() => window.localStorage.clear());
   await page.reload();
 }
+
+/**
+ * Click a primary nav entry by its exact label.
+ *
+ * Two traps this avoids. Playwright matches `name` as a *substring*, so a
+ * plain "Request" also matches the home screen's "Find urgent requests…"
+ * button — hence `exact`. And the sidebar and the bottom bar carry identical
+ * labels, with one hidden at any given viewport, so an unfiltered `.first()`
+ * can land on the hidden one and stall until it times out — hence the
+ * visibility filter.
+ */
+export async function clickNav(page: Page, label: string): Promise<void> {
+  const item = page.getByRole("button", { name: label, exact: true }).filter({ visible: true }).first();
+  await item.waitFor({ state: "visible", timeout: 30_000 });
+  await item.click();
+}

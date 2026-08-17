@@ -74,6 +74,14 @@ begin
   values (assoc_id, member_id, 'admin')
   on conflict (association_id, user_id) do nothing;
 
+  -- The demo donor is enrolled as a volunteer too, so the one account the
+  -- splash screen can log into can actually reach the association console.
+  -- Without this the console shows only its empty state, which makes the
+  -- verification flow impossible to demo or to test end to end.
+  insert into association_members (association_id, user_id, role)
+  values (assoc_id, family_id, 'volunteer')
+  on conflict (association_id, user_id) do nothing;
+
   -- Verification goes through verify_association(), never a direct UPDATE.
   --
   -- is_verified is not writable by client roles at all (migration 2 revokes it
@@ -110,6 +118,14 @@ begin
     insert into blood_requests (patient_record_id, patient_id, blood_type, units, urgency, wilaya, hospital_name, distance_km)
     values (patient_b, 'SEED-0002', 'A+', 1, 'High', 'Blida', 'Clinique El Amel', 45);
   end if;
+
+  -- Leave one of the two requests already vouched for, so the donor-facing
+  -- badge has something to render without depending on someone having clicked
+  -- Verify first. The other stays unverified on purpose: both states need to
+  -- be visible side by side to demo — and to test — the difference.
+  update blood_requests
+  set verified_by = assoc_id, verified_at = now()
+  where patient_record_id = patient_a and verified_by is null;
 
   -- A donor who gave recently, so the 90-day cooldown has something to hide.
   insert into donor_profiles (id, blood_type, age, weight_kg, last_donation_at, last_donation_date)

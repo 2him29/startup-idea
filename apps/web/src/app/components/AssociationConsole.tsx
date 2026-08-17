@@ -212,6 +212,10 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
               )}
 
               <button
+                // The nav carries a "Verify" label too, so tests need a way to
+                // reach this action that cannot accidentally match the sidebar
+                // or the bottom bar.
+                data-testid="verify-request"
                 onClick={() => (isVerified ? handleUnverify(r.id) : handleVerify(r.id))}
                 disabled={busy}
                 className="cursor-pointer disabled:opacity-60 mt-3.5 w-full h-[46px] rounded-2xl text-[14px] font-extrabold flex items-center justify-center gap-2 border-none"

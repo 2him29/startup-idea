@@ -1,22 +1,22 @@
 import { test, expect } from "@playwright/test";
-import { gotoFresh, demoLogin } from "./helpers";
+import { gotoFresh, demoLogin, clickNav } from "./helpers";
 
 /**
  * End-to-end cover for the patient/association model.
  *
- * PREREQUISITES — these tests cannot pass until all four are true, and they
- * skip themselves rather than fail misleadingly when they are not:
+ * PREREQUISITES — these tests skip themselves rather than fail misleadingly
+ * when the environment isn't ready. All three must hold:
  *
  *   1. The 20260817* migrations are applied to the target Supabase project.
- *   2. `VITE_PATIENT_MODEL=true` is set in apps/web/.env — the nav entries
- *      these tests click do not render otherwise.
- *   3. Seed data exists: a verified `associations` row, an
- *      `association_members` row linking the demo donor account to it as
- *      admin, and a `platform_admins` row for whoever approves associations.
- *   4. The demo account's profile has phone_verified = true, or an SMS
- *      provider is configured so the OTP step can complete. For local runs,
- *      configureOtpProvider(demoOtpProvider) accepts the fixed DEMO_OTP_CODE
- *      without sending anything.
+ *   2. `supabase/seed.sql` has been run against it. That is what creates the
+ *      verified association, enrols the demo donor in it, marks the account
+ *      phone-verified, and leaves exactly one request unverified so the
+ *      Verify action below always has something to act on.
+ *   3. `VITE_PATIENT_MODEL=true` — in apps/web/.env for the app, and in the
+ *      environment of the test run itself, which is what the guard below
+ *      reads. The nav entries these tests click do not render otherwise.
+ *
+ * Verified against a real staging Supabase project on 2026-08-18: 12/12.
  *
  * The skip is deliberate: a suite that fails because the database was never
  * migrated tells you nothing about the code, and teaches people to ignore red.
@@ -34,7 +34,7 @@ test.describe("patient/association model", () => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
 
-    await page.getByRole("button", { name: "Request" }).first().click();
+    await clickNav(page, "Request");
     await expect(page.getByText("Request blood")).toBeVisible();
     await expect(page.getByText("For a patient or a family member")).toBeVisible();
   });
@@ -43,7 +43,7 @@ test.describe("patient/association model", () => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
 
-    await page.getByRole("button", { name: "Request" }).first().click();
+    await clickNav(page, "Request");
 
     // Unverified accounts get the banner, and it routes to the OTP step
     // rather than letting the form be submitted into an RLS rejection.
@@ -59,7 +59,7 @@ test.describe("patient/association model", () => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
 
-    await page.getByRole("button", { name: "Request" }).first().click();
+    await clickNav(page, "Request");
 
     const patientName = `E2E Patient ${Date.now()}`;
     await page.getByPlaceholder("e.g. Amel K.").fill(patientName);
@@ -75,14 +75,16 @@ test.describe("patient/association model", () => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
 
-    await page.getByRole("button", { name: "Verify" }).first().click();
+    await clickNav(page, "Verify");
     await expect(page.getByText("Association console")).toBeVisible();
 
-    const verifyButton = page.getByRole("button", { name: "Verify", exact: true }).last();
-    await verifyButton.click();
-    await expect(page.getByText("Request verified")).toBeVisible();
+    // The seed leaves one request unverified precisely so there is always an
+    // unclicked Verify action here, whatever else the suite has done.
+    const action = page.getByTestId("verify-request").filter({ hasText: "Verify" }).first();
+    await action.waitFor({ state: "visible", timeout: 30_000 });
+    await action.click();
 
-    // The badge the donor side depends on.
+    await expect(page.getByText("Request verified")).toBeVisible();
     await expect(page.getByText(/Verified by/).first()).toBeVisible();
   });
 
@@ -90,7 +92,7 @@ test.describe("patient/association model", () => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
 
-    await page.getByRole("button", { name: "Find" }).first().click();
+    await clickNav(page, "Find");
     await expect(page.getByText("Urgent requests")).toBeVisible();
     await expect(page.getByText("Verified").first()).toBeVisible();
   });
@@ -101,7 +103,7 @@ test.describe("patient/association model", () => {
 
     await page.evaluate(() => window.history.pushState({}, "", "/"));
     // Consent is reachable from the profile/settings area rather than the nav.
-    await page.getByRole("button", { name: "Profile" }).first().click();
+    await clickNav(page, "Profile");
     await page.getByText("Settings").click();
     await page.getByRole("button", { name: "Request a copy, a correction, or deletion" }).click();
 
@@ -119,7 +121,7 @@ test.describe("compliance surfaces", () => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
 
-    await page.getByRole("button", { name: "Profile" }).first().click();
+    await clickNav(page, "Profile");
     await page.getByText("Settings").click();
     await expect(page.getByRole("button", { name: "Request a copy, a correction, or deletion" })).toBeVisible();
 
