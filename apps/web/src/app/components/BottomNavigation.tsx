@@ -1,4 +1,5 @@
-import { Home, Search, User, LayoutList, HeartHandshake } from "lucide-react";
+import { Home, Search, User, LayoutList, HeartHandshake, BadgeCheck, Droplet } from "lucide-react";
+import { isPatientModelEnabled } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 interface BottomNavigationProps {
@@ -7,23 +8,35 @@ interface BottomNavigationProps {
   userType: "donor" | "hospital" | null;
 }
 
-const visibleOn = ["home", "matching", "profile", "hospital", "compensate"];
+const visibleOn = ["home", "matching", "profile", "hospital", "compensate", "post-request", "association"];
 
 export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomNavigationProps) {
   const { t } = useI18n();
   if (!userType || !visibleOn.includes(activeScreen)) return null;
 
-  const isHospital = userType === "hospital";
+  const patientModel = isPatientModelEnabled();
+  // Under the patient model the hospital account type no longer has a nav of
+  // its own — hospitals are a text field on a request, not a role — so every
+  // signed-in user gets the donor-side navigation.
+  const isHospital = userType === "hospital" && !patientModel;
   const accent = isHospital ? "#0E8BA8" : "#E5484D";
   const accentSoft = isHospital ? "#E4F6FB" : "#FFECEC";
 
-  const navItems = [
-    { id: "home", icon: Home, label: t.navHome },
-    ...(isHospital ? [{ id: "hospital", icon: LayoutList, label: t.requestsNav }] : []),
-    { id: "matching", icon: Search, label: isHospital ? t.donorsNav : t.navFind },
-    ...(isHospital ? [] : [{ id: "compensate", icon: HeartHandshake, label: t.navGive }]),
-    { id: "profile", icon: User, label: t.navProfile },
-  ];
+  const navItems = patientModel
+    ? [
+        { id: "home", icon: Home, label: t.navHome },
+        { id: "matching", icon: Search, label: t.navFind },
+        { id: "post-request", icon: Droplet, label: t.navRequestLabel },
+        { id: "association", icon: BadgeCheck, label: t.navVerifyLabel },
+        { id: "profile", icon: User, label: t.navProfile },
+      ]
+    : [
+        { id: "home", icon: Home, label: t.navHome },
+        ...(isHospital ? [{ id: "hospital", icon: LayoutList, label: t.requestsNav }] : []),
+        { id: "matching", icon: Search, label: isHospital ? t.donorsNav : t.navFind },
+        ...(isHospital ? [] : [{ id: "compensate", icon: HeartHandshake, label: t.navGive }]),
+        { id: "profile", icon: User, label: t.navProfile },
+      ];
 
   return (
     <div

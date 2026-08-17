@@ -15,7 +15,13 @@ import { EditProfileScreen } from "./components/EditProfileScreen";
 import { SettingsScreen } from "./components/SettingsScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { Sidebar } from "./components/Sidebar";
-import { bloodRequests, signInDemo, signOut, useSession, type BloodRequest, type Profile } from "@weare/core";
+import { PatientRequestScreen } from "./components/PatientRequestScreen";
+import { PhoneVerificationScreen } from "./components/PhoneVerificationScreen";
+import { AssociationConsole } from "./components/AssociationConsole";
+import { AssociationApplyScreen } from "./components/AssociationApplyScreen";
+import { ConsentScreen } from "./components/ConsentScreen";
+import { DataRightsScreen } from "./components/DataRightsScreen";
+import { bloodRequests, isPatientModelEnabled, signInDemo, signOut, useSession, type BloodRequest, type Profile } from "@weare/core";
 import { useI18n } from "./i18n/LangContext";
 import { WifiOff } from "lucide-react";
 
@@ -107,18 +113,22 @@ export default function App() {
     return <div className="size-full bg-background" />;
   }
 
+  const patientModel = isPatientModelEnabled();
+
+  const fallbackHome = (
+    <HomeScreen
+      onNavigate={handleNavigate}
+      userType={userType}
+      profile={profile}
+      onSetUserType={handleSelectRole}
+      onDemoLogin={handleDemoLogin}
+    />
+  );
+
   const renderScreen = () => {
     switch (currentScreen) {
       case "home":
-        return (
-          <HomeScreen
-            onNavigate={handleNavigate}
-            userType={userType}
-            profile={profile}
-            onSetUserType={handleSelectRole}
-            onDemoLogin={handleDemoLogin}
-          />
-        );
+        return fallbackHome;
       case "auth":
         return (
           <AuthScreen
@@ -171,17 +181,44 @@ export default function App() {
           />
         );
       case "settings":
-        return <SettingsScreen onBack={() => setCurrentScreen("profile")} />;
-      default:
-        return (
-          <HomeScreen
-            onNavigate={handleNavigate}
-            userType={userType}
-            profile={profile}
-            onSetUserType={handleSelectRole}
-            onDemoLogin={handleDemoLogin}
+        return <SettingsScreen onBack={() => setCurrentScreen("profile")} onNavigate={handleNavigate} />;
+      case "data-rights":
+        return <DataRightsScreen onBack={() => setCurrentScreen("settings")} />;
+      // Patient-model screens. Reachable only while the flag is on — the nav
+      // never offers them otherwise, and this guard keeps a stale deep link or
+      // a leftover currentScreen value from rendering a half-migrated flow.
+      case "post-request":
+        return patientModel ? (
+          <PatientRequestScreen
+            onBack={handleBack}
+            onPosted={() => setCurrentScreen("matching")}
+            onNeedsVerification={() => setCurrentScreen("verify-phone")}
           />
+        ) : (
+          fallbackHome
         );
+      case "verify-phone":
+        return patientModel ? (
+          <PhoneVerificationScreen onBack={() => setCurrentScreen("post-request")} onVerified={() => setCurrentScreen("post-request")} />
+        ) : (
+          fallbackHome
+        );
+      case "association":
+        return patientModel ? (
+          <AssociationConsole onBack={handleBack} onApply={() => setCurrentScreen("association-apply")} />
+        ) : (
+          fallbackHome
+        );
+      case "association-apply":
+        return patientModel ? (
+          <AssociationApplyScreen onBack={() => setCurrentScreen("association")} onApplied={() => setCurrentScreen("association")} />
+        ) : (
+          fallbackHome
+        );
+      case "consent":
+        return <ConsentScreen onBack={handleBack} onConsented={handleBack} />;
+      default:
+        return fallbackHome;
     }
   };
 

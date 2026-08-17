@@ -287,6 +287,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
                       bloodType: urgentRequest.bloodType,
                       distance: urgentRequest.distance,
                       units: urgentRequest.units,
+                      verifiedByName: urgentRequest.verifiedByName,
                     })
                   );
                 }}
