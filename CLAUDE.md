@@ -1,0 +1,88 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## What this is
+
+Qatra (قطرة) — a blood-donation matching app for Algeria. Trilingual EN/FR/AR with full RTL, running as a web app and as Capacitor-wrapped Android/iOS shells over the same React code. Backend is Supabase (Postgres + Auth + RLS).
+
+## Commands
+
+```bash
+npm run dev          # Vite dev server on :5173
+npm run build        # production build (delegates to @weare/web)
+npm test             # Playwright e2e (starts the dev server itself)
+npm run test:ui      # Playwright interactive runner
+npm run verify:db    # migrations + RLS against a real throwaway Postgres
+npm run typecheck    # tsc on packages/core
+```
+
+Run one Playwright test or file:
+```bash
+npx playwright test -g "opening a request shows its detail screen"
+npx playwright test e2e/legacy-flow.spec.ts --project=chromium
+```
+
+There is **no lint step** — no ESLint or Prettier config exists. Match surrounding style by hand.
+
+Android (APK lands in `apps/web/android/app/build/outputs/apk/debug/`):
+```bash
+npm run build && cd apps/web && npx cap sync
+cd android && ./gradlew assembleDebug
+```
+
+Deploy build for GitHub Pages (sets Vite `base` to `/startup-idea/`):
+```bash
+cd apps/web && GHPAGES=1 npx vite build
+```
+
+## Architecture
+
+npm workspaces monorepo:
+
+- **`packages/core`** — everything non-visual: Supabase calls, React hooks, types, the full i18n dictionary, feature flags. Framework-agnostic by design; it must not import Vite or React Native specifics. Config is *injected* (`configureSupabase()`, `configureFeatures()`, `configureOtpProvider()`) rather than read from `import.meta.env`, so a non-Vite host can consume it. `main.tsx` does that wiring.
+- **`apps/web`** — all UI. Screens live in `src/app/components/`.
+- **`packages/ui-tokens`** — the colour palette.
+- **`supabase/migrations`** — schema, applied in filename order.
+
+**Routing is a single `currentScreen` string in `App.tsx`,** switched over in `renderScreen()`. There is no router despite `react-router` being a dependency — adding a screen means adding a `case` and a nav entry, not a route.
+
+**Data hooks seed with static fallback data, then swap in live rows** (`useBloodRequests`, `useHospitals`, `useBloodDrives`). Fetch errors are logged and swallowed, keeping the fallback. This makes the UI resilient but means **a broken query is invisible** — it renders plausible mock data instead of failing. If live data looks stale or fake, suspect the query, not the UI.
+
+## Non-obvious things that will cost you time
+
+**The `VITE_PATIENT_MODEL` flag gates SQL, not just UI.** The app is mid-migration from *hospitals post requests* to *patients post requests, associations verify them*. `api.ts` picks between `LEGACY_COLUMNS` and `PATIENT_MODEL_COLUMNS` based on the flag, because PostgREST rejects an entire query with a 400 if it names a column or embedded table that doesn't exist — and the fallback above then hides that as mock data. Never add a new column to a query without gating it, and never set the flag against an unmigrated database.
+
+**`npm run verify:db` is Postgres, not Supabase.** It runs real Postgres binaries (no Docker — Docker Desktop is unreliable on these machines), applies every migration, and exercises RLS as several different users. But there is no PostgREST or GoTrue and the `auth` schema is stubbed, so it cannot cover the HTTP API, auth, or anything Playwright does. Passing `verify:db` is not the same as the feature working.
+
+**The build does not typecheck.** There is no `tsconfig.json`; Vite strips types with esbuild. `npm run build` passes with type errors in it. Run `npm run typecheck` separately. That script also carries explicit compiler flags for the same reason.
+
+**Playwright pins `locale: "en-US"`.** The app auto-detects device language on first launch and these machines are set to French — without the pin the UI comes up in French and English assertions fail for a reason unrelated to the code. Tests that exercise FR/AR switch language explicitly.
+
+**The e2e suite drives a live Supabase project** and every worker shares one dev server and one demo account. Workers are capped at 3 and timeouts raised for that reason; local retries are 1, and a recovered test is reported as *flaky* rather than passing.
+
+**Android Gradle is pinned to Android Studio's bundled JDK** via `org.gradle.java.home` in `apps/web/android/gradle.properties`. The system JDK is newer than Gradle 8.14 supports. Don't remove it.
+
+## Conventions
+
+**All colours are inline styles**, not CSS variables or Tailwind theme tokens — Tailwind is used for layout, `style={{}}` for colour. This is why there's no dark mode: it needs a CSS-variable refactor first, and a cheap `invert()` turns the brand red teal.
+
+**Every user-facing string goes in `packages/core/src/i18n.ts`**, in all three languages. The `Strings` interface makes a missing translation a type error — add EN, FR *and* AR or `npm run typecheck` fails.
+
+**RTL is handled with CSS logical properties**, not conditionals: `textAlign: "start"`, `insetInlineStart/End`, `ms-auto`/`me-auto`. The one thing that needs explicit handling is directional icons — chevrons and back arrows flip with `transform: scaleX(-1)` when `dir === "rtl"`.
+
+**Wilayas are stored canonically as the French name** (`"Alger"`, not `"Algiers"` or `"16"`). `wilayaLabel()` translates for display.
+
+## Hard constraints
+
+**No donor payment, rewards, or paid priority — ever.** Blood donation in Algeria is voluntary and unpaid, and paying donors compromises supply safety by giving them a reason to conceal a disqualifying history. This is a code-review gate documented at the top of `packages/core/src/compliance.ts`, not a preference. Non-transferable recognition (streaks, certificates) is fine precisely because it can't be exchanged.
+
+**Health data is regulated** under Algeria's Loi 18-07 / 25-11. Consent is recorded per purpose with the version of the text shown; consent rows deliberately have no delete policy because they are the evidence processing was lawful. `TODO(compliance)` marks the unresolved question of data being hosted outside Algeria.
+
+**Don't run `supabase db push` against the live/demo project without staging it first.** Migrations that apply cleanly to a fresh database can still misbehave against real rows — that exact gap already produced a backfill bug that silently linked nothing.
+
+**Ask before deleting any table or migration.**
+
+## Demo accounts
+
+Pre-seeded, deliberately non-secret, reachable from one-click buttons on the splash screen: `demo.donor@weare.app` / `demo.hospital@weare.app`, password `WeAreDemo123!`.
