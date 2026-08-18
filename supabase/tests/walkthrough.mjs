@@ -142,7 +142,10 @@ async function main() {
   ok(`pledge ${pledge.reference}, status "${pledge.status}"`);
 
   head("Before donating, the donor is offered by search");
-  let found = await core.searchDonors({ bloodType: "O+" });
+  // Donor search is wilaya-scoped and permitted only for a verified
+  // association in that wilaya — the demo donor is enrolled in the Blida one,
+  // which the seed guarantees.
+  let found = await core.searchDonors({ wilaya: "Blida", bloodType: "O+" });
   assert(found.some((d) => d.id === donorId), "an eligible donor is missing from search");
   ok(`${found.length} eligible O+ donor(s), including this one`);
 
@@ -151,11 +154,11 @@ async function main() {
   ok("donation recorded, request marked fulfilled");
 
   head("The donor is withheld from search until eligible again");
-  found = await core.searchDonors({ bloodType: "O+" });
+  found = await core.searchDonors({ wilaya: "Blida", bloodType: "O+" });
   assert(!found.some((d) => d.id === donorId), "a donor inside the cooldown is still being offered");
   ok("hidden from the default eligible-only search");
 
-  const all = await core.searchDonors({ bloodType: "O+", includeIneligible: true });
+  const all = await core.searchDonors({ wilaya: "Blida", bloodType: "O+", includeIneligible: true });
   const self = all.find((d) => d.id === donorId);
   assert(self, "the donor vanished entirely instead of being marked ineligible");
   assert(!self.isEligible, "the donor is still flagged eligible after donating");
