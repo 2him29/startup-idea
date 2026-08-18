@@ -97,6 +97,7 @@ export interface Strings {
   skipForNow: string; verifyLaterHint: string;
   hospitalMatched: string; hospitalFreeTextHint: string;
   unitsOne: string; unitsTwo: string; unitsFew: string;
+  imPatient: string; patientSub: string; demoAsPatient: string; taglinePatient: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -211,6 +212,8 @@ export const I18N: Record<Lang, Strings> = {
     navDonorsLabel: "Donors",
     skipForNow: "Skip for now", verifyLaterHint: "You can do this later — but you'll need a verified number before you can post a request.",
     unitsOne: "unit", unitsTwo: "units", unitsFew: "units",
+    imPatient: "I need blood", patientSub: "Post a request for a patient or family member", demoAsPatient: "View demo as Patient",
+    taglinePatient: "Every drop connects a life. Families ask, associations vouch, donors answer — across Algeria, in real time.",
     hospitalMatched: "Matched to a known hospital — your request will show on the donor map.",
     hospitalFreeTextHint: "Pick from the list to place your request on the map, or type any hospital name.",
   },
@@ -325,6 +328,8 @@ export const I18N: Record<Lang, Strings> = {
     navDonorsLabel: "Donneurs",
     skipForNow: "Plus tard", verifyLaterHint: "Vous pouvez le faire plus tard — mais un numéro vérifié est nécessaire pour publier une demande.",
     unitsOne: "unité", unitsTwo: "unités", unitsFew: "unités",
+    imPatient: "J'ai besoin de sang", patientSub: "Publier une demande pour un proche", demoAsPatient: "Démo en tant que patient",
+    taglinePatient: "Chaque goutte relie une vie. Les familles demandent, les associations vérifient, les donneurs répondent — partout en Algérie.",
     hospitalMatched: "Hôpital reconnu — votre demande apparaîtra sur la carte des donneurs.",
     hospitalFreeTextHint: "Choisissez dans la liste pour apparaître sur la carte, ou saisissez n'importe quel hôpital.",
   },
@@ -439,6 +444,8 @@ export const I18N: Record<Lang, Strings> = {
     navDonorsLabel: "المتبرعون",
     skipForNow: "لاحقاً", verifyLaterHint: "يمكنك فعل ذلك لاحقاً — لكنك تحتاج رقماً موثّقاً قبل نشر أي طلب.",
     unitsOne: "وحدة", unitsTwo: "وحدتان", unitsFew: "وحدات",
+    imPatient: "أحتاج إلى دم", patientSub: "انشر طلباً لمريض أو أحد الأقارب", demoAsPatient: "عرض تجريبي كمريض",
+    taglinePatient: "كل قطرة تصل حياةً. العائلات تطلب، الجمعيات توثّق، المتبرعون يستجيبون — عبر الجزائر، في الوقت الفعلي.",
     hospitalMatched: "مستشفى معروف — سيظهر طلبك على خريطة المتبرعين.",
     hospitalFreeTextHint: "اختر من القائمة ليظهر طلبك على الخريطة، أو اكتب اسم أي مستشفى.",
   },

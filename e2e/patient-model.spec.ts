@@ -30,6 +30,34 @@ test.describe("patient/association model", () => {
     "VITE_PATIENT_MODEL is not enabled — see the prerequisites at the top of this file"
   );
 
+  /**
+   * The whole point of the migration: there is no hospital account any more.
+   *
+   * This was missed once already — the hospital entry point was removed from
+   * the sidebar and the bottom bar but left on the splash, which is the screen
+   * every new user actually starts on. Worse, the legacy suite asserts the
+   * hospital button IS present, so nothing caught it. That assertion is correct
+   * with the flag off; this is its counterpart with the flag on.
+   */
+  test("the splash offers no hospital account", async ({ page }) => {
+    await gotoFresh(page);
+
+    await expect(page.getByRole("button", { name: t("en").imDonor })).toBeVisible();
+    await expect(page.getByRole("button", { name: t("en").imPatient })).toBeVisible();
+
+    await expect(page.getByRole("button", { name: t("en").imHospital })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /demo as Hospital/i })).toHaveCount(0);
+  });
+
+  test("'I need blood' leads to the request form", async ({ page }) => {
+    await gotoFresh(page);
+
+    // The patient route signs in exactly as a donor does — what differs is
+    // where it lands.
+    await page.getByRole("button", { name: t("en").demoAsPatient }).click();
+    await expect(page.getByText(t("en").postRequestTitle)).toBeVisible({ timeout: 30_000 });
+  });
+
   test("patient can reach the request form from the nav", async ({ page }) => {
     await gotoFresh(page);
     await demoLogin(page, "donor");

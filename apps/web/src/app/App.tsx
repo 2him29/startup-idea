@@ -79,8 +79,17 @@ export default function App() {
     setCurrentScreen(screen);
   };
 
-  const handleSelectRole = (type: "donor" | "hospital") => {
-    setPendingRole(type);
+  /**
+   * Where to land once the account exists. A visitor who came in through
+   * "I need blood" wants the request form, not the donor home.
+   */
+  const [afterAuth, setAfterAuth] = useState<string>("home");
+
+  const handleSelectRole = (type: "donor" | "hospital" | "patient") => {
+    // A patient signs up exactly as a donor does — same table, same policies —
+    // so only the destination differs.
+    setPendingRole(type === "patient" ? "donor" : type);
+    setAfterAuth(type === "patient" ? "post-request" : "home");
     setCurrentScreen("auth");
   };
 
@@ -98,17 +107,17 @@ export default function App() {
     // the last step of registration. Log-ins skip it, and so does the legacy
     // flow, which has no use for a verified number.
     if (isNewAccount && isPatientModelEnabled()) {
-      setAfterVerify("home");
+      setAfterVerify(afterAuth);
       setCurrentScreen("verify-phone");
       return;
     }
-    setCurrentScreen("home");
+    setCurrentScreen(afterAuth);
   };
 
-  const handleDemoLogin = async (role: "donor" | "hospital") => {
-    const authProfile = await signInDemo(role);
+  const handleDemoLogin = async (role: "donor" | "hospital" | "patient") => {
+    const authProfile = await signInDemo(role === "patient" ? "donor" : role);
     setUserType(authProfile.role);
-    setCurrentScreen("home");
+    setCurrentScreen(role === "patient" ? "post-request" : "home");
   };
 
   const handleSignOut = async () => {
