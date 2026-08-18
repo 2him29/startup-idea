@@ -1,0 +1,49 @@
+{
+  // The repo had no tsconfig at all: Vite strips types with esbuild and never
+  // checks them, so `npm run build` passed with type errors in it. The
+  // typecheck script previously carried these settings as a long flag string
+  // and only covered packages/core — which is how a missing import in
+  // MatchingScreen reached a running app.
+  //
+  // This checks everything that ships plus the tests. `noEmit` is set because
+  // Vite does the compiling; tsc is here purely to tell the truth about types.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+
+    // The app imports CSS and PNGs, which have no type declarations of their
+    // own; apps/web/src/vite-env.d.ts supplies them via vite/client.
+    "types": ["vite/client", "node"],
+
+    // Third-party .d.ts files are not ours to fix, and checking them buries
+    // real errors in this project's own code.
+    "skipLibCheck": true
+  },
+  "include": [
+    "apps/web/src",
+    "packages/core/src",
+    "packages/ui-tokens/src",
+    "e2e",
+    "playwright.config.ts"
+  ],
+  "exclude": [
+    // 46 shadcn/ui components that came in with the Figma Make export and are
+    // imported by nothing. Their imports carry version suffixes
+    // ("@radix-ui/react-accordion@1.2.3"), which resolve nowhere — so they are
+    // not merely unused, they would fail to build if anything did import them.
+    //
+    // Excluded rather than deleted because they aren't this project's code to
+    // throw away unilaterally. They are safe to remove, along with most of the
+    // @radix-ui dependencies that exist only for them.
+    "apps/web/src/app/components/ui"
+  ]
+}

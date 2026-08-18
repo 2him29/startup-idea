@@ -13,10 +13,13 @@
     "test:ui": "playwright test --ui",
     "verify:db": "node supabase/tests/verify.mjs",
     "test:flow": "esbuild packages/core/src/index.ts --bundle --format=esm --platform=node --outfile=supabase/tests/.core.mjs --log-level=error && node supabase/tests/walkthrough.mjs",
-    "typecheck": "tsc --noEmit --jsx react-jsx --module esnext --moduleResolution bundler --target es2022 --strict --skipLibCheck --allowImportingTsExtensions packages/core/src/index.ts"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
+    "@types/leaflet": "^1.9.22",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
     "embedded-postgres": "^18.4.0-beta.17"
   }
 }
