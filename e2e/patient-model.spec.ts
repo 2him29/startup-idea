@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { gotoFresh, demoLogin, clickNav } from "./helpers";
+import { gotoFresh, gotoFreshIn, demoLogin, clickNav, t } from "./helpers";
 
 /**
  * End-to-end cover for the patient/association model.
@@ -147,6 +147,51 @@ test.describe("patient/association model", () => {
 
     await page.getByText("Include donors still in cooldown").click();
     await expect(page.getByText(/Eligible in \d+ days/).first()).toBeVisible();
+  });
+
+  /**
+   * Arabic specifically, not all three languages.
+   *
+   * These screens are new, and Arabic is the only language that flips the
+   * layout — so it carries essentially all the rendering risk, while French
+   * would mostly re-test what the English runs already cover. Triplicating
+   * every patient-model test would also treble the load on one shared staging
+   * project for very little extra signal.
+   */
+  test("[ar] the new screens render right-to-left", async ({ page }) => {
+    const ar = t("ar");
+
+    await gotoFreshIn(page, "ar");
+    await demoLogin(page, "donor", "ar");
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+
+    await clickNav(page, ar.navRequestLabel);
+    await expect(page.getByText(ar.postRequestTitle)).toBeVisible();
+    await expect(page.getByText(ar.postRequestSub)).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+
+    await clickNav(page, ar.navVerifyLabel);
+    await expect(page.getByText(ar.assocConsoleTitle)).toBeVisible();
+
+    await clickNav(page, ar.navDonorsLabel);
+    await expect(page.getByText(ar.donorSearchTitle)).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  });
+
+  test("[ar] donor search shows eligibility and consent state in Arabic", async ({ page }) => {
+    const ar = t("ar");
+
+    await gotoFreshIn(page, "ar");
+    await demoLogin(page, "donor", "ar");
+    await clickNav(page, ar.navDonorsLabel);
+
+    const rows = page.getByTestId("donor-row");
+    await rows.first().waitFor({ state: "visible", timeout: 30_000 });
+
+    // The seed guarantees one donor who opted into contact sharing and one who
+    // did not, so both states must be legible in Arabic too.
+    await expect(page.getByText(ar.numberNotShared).first()).toBeVisible();
+    await expect(page.getByText(ar.eligibleLabel).first()).toBeVisible();
   });
 
   test("consent screen records health-data consent", async ({ page }) => {
