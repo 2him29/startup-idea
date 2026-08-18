@@ -170,6 +170,7 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
           return (
             <div
               key={r.id}
+              data-testid="request-card"
               className="border rounded-[20px] p-4 bg-white shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
               style={{ borderColor: "rgba(11,36,50,0.06)", animation: "waRise .4s ease both", textAlign: "start" }}
             >

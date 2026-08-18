@@ -119,20 +119,69 @@ begin
     values (patient_b, 'SEED-0002', 'A+', 1, 'High', 'Blida', 'Clinique El Amel', 45);
   end if;
 
-  -- Leave one of the two requests already vouched for, so the donor-facing
-  -- badge has something to render without depending on someone having clicked
-  -- Verify first. The other stays unverified on purpose: both states need to
-  -- be visible side by side to demo — and to test — the difference.
+  -- Both verification states, forced rather than left to chance. Patient A's
+  -- request is always vouched for so the donor-facing badge has something to
+  -- render; patient B's is always reset to unverified so the association
+  -- console always has an unclicked Verify action.
+  --
+  -- The reset matters: verifying is exactly what the console screen does, so
+  -- without it the first run consumes the only unverified request and every
+  -- later run finds nothing to act on.
+  -- status is reset too, so a run that fulfilled one of these still leaves the
+  -- next run with two open requests to look at.
   update blood_requests
-  set verified_by = assoc_id, verified_at = now()
-  where patient_record_id = patient_a and verified_by is null;
+  set verified_by = assoc_id, verified_at = now(), status = 'open'
+  where patient_record_id = patient_a;
 
-  -- A donor who gave recently, so the 90-day cooldown has something to hide.
+  update blood_requests
+  set verified_by = null, verified_at = null, status = 'open'
+  where patient_record_id = patient_b;
+
+  -- ---------------------------------------------------------------------
+  -- Three donors in Blida, one per state the donor-search screen can show.
+  -- All three are set explicitly rather than left to whatever a previous run
+  -- did: `npm run test:flow` ends by recording a donation, which would
+  -- otherwise leave the eligible donor in cooldown and make donor search look
+  -- empty for reasons unrelated to the code.
+  --
+  --   family_id  eligible, opted in      -> a callable number
+  --   admin_id   eligible, not opted in  -> "number not shared"
+  --   member_id  inside the 90-day wait  -> hidden unless asked for
+  -- ---------------------------------------------------------------------
+
+  update profiles set wilaya = 'Blida' where id = admin_id;
+
+  update profiles set phone = '+213555000444' where id = family_id and phone is null;
+  update profiles set phone = '+213555000555' where id = admin_id  and phone is null;
+  update profiles set phone = '+213555000666' where id = member_id and phone is null;
+
+  insert into donor_profiles (id, blood_type, age, weight_kg, last_donation_at, last_donation_date)
+  values (family_id, 'O+', 29, 72, null, null)
+  on conflict (id) do update
+    set last_donation_at = null, last_donation_date = null;
+
+  insert into donor_profiles (id, blood_type, age, weight_kg, last_donation_at, last_donation_date)
+  values (admin_id, 'A+', 41, 80, null, null)
+  on conflict (id) do update
+    set last_donation_at = null, last_donation_date = null;
+
   insert into donor_profiles (id, blood_type, age, weight_kg, last_donation_at, last_donation_date)
   values (member_id, 'A+', 30, 75, now() - interval '10 days', (now() - interval '10 days')::date)
   on conflict (id) do update
     set last_donation_at = excluded.last_donation_at,
         last_donation_date = excluded.last_donation_date;
+
+  -- Only family_id opts into direct contact. Both states have to be present
+  -- or the consent gate reads as a bug rather than a rule.
+  insert into consent_records (user_id, purpose, consent_version)
+  select family_id, 'contact_sharing', 'contact-sharing-v1'
+  where not exists (
+    select 1 from consent_records
+    where user_id = family_id and purpose = 'contact_sharing' and revoked_at is null
+  );
+
+  delete from consent_records
+  where user_id = admin_id and purpose = 'contact_sharing';
 
   raise notice 'Seed complete: association %, patients % and %', assoc_id, patient_a, patient_b;
 end $$;

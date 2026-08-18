@@ -75,17 +75,28 @@ test.describe("patient/association model", () => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
 
+    // Post a request this test owns, rather than verifying whichever one the
+    // seed left unverified. Both browser projects run against the same staging
+    // database at the same time, so a shared fixture gets consumed by
+    // whichever project reaches it first and the other then finds nothing to
+    // click. A unique hospital name makes the card findable.
+    const marker = `Console E2E ${Date.now()}`;
+    await clickNav(page, "Request");
+    await page.getByPlaceholder("e.g. Amel K.").fill("Console Test Patient");
+    await page.locator("select").first().selectOption("Blida");
+    await page.getByPlaceholder("CHU Mustapha Pacha").fill(marker);
+    await page.getByRole("button", { name: "Post request" }).click();
+    await expect(page.getByText("Urgent requests")).toBeVisible({ timeout: 15_000 });
+
     await clickNav(page, "Verify");
     await expect(page.getByText("Association console")).toBeVisible();
 
-    // The seed leaves one request unverified precisely so there is always an
-    // unclicked Verify action here, whatever else the suite has done.
-    const action = page.getByTestId("verify-request").filter({ hasText: "Verify" }).first();
-    await action.waitFor({ state: "visible", timeout: 30_000 });
-    await action.click();
+    const card = page.getByTestId("request-card").filter({ hasText: marker });
+    await card.waitFor({ state: "visible", timeout: 30_000 });
+    await card.getByTestId("verify-request").click();
 
     await expect(page.getByText("Request verified")).toBeVisible();
-    await expect(page.getByText(/Verified by/).first()).toBeVisible();
+    await expect(card.getByText(/Verified by/)).toBeVisible();
   });
 
   test("donor sees the verified badge on the find screen", async ({ page }) => {
@@ -95,6 +106,47 @@ test.describe("patient/association model", () => {
     await clickNav(page, "Find");
     await expect(page.getByText("Urgent requests")).toBeVisible();
     await expect(page.getByText("Verified").first()).toBeVisible();
+  });
+
+  test("association can search donors in its own wilaya", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+
+    await clickNav(page, "Donors");
+    await expect(page.getByText("Find donors")).toBeVisible();
+
+    // The seed puts at least one eligible donor in the association's wilaya.
+    const rows = page.getByTestId("donor-row");
+    await rows.first().waitFor({ state: "visible", timeout: 30_000 });
+    expect(await rows.count()).toBeGreaterThan(0);
+  });
+
+  test("a donor's number shows only with their consent", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+
+    await clickNav(page, "Donors");
+    await page.getByTestId("donor-row").first().waitFor({ state: "visible", timeout: 30_000 });
+
+    // The seed deliberately creates both states, so both must be on screen:
+    // one donor opted in (callable) and one did not (withheld, with a reason).
+    await expect(page.getByRole("link", { name: /Call/ }).first()).toBeVisible();
+    await expect(page.getByText("Number not shared").first()).toBeVisible();
+  });
+
+  test("cooling-off donors are hidden until asked for", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+
+    await clickNav(page, "Donors");
+    await page.getByTestId("donor-row").first().waitFor({ state: "visible", timeout: 30_000 });
+
+    // The seed leaves one donor 10 days past a donation, so they are inside
+    // the 90-day cooldown and must not appear by default.
+    await expect(page.getByText(/Eligible in \d+ days/)).toHaveCount(0);
+
+    await page.getByText("Include donors still in cooldown").click();
+    await expect(page.getByText(/Eligible in \d+ days/).first()).toBeVisible();
   });
 
   test("consent screen records health-data consent", async ({ page }) => {
