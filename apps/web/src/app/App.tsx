@@ -18,6 +18,7 @@ import { Sidebar } from "./components/Sidebar";
 import { PatientRequestScreen } from "./components/PatientRequestScreen";
 import { PhoneVerificationScreen } from "./components/PhoneVerificationScreen";
 import { AssociationConsole } from "./components/AssociationConsole";
+import { DonorSearchScreen } from "./components/DonorSearchScreen";
 import { AssociationApplyScreen } from "./components/AssociationApplyScreen";
 import { ConsentScreen } from "./components/ConsentScreen";
 import { DataRightsScreen } from "./components/DataRightsScreen";
@@ -209,6 +210,8 @@ export default function App() {
         ) : (
           fallbackHome
         );
+      case "donor-search":
+        return patientModel ? <DonorSearchScreen onBack={handleBack} /> : fallbackHome;
       case "association-apply":
         return patientModel ? (
           <AssociationApplyScreen onBack={() => setCurrentScreen("association")} onApplied={() => setCurrentScreen("association")} />

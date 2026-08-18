@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Check, ChevronDown, ChevronRight, ShieldCheck } from "lucide-react";
-import { LANGS, WILAYAS, type Lang } from "@weare/core";
+import { LANGS, WILAYAS, hasCurrentConsent, recordConsent, withdrawConsent, type Lang } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { useToast } from "./Toast";
 import { getBoolPref, setBoolPref, getDefaultWilaya, setDefaultWilaya, isRamadanNow } from "../prefs";
 
 interface SettingsScreenProps {
@@ -53,6 +54,78 @@ function PrefToggleRow({
           style={{ [knobSide]: "3px" } as React.CSSProperties}
         />
       </button>
+    </div>
+  );
+}
+
+/**
+ * The donor's own switch for letting verified associations see their phone
+ * number and call them.
+ *
+ * Unlike the neighbouring toggles this is not a device preference — it is a
+ * consent record in the database, because it governs who may process personal
+ * data. Turning it off stamps the existing record as withdrawn rather than
+ * deleting it, so the period during which contact was permitted stays on the
+ * record.
+ */
+function ContactSharingRow() {
+  const { t } = useI18n();
+  const toast = useToast();
+  const [on, setOn] = useState<boolean | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    hasCurrentConsent("contact_sharing")
+      .then((v) => {
+        if (!cancelled) setOn(v);
+      })
+      .catch(() => {
+        if (!cancelled) setOn(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const toggle = async () => {
+    if (on === null || busy) return;
+    setBusy(true);
+    const next = !on;
+    try {
+      if (next) await recordConsent("contact_sharing");
+      else await withdrawConsent("contact_sharing");
+      setOn(next);
+      toast("success", next ? t.contactConsentOn : t.contactConsentOff);
+    } catch (err) {
+      toast("error", err instanceof Error ? err.message : t.genericError);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="px-[15px] py-[15px]">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm font-semibold" style={{ color: "#0B2432", textAlign: "start" }}>
+          {t.contactConsentToggle}
+        </span>
+        <button
+          onClick={toggle}
+          disabled={on === null || busy}
+          aria-pressed={on === true}
+          className="cursor-pointer disabled:opacity-50 w-11 h-[26px] rounded-full relative transition-colors shrink-0 border-none"
+          style={{ background: on ? "#12B76A" : "#D6DEE2" }}
+        >
+          <span
+            className="absolute top-[3px] w-5 h-5 rounded-full bg-white transition-all"
+            style={on ? { insetInlineEnd: "3px" } : { insetInlineStart: "3px" }}
+          />
+        </button>
+      </div>
+      <div className="mt-1.5 text-xs leading-relaxed" style={{ color: "#8496A0", textAlign: "start" }}>
+        {t.contactConsentBody}
+      </div>
     </div>
   );
 }
@@ -127,6 +200,11 @@ export function SettingsScreen({ onBack, onNavigate }: SettingsScreenProps) {
             />
           </div>
         </div>
+      </div>
+
+      <SectionTitle>{t.contactConsentTitle}</SectionTitle>
+      <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+        <ContactSharingRow />
       </div>
 
       <SectionTitle>{t.dataRightsTitle}</SectionTitle>
