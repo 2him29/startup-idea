@@ -115,6 +115,14 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                     </span>
                     <span className="text-[11px]" style={{ color: "#6B7C88" }}>{r.bloodType} · {r.distance}</span>
                   </div>
+                  {/* Same badge as the list below. A pin and a card are two
+                      views of one request, so trust that shows in one and not
+                      the other reads as the badge being unreliable. */}
+                  {r.verifiedByName && (
+                    <div className="mt-1.5">
+                      <VerifiedBadge associationName={r.verifiedByName} variant="compact" />
+                    </div>
+                  )}
                   <button
                     onClick={() => onOpenDetail(r)}
                     className="cursor-pointer mt-1.5 text-[12px] font-extrabold"

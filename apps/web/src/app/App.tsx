@@ -84,8 +84,24 @@ export default function App() {
     setCurrentScreen("auth");
   };
 
-  const handleAuthenticated = (authProfile: Profile) => {
+  /**
+   * Where phone verification should return to. Registration sends people
+   * onward to home; the request form sends them back to the form they were
+   * blocked on.
+   */
+  const [afterVerify, setAfterVerify] = useState<string>("home");
+
+  const handleAuthenticated = (authProfile: Profile, isNewAccount: boolean) => {
     setUserType(authProfile.role);
+
+    // A new account under the patient model goes through phone verification as
+    // the last step of registration. Log-ins skip it, and so does the legacy
+    // flow, which has no use for a verified number.
+    if (isNewAccount && isPatientModelEnabled()) {
+      setAfterVerify("home");
+      setCurrentScreen("verify-phone");
+      return;
+    }
     setCurrentScreen("home");
   };
 
@@ -193,14 +209,25 @@ export default function App() {
           <PatientRequestScreen
             onBack={handleBack}
             onPosted={() => setCurrentScreen("matching")}
-            onNeedsVerification={() => setCurrentScreen("verify-phone")}
+            onNeedsVerification={() => {
+              setAfterVerify("post-request");
+              setCurrentScreen("verify-phone");
+            }}
           />
         ) : (
           fallbackHome
         );
       case "verify-phone":
         return patientModel ? (
-          <PhoneVerificationScreen onBack={() => setCurrentScreen("post-request")} onVerified={() => setCurrentScreen("post-request")} />
+          <PhoneVerificationScreen
+            onBack={() => setCurrentScreen(afterVerify)}
+            onVerified={() => setCurrentScreen(afterVerify)}
+            // Skippable only as a registration step. Arriving here from the
+            // request form means the user already tried to do something the
+            // database will reject without a verified number, so offering
+            // "skip" there would just send them back into the same wall.
+            onSkip={afterVerify === "home" ? () => setCurrentScreen("home") : undefined}
+          />
         ) : (
           fallbackHome
         );

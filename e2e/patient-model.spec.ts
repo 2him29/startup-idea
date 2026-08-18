@@ -194,6 +194,55 @@ test.describe("patient/association model", () => {
     await expect(page.getByText(ar.eligibleLabel).first()).toBeVisible();
   });
 
+  test("signing up ends at phone verification, which can be skipped", async ({ page }) => {
+    await gotoFresh(page);
+
+    // A fresh address each run: Supabase rejects a duplicate sign-up, and a
+    // shared one would pass once and fail forever after.
+    const email = `e2e.signup.${Date.now()}@qatra.test`;
+
+    await page.getByRole("button", { name: "I'm a Donor" }).click();
+    await page.getByPlaceholder("Yacine B.").fill("E2E Signup");
+    await page.getByPlaceholder("you@email.com").fill(email);
+    await page.getByPlaceholder("••••••••").fill("WeAreDemo123!");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    // Registration now ends here rather than dropping straight into home.
+    // `exact` matters: "Verify your phone" is also a substring of the banner
+    // "Verify your phone number before posting a request."
+    await expect(page.getByText("Verify your phone", { exact: true })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("button", { name: "Send code" })).toBeVisible();
+
+    // Skippable, because verification gates posting a request — not holding an
+    // account — and no SMS provider is configured in staging.
+    await page.getByRole("button", { name: "Skip for now" }).click();
+    await expect(page.getByText(t("en").quickActions)).toBeVisible();
+  });
+
+  test("the verified badge appears on map pins, not just the list", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+
+    await clickNav(page, "Find");
+    await expect(page.getByText(t("en").urgentRequests).first()).toBeVisible();
+
+    // Filter to Blida first. The map opens centred on Algiers, so the Blida
+    // pin sits outside the visible area and cannot be clicked — and Leaflet
+    // does not pan when Playwright tries to scroll to it. Choosing the wilaya
+    // re-centres the map on its own requests, which is also how a donor would
+    // actually reach it. The seed guarantees one verified, mappable request
+    // there.
+    await page.getByRole("button", { name: "Blida", exact: true }).click();
+
+    const markers = page.locator(".leaflet-marker-icon");
+    await markers.first().waitFor({ state: "visible", timeout: 30_000 });
+    await markers.first().click();
+
+    const popup = page.locator(".leaflet-popup-content");
+    await popup.waitFor({ state: "visible", timeout: 15_000 });
+    await expect(popup.getByText(t("en").verifiedShort)).toBeVisible();
+  });
+
   test("consent screen records health-data consent", async ({ page }) => {
     await gotoFresh(page);
     await demoLogin(page, "donor");

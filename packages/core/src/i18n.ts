@@ -94,6 +94,7 @@ export interface Strings {
   callLabel: string; numberNotShared: string; numberNotSharedHint: string;
   contactConsentTitle: string; contactConsentBody: string; contactConsentToggle: string;
   contactConsentOn: string; contactConsentOff: string; navDonorsLabel: string;
+  skipForNow: string; verifyLaterHint: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -206,6 +207,7 @@ export const I18N: Record<Lang, Strings> = {
     contactConsentToggle: "Let verified associations call me",
     contactConsentOn: "Associations can now call you", contactConsentOff: "Your number is hidden again",
     navDonorsLabel: "Donors",
+    skipForNow: "Skip for now", verifyLaterHint: "You can do this later — but you'll need a verified number before you can post a request.",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -316,6 +318,7 @@ export const I18N: Record<Lang, Strings> = {
     contactConsentToggle: "Autoriser les associations vérifiées à m'appeler",
     contactConsentOn: "Les associations peuvent vous appeler", contactConsentOff: "Votre numéro est de nouveau masqué",
     navDonorsLabel: "Donneurs",
+    skipForNow: "Plus tard", verifyLaterHint: "Vous pouvez le faire plus tard — mais un numéro vérifié est nécessaire pour publier une demande.",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -426,5 +429,6 @@ export const I18N: Record<Lang, Strings> = {
     contactConsentToggle: "السماح للجمعيات الموثّقة بالاتصال بي",
     contactConsentOn: "يمكن للجمعيات الاتصال بك الآن", contactConsentOff: "تم إخفاء رقمك مجدداً",
     navDonorsLabel: "المتبرعون",
+    skipForNow: "لاحقاً", verifyLaterHint: "يمكنك فعل ذلك لاحقاً — لكنك تحتاج رقماً موثّقاً قبل نشر أي طلب.",
   },
 };

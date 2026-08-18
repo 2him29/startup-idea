@@ -137,6 +137,21 @@ begin
   set verified_by = null, verified_at = null, status = 'open'
   where patient_record_id = patient_b;
 
+  -- Also vouch for a legacy hospital-authored request in this wilaya, if there
+  -- is one with coordinates.
+  --
+  -- This is the only way to get a verified pin onto the map: coordinates come
+  -- from the hospitals join, and a patient-authored request has no hospital_id,
+  -- so nothing posted through the new flow is mappable at all. Until that gap
+  -- is closed, the map shows legacy requests only.
+  update blood_requests r
+  set verified_by = assoc_id, verified_at = now()
+  from hospitals h
+  where h.id = r.hospital_id
+    and r.wilaya = 'Blida'
+    and h.latitude is not null
+    and r.status = 'open';
+
   -- ---------------------------------------------------------------------
   -- Three donors in Blida, one per state the donor-search screen can show.
   -- All three are set explicitly rather than left to whatever a previous run

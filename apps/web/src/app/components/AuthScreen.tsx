@@ -7,7 +7,9 @@ import { useI18n } from "../i18n/LangContext";
 interface AuthScreenProps {
   role: "donor" | "hospital";
   onBack: () => void;
-  onAuthenticated: (profile: Profile) => void;
+  /** `isNewAccount` distinguishes a sign-up from a log-in, so the caller can
+   *  put a registration step after it without this screen knowing about one. */
+  onAuthenticated: (profile: Profile, isNewAccount: boolean) => void;
 }
 
 export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
@@ -54,7 +56,7 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
           : isHospital
           ? await signUpHospital({ hospitalName: name, email, password })
           : await signUpDonor({ fullName: name, email, password });
-      onAuthenticated(profile);
+      onAuthenticated(profile, mode === "signup");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
