@@ -96,6 +96,7 @@ export interface Strings {
   contactConsentOn: string; contactConsentOff: string; navDonorsLabel: string;
   skipForNow: string; verifyLaterHint: string;
   hospitalMatched: string; hospitalFreeTextHint: string;
+  unitsOne: string; unitsTwo: string; unitsFew: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -209,6 +210,7 @@ export const I18N: Record<Lang, Strings> = {
     contactConsentOn: "Associations can now call you", contactConsentOff: "Your number is hidden again",
     navDonorsLabel: "Donors",
     skipForNow: "Skip for now", verifyLaterHint: "You can do this later — but you'll need a verified number before you can post a request.",
+    unitsOne: "unit", unitsTwo: "units", unitsFew: "units",
     hospitalMatched: "Matched to a known hospital — your request will show on the donor map.",
     hospitalFreeTextHint: "Pick from the list to place your request on the map, or type any hospital name.",
   },
@@ -322,6 +324,7 @@ export const I18N: Record<Lang, Strings> = {
     contactConsentOn: "Les associations peuvent vous appeler", contactConsentOff: "Votre numéro est de nouveau masqué",
     navDonorsLabel: "Donneurs",
     skipForNow: "Plus tard", verifyLaterHint: "Vous pouvez le faire plus tard — mais un numéro vérifié est nécessaire pour publier une demande.",
+    unitsOne: "unité", unitsTwo: "unités", unitsFew: "unités",
     hospitalMatched: "Hôpital reconnu — votre demande apparaîtra sur la carte des donneurs.",
     hospitalFreeTextHint: "Choisissez dans la liste pour apparaître sur la carte, ou saisissez n'importe quel hôpital.",
   },
@@ -435,6 +438,7 @@ export const I18N: Record<Lang, Strings> = {
     contactConsentOn: "يمكن للجمعيات الاتصال بك الآن", contactConsentOff: "تم إخفاء رقمك مجدداً",
     navDonorsLabel: "المتبرعون",
     skipForNow: "لاحقاً", verifyLaterHint: "يمكنك فعل ذلك لاحقاً — لكنك تحتاج رقماً موثّقاً قبل نشر أي طلب.",
+    unitsOne: "وحدة", unitsTwo: "وحدتان", unitsFew: "وحدات",
     hospitalMatched: "مستشفى معروف — سيظهر طلبك على خريطة المتبرعين.",
     hospitalFreeTextHint: "اختر من القائمة ليظهر طلبك على الخريطة، أو اكتب اسم أي مستشفى.",
   },

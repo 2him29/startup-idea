@@ -2,7 +2,7 @@ import { useState } from "react";
 import { LayoutDashboard, ClipboardList, Users, Package, Droplet, Printer, Download } from "lucide-react";
 import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useBloodRequests, urgencyStyle, urgencyLabel, unitsLabel, RESERVE, RESERVE_STATUS, useSession, type BloodRequest, type Strings } from "@weare/core";
+import { useBloodRequests, urgencyStyle, urgencyLabel, unitsLabel, RESERVE, RESERVE_STATUS, useSession, type BloodRequest, type Strings, formatRelativeTime, type Lang } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { useI18n } from "../i18n/LangContext";
 import { RequestRowSkeleton } from "./Skeletons";
@@ -10,13 +10,13 @@ import { NotificationsBell } from "./NotificationsBell";
 import { NewRequestSheet } from "./NewRequestSheet";
 import { useToast } from "./Toast";
 
-function printRequests(requests: BloodRequest[], t: Strings, dir: "ltr" | "rtl") {
+function printRequests(requests: BloodRequest[], t: Strings, lang: Lang, dir: "ltr" | "rtl") {
   const win = window.open("", "_blank");
   if (!win) return;
   const rows = requests
     .map(
       (r) =>
-        `<tr><td>${r.patientId}</td><td>${r.hospital}</td><td>${r.bloodType}</td><td>${unitsLabel(r.units, t)}</td><td>${urgencyLabel(r.urgency, t)}</td><td>${r.time}</td></tr>`
+        `<tr><td>${r.patientId}</td><td>${r.hospital}</td><td>${r.bloodType}</td><td>${unitsLabel(r.units, t, lang)}</td><td>${urgencyLabel(r.urgency, t)}</td><td>${formatRelativeTime(r.createdAt, lang)}</td></tr>`
     )
     .join("");
   win.document.write(`
@@ -44,10 +44,10 @@ function printRequests(requests: BloodRequest[], t: Strings, dir: "ltr" | "rtl")
   win.print();
 }
 
-function exportRequestsCsv(requests: BloodRequest[], t: Strings) {
+function exportRequestsCsv(requests: BloodRequest[], t: Strings, lang: Lang) {
   const header = "Patient ID,Hospital,Blood Type,Units,Urgency,Time\n";
   const rows = requests
-    .map((r) => [r.patientId, r.hospital, r.bloodType, r.units, urgencyLabel(r.urgency, t), r.time].join(","))
+    .map((r) => [r.patientId, r.hospital, r.bloodType, r.units, urgencyLabel(r.urgency, t), formatRelativeTime(r.createdAt, lang)].join(","))
     .join("\n");
   const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
@@ -205,7 +205,7 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
 
         {tab === "dashboard" && (
           <div className="grid gap-[18px] mt-[18px]" style={{ gridTemplateColumns: "1.5fr 1fr" }}>
-            <RequestsCard requests={bloodRequests} loading={requestsLoading} title={t.openRequests} viewAllLabel={t.viewAll} onViewAll={() => setTab("requests")} t={t} dir={dir} />
+            <RequestsCard requests={bloodRequests} loading={requestsLoading} title={t.openRequests} viewAllLabel={t.viewAll} onViewAll={() => setTab("requests")} t={t} lang={lang} dir={dir} />
             <div className="flex flex-col gap-[18px]">
               <ReserveCard lang={lang} title={t.reserveTitle} />
               <DonorsMiniMap title={t.donorsNearby} compatibleLabel={t.compatibleDonors} />
@@ -215,7 +215,7 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
 
         {tab === "requests" && (
           <div className="mt-[18px]">
-            <RequestsCard requests={bloodRequests} loading={requestsLoading} title={t.openRequests} viewAllLabel={t.newLabel} onViewAll={() => setShowNewRequest(true)} t={t} dir={dir} full />
+            <RequestsCard requests={bloodRequests} loading={requestsLoading} title={t.openRequests} viewAllLabel={t.newLabel} onViewAll={() => setShowNewRequest(true)} t={t} lang={lang} dir={dir} full />
           </div>
         )}
 
@@ -253,6 +253,7 @@ function RequestsCard({
   viewAllLabel,
   onViewAll,
   t,
+  lang,
   dir,
   full,
 }: {
@@ -260,6 +261,7 @@ function RequestsCard({
   loading: boolean;
   title: string;
   viewAllLabel: string;
+  lang: Lang;
   onViewAll: () => void;
   t: ReturnType<typeof useI18n>["t"];
   dir: ReturnType<typeof useI18n>["dir"];
@@ -274,7 +276,7 @@ function RequestsCard({
         <span className="text-[15px] font-extrabold" style={{ color: "#0B2432" }}>{title}</span>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => printRequests(requests, t, dir)}
+            onClick={() => printRequests(requests, t, lang, dir)}
             title={t.printLabel}
             className="cursor-pointer w-8 h-8 rounded-lg border-none bg-transparent flex items-center justify-center"
             style={{ color: "#8496A0" }}
@@ -282,7 +284,7 @@ function RequestsCard({
             <Printer className="w-4 h-4" />
           </button>
           <button
-            onClick={() => exportRequestsCsv(requests, t)}
+            onClick={() => exportRequestsCsv(requests, t, lang)}
             title={t.exportLabel}
             className="cursor-pointer w-8 h-8 rounded-lg border-none bg-transparent flex items-center justify-center"
             style={{ color: "#8496A0" }}
@@ -306,7 +308,7 @@ function RequestsCard({
                 <div className="text-xs truncate" style={{ color: "#8496A0" }}>{r.hospital}</div>
               </div>
               <span className="font-extrabold text-[12.5px] px-2.5 py-1.5 rounded-[9px]" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
-              <span className="text-xs font-semibold w-14 text-center" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t)}</span>
+              <span className="text-xs font-semibold w-14 text-center" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>
               <span className="text-[11px] font-extrabold px-2.5 py-1.5 rounded-full whitespace-nowrap" style={{ background: badge.bg, color: badge.fg }}>
                 {urgencyLabel(r.urgency, t)}
               </span>

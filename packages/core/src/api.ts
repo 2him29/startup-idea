@@ -22,13 +22,6 @@ interface BloodRequestRow {
   verifier?: { name: string } | null;
 }
 
-function relativeTime(iso: string): string {
-  const minutes = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.round(minutes / 60);
-  return `${hours} hr${hours > 1 ? "s" : ""} ago`;
-}
-
 /**
  * Patient-authored requests carry their own denormalized hospital_name/wilaya
  * (the donor list never reads the `patients` table, whose RLS hides names and
@@ -44,7 +37,7 @@ function toBloodRequest(row: BloodRequestRow): BloodRequest {
     units: row.units,
     urgency: row.urgency,
     distance: row.distance_km != null ? `${row.distance_km} km` : "—",
-    time: relativeTime(row.created_at),
+    createdAt: row.created_at,
     hospitalLat: row.hospitals?.latitude ?? null,
     hospitalLng: row.hospitals?.longitude ?? null,
     wilaya: row.wilaya ?? row.hospitals?.wilaya ?? null,

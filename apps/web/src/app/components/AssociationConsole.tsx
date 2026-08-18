@@ -9,6 +9,7 @@ import {
   verifyRequest,
   unverifyRequest,
   wilayaLabel,
+  formatRelativeTime,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
@@ -186,7 +187,7 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
                     <div className="text-[15.5px] font-bold truncate" style={{ color: "#0B2432" }}>{r.hospital}</div>
                     <div className="flex items-center gap-1 mt-0.5 text-[12.5px]" style={{ color: "#8496A0" }}>
                       <Clock className="w-[13px] h-[13px]" />
-                      {r.time}
+                      {formatRelativeTime(r.createdAt, lang)}
                     </div>
                   </div>
                 </div>
@@ -197,7 +198,7 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
 
               <div className="mt-3.5 flex items-center gap-2.5 flex-wrap">
                 <span className="font-extrabold text-sm px-3 py-1.5 rounded-xl" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
-                <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t)}</span>
+                <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>
                 {r.wilaya && (
                   <span className="flex items-center gap-1 text-[12.5px]" style={{ color: "#8496A0" }}>
                     <MapPin className="w-[13px] h-[13px]" />

@@ -3,7 +3,7 @@ import { ArrowLeft, MapPin, Droplet } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, wilayaLabel, type BloodRequest, type Urgency } from "@weare/core";
+import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, wilayaLabel, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { getDefaultWilaya } from "../prefs";
 import { RequestCardSkeleton } from "./Skeletons";
@@ -214,7 +214,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                     <div className="text-[15.5px] font-bold" style={{ color: "#0B2432" }}>{r.hospital}</div>
                     <div className="flex items-center gap-1 mt-0.5 text-[12.5px]" style={{ color: "#8496A0" }}>
                       <MapPin className="w-[13px] h-[13px]" />
-                      {r.distance} · {r.time}
+                      {r.distance} · {formatRelativeTime(r.createdAt, lang)}
                     </div>
                     {r.verifiedByName && (
                       <div className="mt-1.5">
@@ -229,7 +229,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
               </div>
               <div className="mt-3.5 flex items-center gap-2.5">
                 <span className="font-extrabold text-sm px-3 py-1.5 rounded-xl" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
-                <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t)}</span>
+                <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>
                 <span className="ms-auto text-[13px] font-extrabold" style={{ color: accent }}>{t.view} →</span>
               </div>
             </button>
