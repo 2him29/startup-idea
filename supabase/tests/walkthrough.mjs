@@ -170,6 +170,21 @@ async function main() {
   assert(!requests.some((r) => r.id === requestId), "a fulfilled request is still listed as open");
   ok("gone from the open list");
 
+  // Leave the environment as we found it.
+  //
+  // This run deliberately puts the demo donor into a 90-day cooldown, and that
+  // donor is also the one the Playwright suite expects to find eligible and
+  // contactable in donor search. Without this, running the flow test before
+  // the UI tests silently breaks them — which is exactly what happened once.
+  // Restoring here beats relying on whoever runs them to re-seed in between.
+  head("Restore the donor's eligibility so later suites start clean");
+  await core
+    .getSupabase()
+    .from("donor_profiles")
+    .update({ last_donation_at: null, last_donation_date: null })
+    .eq("id", donorId);
+  ok("cooldown cleared");
+
   console.log(`\n${step} steps passed.`);
 }
 

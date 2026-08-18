@@ -95,6 +95,7 @@ export interface Strings {
   contactConsentTitle: string; contactConsentBody: string; contactConsentToggle: string;
   contactConsentOn: string; contactConsentOff: string; navDonorsLabel: string;
   skipForNow: string; verifyLaterHint: string;
+  hospitalMatched: string; hospitalFreeTextHint: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -208,6 +209,8 @@ export const I18N: Record<Lang, Strings> = {
     contactConsentOn: "Associations can now call you", contactConsentOff: "Your number is hidden again",
     navDonorsLabel: "Donors",
     skipForNow: "Skip for now", verifyLaterHint: "You can do this later — but you'll need a verified number before you can post a request.",
+    hospitalMatched: "Matched to a known hospital — your request will show on the donor map.",
+    hospitalFreeTextHint: "Pick from the list to place your request on the map, or type any hospital name.",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -319,6 +322,8 @@ export const I18N: Record<Lang, Strings> = {
     contactConsentOn: "Les associations peuvent vous appeler", contactConsentOff: "Votre numéro est de nouveau masqué",
     navDonorsLabel: "Donneurs",
     skipForNow: "Plus tard", verifyLaterHint: "Vous pouvez le faire plus tard — mais un numéro vérifié est nécessaire pour publier une demande.",
+    hospitalMatched: "Hôpital reconnu — votre demande apparaîtra sur la carte des donneurs.",
+    hospitalFreeTextHint: "Choisissez dans la liste pour apparaître sur la carte, ou saisissez n'importe quel hôpital.",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -430,5 +435,7 @@ export const I18N: Record<Lang, Strings> = {
     contactConsentOn: "يمكن للجمعيات الاتصال بك الآن", contactConsentOff: "تم إخفاء رقمك مجدداً",
     navDonorsLabel: "المتبرعون",
     skipForNow: "لاحقاً", verifyLaterHint: "يمكنك فعل ذلك لاحقاً — لكنك تحتاج رقماً موثّقاً قبل نشر أي طلب.",
+    hospitalMatched: "مستشفى معروف — سيظهر طلبك على خريطة المتبرعين.",
+    hospitalFreeTextHint: "اختر من القائمة ليظهر طلبك على الخريطة، أو اكتب اسم أي مستشفى.",
   },
 };

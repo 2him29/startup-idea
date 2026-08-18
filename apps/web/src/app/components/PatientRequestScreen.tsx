@@ -5,6 +5,7 @@ import {
   urgencyStyle,
   urgencyLabel,
   usePhoneVerified,
+  useHospitals,
   WILAYAS,
   type Urgency,
 } from "@weare/core";
@@ -34,6 +35,7 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
   const toast = useToast();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
   const { verified, loading: checkingVerification } = usePhoneVerified();
+  const { hospitals } = useHospitals();
 
   const [patientName, setPatientName] = useState("");
   const [bloodType, setBloodType] = useState("O+");
@@ -48,6 +50,22 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
 
   const inputStyle = { borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432" } as const;
 
+  // Hospitals in the chosen wilaya, offered as suggestions. Narrowed to the
+  // wilaya because a national list is too long to skim and the treating
+  // hospital is nearly always in the patient's own province.
+  const suggestions = hospitals.filter((h) => h.wilaya === wilaya);
+
+  /**
+   * Resolve what the family typed against the directory.
+   *
+   * A match gives the request real coordinates (they come from the hospitals
+   * join) and so a pin on the donor map. No match is not an error — the name
+   * is kept as free text and the request simply has no pin, exactly as before.
+   */
+  const matchedHospital = suggestions.find(
+    (h) => h.name.trim().toLowerCase() === hospitalName.trim().toLowerCase()
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -60,6 +78,7 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
         units,
         urgency,
         hospitalName,
+        hospitalId: matchedHospital?.id,
         contactPhone,
         patientFileRef: fileRef,
       });
@@ -151,13 +170,28 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
           </div>
 
           <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.hospitalNameOptional}</label>
+          {/*
+            A plain text input backed by a datalist, not a select: the family
+            can type any hospital, and picking a listed one is what earns the
+            request a map pin. Typing something we don't know stays valid.
+          */}
           <input
             value={hospitalName}
             onChange={(e) => setHospitalName(e.target.value)}
             placeholder="CHU Mustapha Pacha"
-            className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none mb-4"
+            list="qatra-hospital-suggestions"
+            autoComplete="off"
+            className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none"
             style={{ ...inputStyle, textAlign: "start" }}
           />
+          <datalist id="qatra-hospital-suggestions">
+            {suggestions.map((h) => (
+              <option key={h.id} value={h.name} />
+            ))}
+          </datalist>
+          <div className="mt-1.5 mb-4 text-[11.5px]" style={{ color: matchedHospital ? "#0E7A4B" : "#8496A0", textAlign: "start" }}>
+            {matchedHospital ? t.hospitalMatched : t.hospitalFreeTextHint}
+          </div>
 
           <label className="block text-[12.5px] font-bold mb-2" style={{ color: "#5A6B75", textAlign: "start" }}>{t.unitsNeeded}</label>
           <div className="flex items-center gap-3 h-12 rounded-[13px] border-[1.5px] px-2 justify-between mb-4" style={inputStyle}>

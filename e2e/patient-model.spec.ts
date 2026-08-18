@@ -234,13 +234,59 @@ test.describe("patient/association model", () => {
     // there.
     await page.getByRole("button", { name: "Blida", exact: true }).click();
 
+    // One pin per location now, listing every request at that hospital. That
+    // grouping is what makes this testable at all: Blida has a single hospital
+    // in the directory, so before it, eleven requests stacked on one point and
+    // only the topmost could ever be opened.
     const markers = page.locator(".leaflet-marker-icon");
     await markers.first().waitFor({ state: "visible", timeout: 30_000 });
     await markers.first().click();
 
     const popup = page.locator(".leaflet-popup-content");
     await popup.waitFor({ state: "visible", timeout: 15_000 });
-    await expect(popup.getByText(t("en").verifiedShort)).toBeVisible();
+    await expect(popup.getByText(t("en").verifiedShort).first()).toBeVisible();
+  });
+
+  test("a patient request naming a known hospital reaches the map", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+
+    // Count the requests listed on Blida's pin, not the number of pins.
+    // Requests at one hospital share a marker, so a new one joins the existing
+    // pin rather than adding another — counting pins would never change.
+    // Asserting merely that a pin exists would also pass without this feature,
+    // since legacy requests have always been mappable; the claim worth testing
+    // is that a request posted through the *patient* flow shows up there.
+    const openBlidaPin = async () => {
+      await clickNav(page, "Find");
+      await page.getByRole("button", { name: "Blida", exact: true }).click();
+      const markers = page.locator(".leaflet-marker-icon");
+      await markers.first().waitFor({ state: "visible", timeout: 30_000 });
+      await markers.first().click();
+      const popup = page.locator(".leaflet-popup-content");
+      await popup.waitFor({ state: "visible", timeout: 15_000 });
+      return popup.getByRole("button", { name: /View/ });
+    };
+
+    const before = await (await openBlidaPin()).count();
+
+    // Naming a hospital that exists in the directory links the request to it,
+    // which is what gives it coordinates. Free-typed hospitals stay valid but
+    // remain unmapped.
+    await clickNav(page, "Request");
+    await page.getByPlaceholder("e.g. Amel K.").fill(`Map E2E ${Date.now()}`);
+    await page.locator("select").first().selectOption("Blida");
+    await page.getByPlaceholder("CHU Mustapha Pacha").fill("CHU Frantz Fanon – Blida");
+    await expect(page.getByText(t("en").hospitalMatched)).toBeVisible();
+    await page.getByRole("button", { name: "Post request" }).click();
+
+    await expect(page.getByText(t("en").urgentRequests).first()).toBeVisible({ timeout: 15_000 });
+
+    // Greater-than rather than exactly one more: both browser projects run
+    // this against the same database at the same time, so the other one may
+    // have added a request too.
+    const after = await (await openBlidaPin()).count();
+    expect(after).toBeGreaterThan(before);
   });
 
   test("consent screen records health-data consent", async ({ page }) => {
