@@ -12,6 +12,7 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "verify:db": "node supabase/tests/verify.mjs",
+    "test:flow": "esbuild packages/core/src/index.ts --bundle --format=esm --platform=node --outfile=supabase/tests/.core.mjs --log-level=error && node supabase/tests/walkthrough.mjs",
     "typecheck": "tsc --noEmit --jsx react-jsx --module esnext --moduleResolution bundler --target es2022 --strict --skipLibCheck --allowImportingTsExtensions packages/core/src/index.ts"
   },
   "devDependencies": {

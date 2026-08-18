@@ -69,7 +69,20 @@ It also needs seed data that only you can create: a verified `associations` row,
 npm test              # Playwright, e2e/
 npm run test:ui       # interactive runner
 npm run verify:db     # migrations + RLS against a real Postgres
+npm run test:flow     # full patient→association→donor flow against a staging project
 ```
+
+`npm run test:flow` walks the whole chain with real sessions and RLS in force: a family posts a request, an association vouches for it, the badge reaches the donor and survives a WhatsApp forward, the donor pledges a compensation, the donation is recorded, and the donor drops out of donor search on the 90-day cooldown. It lives outside Playwright because two of those links — `searchDonors()` and `recordDonation()` — are wired into no screen yet, so they cannot be driven through a browser.
+
+Unlike the other suites this one **writes**, so it demands an explicit target and refuses the production project:
+
+```bash
+QATRA_E2E_URL=https://<ref>.supabase.co \
+QATRA_E2E_ANON_KEY=<anon key> \
+npm run test:flow
+```
+
+With no target set it skips (exit 0); pointed at production it exits 1 without touching anything.
 
 `npm run verify:db` spins up a throwaway PostgreSQL instance from real binaries (no Docker — Docker Desktop is unreliable on these machines), applies every migration in order, then exercises the RLS policies as different users, the backfill, `seed.sql`, and the contract between `api.ts`'s queries and the actual schema. It is **not** Supabase: the `auth` schema is stubbed and there is no PostgREST or GoTrue, so it cannot cover the HTTP API, auth, or the Playwright suite. It exists because "the SQL was hand-reviewed" is not verification — it caught the backfill silently linking zero rows.
 
