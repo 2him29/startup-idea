@@ -3,7 +3,7 @@ import { ArrowLeft, MapPin, Droplet } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, wilayaLabel, type BloodRequest } from "@weare/core";
+import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, wilayaLabel, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { getDefaultWilaya } from "../prefs";
 import { RequestCardSkeleton } from "./Skeletons";
@@ -43,6 +43,35 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
     (r): r is BloodRequest & { hospitalLat: number; hospitalLng: number } =>
       r.hospitalLat != null && r.hospitalLng != null
   );
+
+  /**
+   * One pin per location, not per request.
+   *
+   * Coordinates come from the hospital, so every request at the same hospital
+   * lands on the identical point — and Leaflet stacks those markers exactly,
+   * leaving only the topmost clickable. Blida has a single hospital in the
+   * directory and eleven open requests, so ten of them were unreachable on the
+   * map: the donor saw one pin and no way to know it stood for eleven people.
+   *
+   * Grouping keeps the positions truthful (nothing is scattered to fake
+   * precision) while making every request reachable through the popup.
+   */
+  const URGENCY_RANK: Record<Urgency, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+
+  const markerGroups = Array.from(
+    mappable.reduce((groups, r) => {
+      const key = `${r.hospitalLat},${r.hospitalLng}`;
+      const existing = groups.get(key);
+      if (existing) existing.requests.push(r);
+      else groups.set(key, { key, lat: r.hospitalLat, lng: r.hospitalLng, requests: [r] });
+      return groups;
+    }, new Map<string, { key: string; lat: number; lng: number; requests: typeof mappable }>()).values()
+  ).map((group) => ({
+    ...group,
+    // The pin takes the colour of the most urgent request it stands for —
+    // a critical case must not be hidden behind a low-urgency dot.
+    requests: [...group.requests].sort((a, b) => URGENCY_RANK[a.urgency] - URGENCY_RANK[b.urgency]),
+  }));
 
   // Re-center the map on the filtered wilaya's own hospitals instead of always
   // showing the Algiers view -- otherwise picking a distant wilaya leaves its
@@ -101,27 +130,55 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {mappable.map((r) => (
-            <Marker key={r.id} position={[r.hospitalLat, r.hospitalLng]} icon={urgencyIcon(urgencyStyle[r.urgency].bg)}>
+          {markerGroups.map((group) => (
+            <Marker
+              key={group.key}
+              position={[group.lat, group.lng]}
+              icon={urgencyIcon(urgencyStyle[group.requests[0].urgency].bg)}
+            >
               <Popup>
-                <div className="min-w-[150px]">
-                  <div className="text-[13px] font-bold" style={{ color: "#0B2432" }}>{r.hospital}</div>
-                  <div className="mt-1 flex items-center gap-1.5">
-                    <span
-                      className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full"
-                      style={{ background: urgencyStyle[r.urgency].bg, color: urgencyStyle[r.urgency].fg }}
-                    >
-                      {urgencyLabel(r.urgency, t)}
-                    </span>
-                    <span className="text-[11px]" style={{ color: "#6B7C88" }}>{r.bloodType} · {r.distance}</span>
+                <div className="min-w-[170px] max-h-[220px] overflow-y-auto">
+                  <div className="text-[13px] font-bold" style={{ color: "#0B2432" }}>
+                    {group.requests[0].hospital}
                   </div>
-                  <button
-                    onClick={() => onOpenDetail(r)}
-                    className="cursor-pointer mt-1.5 text-[12px] font-extrabold"
-                    style={{ color: accent }}
-                  >
-                    {t.view} →
-                  </button>
+                  {group.requests.length > 1 && (
+                    <div className="text-[11px] mt-0.5" style={{ color: "#8496A0" }}>
+                      {group.requests.length} {t.urgentRequests.toLowerCase()}
+                    </div>
+                  )}
+
+                  {group.requests.map((r, i) => (
+                    <div
+                      key={r.id}
+                      className="pt-1.5"
+                      style={i > 0 ? { marginTop: "8px", borderTop: "1px solid rgba(11,36,50,0.08)" } : undefined}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full"
+                          style={{ background: urgencyStyle[r.urgency].bg, color: urgencyStyle[r.urgency].fg }}
+                        >
+                          {urgencyLabel(r.urgency, t)}
+                        </span>
+                        <span className="text-[11px]" style={{ color: "#6B7C88" }}>{r.bloodType} · {r.distance}</span>
+                      </div>
+                      {/* Same badge as the list below. A pin and a card are two
+                          views of one request, so trust that shows in one and
+                          not the other reads as the badge being unreliable. */}
+                      {r.verifiedByName && (
+                        <div className="mt-1.5">
+                          <VerifiedBadge associationName={r.verifiedByName} variant="compact" />
+                        </div>
+                      )}
+                      <button
+                        onClick={() => onOpenDetail(r)}
+                        className="cursor-pointer mt-1.5 text-[12px] font-extrabold"
+                        style={{ color: accent }}
+                      >
+                        {t.view} →
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </Popup>
             </Marker>
@@ -157,7 +214,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                     <div className="text-[15.5px] font-bold" style={{ color: "#0B2432" }}>{r.hospital}</div>
                     <div className="flex items-center gap-1 mt-0.5 text-[12.5px]" style={{ color: "#8496A0" }}>
                       <MapPin className="w-[13px] h-[13px]" />
-                      {r.distance} · {r.time}
+                      {r.distance} · {formatRelativeTime(r.createdAt, lang)}
                     </div>
                     {r.verifiedByName && (
                       <div className="mt-1.5">
@@ -172,7 +229,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
               </div>
               <div className="mt-3.5 flex items-center gap-2.5">
                 <span className="font-extrabold text-sm px-3 py-1.5 rounded-xl" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
-                <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t)}</span>
+                <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>
                 <span className="ms-auto text-[13px] font-extrabold" style={{ color: accent }}>{t.view} →</span>
               </div>
             </button>

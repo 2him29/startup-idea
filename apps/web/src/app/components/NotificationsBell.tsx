@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Bell, Droplet, CheckCircle2 } from "lucide-react";
-import { urgencyStyle, urgencyLabel, type BloodRequest } from "@weare/core";
+import { urgencyStyle, urgencyLabel, type BloodRequest, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 interface NotificationsBellProps {
@@ -15,7 +15,7 @@ interface NotificationsBellProps {
  * notifications, and the red dot only shows when something urgent exists.
  */
 export function NotificationsBell({ requests, onOpen, size = 44 }: NotificationsBellProps) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +80,7 @@ export function NotificationsBell({ requests, onOpen, size = 44 }: Notifications
                     <span className="block text-[13px] font-bold truncate" style={{ color: "#0B2432" }}>
                       {r.bloodType} · {r.hospital}
                     </span>
-                    <span className="block text-[11.5px]" style={{ color: "#8496A0" }}>{r.time}</span>
+                    <span className="block text-[11.5px]" style={{ color: "#8496A0" }}>{formatRelativeTime(r.createdAt, lang)}</span>
                   </span>
                   <span className="text-[10.5px] font-extrabold px-2 py-1 rounded-full shrink-0" style={{ background: badge.bg, color: badge.fg }}>
                     {urgencyLabel(r.urgency, t)}

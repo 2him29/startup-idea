@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Search, Droplet, Plus } from "lucide-react";
-import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests } from "@weare/core";
+import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { RequestCardSkeleton } from "./Skeletons";
 import { NewRequestSheet } from "./NewRequestSheet";
@@ -10,7 +10,7 @@ interface HospitalDashboardProps {
 }
 
 export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
-  const { t, dir } = useI18n();
+  const { t, lang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
   const filterChips = [t.filterAll, t.urgencyCritical, "O-", t.filterNearby];
 
@@ -98,8 +98,8 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
               </div>
               <div className="mt-[13px] flex items-center gap-2.5">
                 <span className="font-extrabold text-[13px] px-[11px] py-1.5 rounded-[11px]" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
-                <span className="text-[12.5px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t)}</span>
-                <span className="ms-auto text-[12.5px]" style={{ color: "#8496A0" }}>{r.time}</span>
+                <span className="text-[12.5px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>
+                <span className="ms-auto text-[12.5px]" style={{ color: "#8496A0" }}>{formatRelativeTime(r.createdAt, lang)}</span>
               </div>
             </div>
           );

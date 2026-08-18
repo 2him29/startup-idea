@@ -1,4 +1,4 @@
-import { Home, Search, User, LayoutList, HeartHandshake, BadgeCheck, Droplet } from "lucide-react";
+import { Home, Search, User, LayoutList, HeartHandshake, BadgeCheck, Droplet, Users } from "lucide-react";
 import { isPatientModelEnabled } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
@@ -8,7 +8,7 @@ interface BottomNavigationProps {
   userType: "donor" | "hospital" | null;
 }
 
-const visibleOn = ["home", "matching", "profile", "hospital", "compensate", "post-request", "association"];
+const visibleOn = ["home", "matching", "profile", "hospital", "compensate", "post-request", "association", "donor-search"];
 
 export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomNavigationProps) {
   const { t } = useI18n();
@@ -28,6 +28,7 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
         { id: "matching", icon: Search, label: t.navFind },
         { id: "post-request", icon: Droplet, label: t.navRequestLabel },
         { id: "association", icon: BadgeCheck, label: t.navVerifyLabel },
+        { id: "donor-search", icon: Users, label: t.navDonorsLabel },
         { id: "profile", icon: User, label: t.navProfile },
       ]
     : [

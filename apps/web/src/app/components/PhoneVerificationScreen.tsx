@@ -7,6 +7,12 @@ import { useToast } from "./Toast";
 interface PhoneVerificationScreenProps {
   onBack: () => void;
   onVerified: () => void;
+  /**
+   * Offers a way past this screen. Set when verification is a step in
+   * registration rather than a gate in front of an action the user has already
+   * chosen to take.
+   */
+  onSkip?: () => void;
 }
 
 /**
@@ -18,7 +24,7 @@ interface PhoneVerificationScreenProps {
  * swappable (see packages/core/src/otp.ts); nothing here knows which one is
  * configured.
  */
-export function PhoneVerificationScreen({ onBack, onVerified }: PhoneVerificationScreenProps) {
+export function PhoneVerificationScreen({ onBack, onVerified, onSkip }: PhoneVerificationScreenProps) {
   const { t, dir } = useI18n();
   const toast = useToast();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
@@ -141,6 +147,28 @@ export function PhoneVerificationScreen({ onBack, onVerified }: PhoneVerificatio
             ? busy ? t.sendingCode : t.sendCodeCta
             : busy ? t.verifyingCode : t.verifyCodeCta}
         </button>
+
+        {/*
+          Registration offers a way past this. Verification is what RLS
+          requires to *post a request*, not to hold an account, so blocking
+          sign-up on it would strand anyone whose SMS never arrives — and
+          leave the app unusable anywhere an SMS provider isn't configured.
+        */}
+        {onSkip && (
+          <>
+            <button
+              type="button"
+              onClick={onSkip}
+              className="cursor-pointer mt-3.5 w-full text-center text-[13.5px] font-semibold border-none bg-transparent"
+              style={{ color: "#5A6B75" }}
+            >
+              {t.skipForNow}
+            </button>
+            <div className="mt-1.5 text-center text-[12px]" style={{ color: "#8496A0" }}>
+              {t.verifyLaterHint}
+            </div>
+          </>
+        )}
       </form>
     </div>
   );

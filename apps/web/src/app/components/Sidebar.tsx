@@ -1,4 +1,4 @@
-import { Home, Search, User, LayoutList, HeartHandshake, BadgeCheck, Droplet } from "lucide-react";
+import { Home, Search, User, LayoutList, HeartHandshake, BadgeCheck, Droplet, Users } from "lucide-react";
 import { isPatientModelEnabled } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LangSwitcher } from "./LangSwitcher";
@@ -27,6 +27,7 @@ export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
         { id: "matching", icon: Search, label: t.navFind },
         { id: "post-request", icon: Droplet, label: t.navRequestLabel },
         { id: "association", icon: BadgeCheck, label: t.navVerifyLabel },
+        { id: "donor-search", icon: Users, label: t.navDonorsLabel },
         { id: "compensate", icon: HeartHandshake, label: t.navGive },
         { id: "profile", icon: User, label: t.navProfile },
       ]

@@ -41,6 +41,11 @@ do $$ begin
   if not exists (select 1 from pg_roles where rolname='service_role') then create role service_role nologin; end if;
 end $$;
 grant usage on schema public to anon, authenticated, service_role;
+-- Supabase grants this too. Without it a client query that calls auth.uid()
+-- directly (as opposed to one where a policy calls it internally) fails with
+-- "permission denied for schema auth" — a difference between this stub and
+-- production that would otherwise show up as a phantom test failure.
+grant usage on schema auth to anon, authenticated, service_role;
 alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
 `;
 
@@ -255,6 +260,140 @@ async function checkRls() {
 }
 
 /**
+ * Donor search and the privacy repair underneath it.
+ *
+ * The point of these is the *negative* cases. A donor-search feature is only
+ * safe if the rows it exposes are unreachable any other way, so each check
+ * that proves an association can see something is paired with one proving an
+ * ordinary account cannot.
+ */
+async function checkDonorSearch() {
+  // Fixtures: a verified Blida association with a member, plus two donors in
+  // Blida — one who agreed to be phoned, one who did not — and a donor in
+  // another wilaya who must never appear in Blida results.
+  const mk = async (who, wilaya) => {
+    const u = (await client.query("insert into auth.users (email) values ($1) returning id", [`${who}-ds@qatra.test`])).rows[0].id;
+    await client.query(
+      "insert into profiles (id, role, full_name, wilaya, phone, phone_verified) values ($1,'donor',$2,$3,$4,true)",
+      [u, who, wilaya, "+2135550000"]
+    );
+    return u;
+  };
+
+  const assoc = (await client.query(
+    "insert into associations (name,type,wilaya,is_verified) values ('CRA Blida DS','red_crescent','Blida',true) returning id"
+  )).rows[0].id;
+
+  const coordinator = await mk("coordinator", "Blida");
+  await client.query("insert into association_members (association_id,user_id,role) values ($1,$2,'volunteer')", [assoc, coordinator]);
+
+  const sharing = await mk("sharing-donor", "Blida");
+  const private_ = await mk("private-donor", "Blida");
+  const elsewhere = await mk("oran-donor", "Oran");
+  const cooling = await mk("cooling-donor", "Blida");
+
+  await client.query("insert into donor_profiles (id, blood_type) values ($1,'A+')", [sharing]);
+  await client.query("insert into donor_profiles (id, blood_type) values ($1,'A+')", [private_]);
+  await client.query("insert into donor_profiles (id, blood_type) values ($1,'A+')", [elsewhere]);
+  await client.query("insert into donor_profiles (id, blood_type, last_donation_at) values ($1,'A+', now() - interval '10 days')", [cooling]);
+
+  await client.query(
+    "insert into consent_records (user_id, purpose, consent_version) values ($1,'contact_sharing','contact-sharing-v1')",
+    [sharing]
+  );
+
+  section("privacy: the base tables are no longer world-readable");
+  await check("an ordinary user cannot read another profile", () =>
+    asUser(private_, () => expectRows("select 1 from profiles where id=$1", [sharing], 0)));
+  await check("an ordinary user cannot read another donor_profile", () =>
+    asUser(private_, () => expectRows("select 1 from donor_profiles where id=$1", [sharing], 0)));
+  await check("a user can still read their own profile", () =>
+    asUser(private_, () => expectRows("select 1 from profiles where id=$1", [private_], 1)));
+
+  section("donor search: who may call it");
+  await check("an ordinary donor calling search_donors is refused", () =>
+    asUser(private_, () => expectDenied("select * from search_donors('Blida')")));
+  await check("an association member may search its own wilaya", () =>
+    asUser(coordinator, async () => {
+      const r = await client.query("select * from search_donors('Blida')");
+      if (r.rowCount === 0) throw new Error("returned no donors");
+    }));
+  await check("the same member is refused another wilaya", () =>
+    asUser(coordinator, () => expectDenied("select * from search_donors('Oran')")));
+  await check("donors from other wilayas never appear", () =>
+    asUser(coordinator, async () => {
+      const r = await client.query("select id from search_donors('Blida')");
+      if (r.rows.some((x) => x.id === elsewhere)) throw new Error("an Oran donor leaked into Blida results");
+    }));
+
+  section("donor search: phone numbers follow consent");
+  await check("a donor who opted in has their number returned", () =>
+    asUser(coordinator, async () => {
+      const r = await client.query("select phone, shares_phone from search_donors('Blida') where id=$1", [sharing]);
+      if (r.rows[0].shares_phone !== true) throw new Error("shares_phone should be true");
+      if (!r.rows[0].phone) throw new Error("phone withheld from a consenting donor");
+    }));
+  await check("a donor who did not opt in is listed WITHOUT their number", () =>
+    asUser(coordinator, async () => {
+      const r = await client.query("select phone, shares_phone from search_donors('Blida') where id=$1", [private_]);
+      if (r.rowCount !== 1) throw new Error("the donor should still be findable");
+      if (r.rows[0].phone !== null) throw new Error("phone leaked for a donor who never consented");
+      if (r.rows[0].shares_phone !== false) throw new Error("shares_phone should be false");
+    }));
+  await check("an association cannot withdraw a donor's consent for them", () =>
+    asUser(coordinator, async () => {
+      const r = await client.query("update consent_records set revoked_at = now() where user_id=$1", [sharing]);
+      if (r.rowCount !== 0) throw new Error("a coordinator edited someone else's consent record");
+    }));
+
+  // Withdrawal has to be performed by the donor and read back by the
+  // coordinator, so this switches identity mid-transaction rather than using
+  // two asUser blocks — each of those rolls back, which would undo the
+  // withdrawal before the search could observe it.
+  await check("when the donor withdraws consent, the number disappears", async () => {
+    await client.query("begin");
+    try {
+      await client.query("set local role authenticated");
+      await client.query(`set local request.jwt.claim.sub = '${sharing}'`);
+      const upd = await client.query("update consent_records set revoked_at = now() where user_id = auth.uid()");
+      if (upd.rowCount !== 1) throw new Error("the donor could not withdraw their own consent");
+
+      await client.query(`set local request.jwt.claim.sub = '${coordinator}'`);
+      const r = await client.query("select phone, shares_phone from search_donors('Blida') where id=$1", [sharing]);
+      if (r.rows[0].phone !== null) throw new Error("phone still returned after consent was withdrawn");
+      if (r.rows[0].shares_phone !== false) throw new Error("shares_phone should have flipped to false");
+    } finally {
+      await client.query("rollback").catch(() => {});
+    }
+  });
+
+  section("donor search: the 90-day cooldown");
+  await check("a cooling-off donor is hidden by default", () =>
+    asUser(coordinator, async () => {
+      const r = await client.query("select id from search_donors('Blida','A+',false)");
+      if (r.rows.some((x) => x.id === cooling)) throw new Error("an ineligible donor was offered");
+    }));
+  await check("...but visible with a countdown when asked for", () =>
+    asUser(coordinator, async () => {
+      const r = await client.query("select is_eligible, days_until_eligible from search_donors('Blida','A+',true) where id=$1", [cooling]);
+      if (r.rowCount !== 1) throw new Error("the donor is missing even with include_ineligible");
+      if (r.rows[0].is_eligible !== false) throw new Error("should be flagged ineligible");
+      if (r.rows[0].days_until_eligible !== 80) throw new Error(`expected 80 days, got ${r.rows[0].days_until_eligible}`);
+    }));
+
+  section("consent version drift");
+  await check("search_donors() checks the version compliance.ts declares", async () => {
+    const ts = readFileSync(join(HERE, "..", "..", "packages", "core", "src", "compliance.ts"), "utf8");
+    const declared = ts.match(/contact_sharing:\s*"([^"]+)"/)?.[1];
+    if (!declared) throw new Error("could not find CONSENT_VERSIONS.contact_sharing");
+    const def = (await client.query("select pg_get_functiondef(p.oid) d from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname='search_donors'")).rows[0].d;
+    if (!def.includes(`'${declared}'`)) {
+      throw new Error(`SQL does not check "${declared}" — bump it in the migration too`);
+    }
+  });
+}
+
+/**
  * Everything the client asks PostgREST for must exist. This is the check that
  * would have caught the api.ts regression where the query named columns the
  * database didn't have — PostgREST rejects such a query wholesale, and the
@@ -374,6 +513,7 @@ async function main() {
   await client.query(SUPABASE_STUB);
   await applyMigrations();
   await checkRls();
+  await checkDonorSearch();
   await checkClientContract();
   await checkSeed();
 

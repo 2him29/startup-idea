@@ -87,6 +87,17 @@ export interface Strings {
   dsrSubmittedToast: string; dsrDetailsPh: string;
   navRequestLabel: string; navVerifyLabel: string;
   eligibleInDays: string; eligibleLabel: string;
+
+  // --- Donor search + contact-sharing consent ---
+  donorSearchTitle: string; donorSearchSub: string; allTypesLabel: string;
+  includeCooldownLabel: string; noDonorsFound: string; donorSearchDenied: string;
+  callLabel: string; numberNotShared: string; numberNotSharedHint: string;
+  contactConsentTitle: string; contactConsentBody: string; contactConsentToggle: string;
+  contactConsentOn: string; contactConsentOff: string; navDonorsLabel: string;
+  skipForNow: string; verifyLaterHint: string;
+  hospitalMatched: string; hospitalFreeTextHint: string;
+  unitsOne: string; unitsTwo: string; unitsFew: string;
+  imPatient: string; patientSub: string; demoAsPatient: string; taglinePatient: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -188,6 +199,23 @@ export const I18N: Record<Lang, Strings> = {
     dsrSubmittedToast: "Request submitted — we'll get back to you", dsrDetailsPh: "What should we correct or delete?",
     navRequestLabel: "Request", navVerifyLabel: "Verify",
     eligibleInDays: "Eligible in {days} days", eligibleLabel: "Eligible",
+
+    donorSearchTitle: "Find donors", donorSearchSub: "Registered donors in {wilaya}",
+    allTypesLabel: "All types", includeCooldownLabel: "Include donors still in cooldown",
+    noDonorsFound: "No donors match in this wilaya",
+    donorSearchDenied: "Only a verified association can search donors here",
+    callLabel: "Call", numberNotShared: "Number not shared",
+    numberNotSharedHint: "This donor hasn't agreed to be phoned directly. Reach them through a request instead.",
+    contactConsentTitle: "Direct contact", contactConsentBody: "Verified associations can see your phone number and call you about urgent requests matching your blood type. You can turn this off at any time.",
+    contactConsentToggle: "Let verified associations call me",
+    contactConsentOn: "Associations can now call you", contactConsentOff: "Your number is hidden again",
+    navDonorsLabel: "Donors",
+    skipForNow: "Skip for now", verifyLaterHint: "You can do this later — but you'll need a verified number before you can post a request.",
+    unitsOne: "unit", unitsTwo: "units", unitsFew: "units",
+    imPatient: "I need blood", patientSub: "Post a request for a patient or family member", demoAsPatient: "View demo as Patient",
+    taglinePatient: "Every drop connects a life. Families ask, associations vouch, donors answer — across Algeria, in real time.",
+    hospitalMatched: "Matched to a known hospital — your request will show on the donor map.",
+    hospitalFreeTextHint: "Pick from the list to place your request on the map, or type any hospital name.",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -287,6 +315,23 @@ export const I18N: Record<Lang, Strings> = {
     dsrSubmittedToast: "Demande envoyée — nous vous répondrons", dsrDetailsPh: "Que devons-nous corriger ou supprimer ?",
     navRequestLabel: "Demander", navVerifyLabel: "Vérifier",
     eligibleInDays: "Éligible dans {days} jours", eligibleLabel: "Éligible",
+
+    donorSearchTitle: "Trouver des donneurs", donorSearchSub: "Donneurs inscrits à {wilaya}",
+    allTypesLabel: "Tous les groupes", includeCooldownLabel: "Inclure les donneurs en délai d'attente",
+    noDonorsFound: "Aucun donneur ne correspond dans cette wilaya",
+    donorSearchDenied: "Seule une association vérifiée peut rechercher des donneurs ici",
+    callLabel: "Appeler", numberNotShared: "Numéro non partagé",
+    numberNotSharedHint: "Ce donneur n'a pas accepté d'être appelé directement. Contactez-le via une demande.",
+    contactConsentTitle: "Contact direct", contactConsentBody: "Les associations vérifiées peuvent voir votre numéro et vous appeler pour des demandes urgentes correspondant à votre groupe sanguin. Vous pouvez désactiver cela à tout moment.",
+    contactConsentToggle: "Autoriser les associations vérifiées à m'appeler",
+    contactConsentOn: "Les associations peuvent vous appeler", contactConsentOff: "Votre numéro est de nouveau masqué",
+    navDonorsLabel: "Donneurs",
+    skipForNow: "Plus tard", verifyLaterHint: "Vous pouvez le faire plus tard — mais un numéro vérifié est nécessaire pour publier une demande.",
+    unitsOne: "unité", unitsTwo: "unités", unitsFew: "unités",
+    imPatient: "J'ai besoin de sang", patientSub: "Publier une demande pour un proche", demoAsPatient: "Démo en tant que patient",
+    taglinePatient: "Chaque goutte relie une vie. Les familles demandent, les associations vérifient, les donneurs répondent — partout en Algérie.",
+    hospitalMatched: "Hôpital reconnu — votre demande apparaîtra sur la carte des donneurs.",
+    hospitalFreeTextHint: "Choisissez dans la liste pour apparaître sur la carte, ou saisissez n'importe quel hôpital.",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -386,5 +431,22 @@ export const I18N: Record<Lang, Strings> = {
     dsrSubmittedToast: "أُرسل الطلب — سنعود إليك", dsrDetailsPh: "ما الذي نصححه أو نحذفه؟",
     navRequestLabel: "طلب", navVerifyLabel: "توثيق",
     eligibleInDays: "مؤهل خلال {days} يوماً", eligibleLabel: "مؤهل",
+
+    donorSearchTitle: "البحث عن متبرعين", donorSearchSub: "المتبرعون المسجلون في {wilaya}",
+    allTypesLabel: "كل الفصائل", includeCooldownLabel: "إظهار المتبرعين في فترة الانتظار",
+    noDonorsFound: "لا يوجد متبرعون مطابقون في هذه الولاية",
+    donorSearchDenied: "لا يمكن البحث عن المتبرعين إلا لجمعية موثّقة",
+    callLabel: "اتصال", numberNotShared: "الرقم غير مشارَك",
+    numberNotSharedHint: "لم يوافق هذا المتبرع على الاتصال المباشر. تواصل معه عبر طلب.",
+    contactConsentTitle: "الاتصال المباشر", contactConsentBody: "يمكن للجمعيات الموثّقة رؤية رقم هاتفك والاتصال بك بشأن الطلبات العاجلة المطابقة لفصيلة دمك. يمكنك إيقاف ذلك في أي وقت.",
+    contactConsentToggle: "السماح للجمعيات الموثّقة بالاتصال بي",
+    contactConsentOn: "يمكن للجمعيات الاتصال بك الآن", contactConsentOff: "تم إخفاء رقمك مجدداً",
+    navDonorsLabel: "المتبرعون",
+    skipForNow: "لاحقاً", verifyLaterHint: "يمكنك فعل ذلك لاحقاً — لكنك تحتاج رقماً موثّقاً قبل نشر أي طلب.",
+    unitsOne: "وحدة", unitsTwo: "وحدتان", unitsFew: "وحدات",
+    imPatient: "أحتاج إلى دم", patientSub: "انشر طلباً لمريض أو أحد الأقارب", demoAsPatient: "عرض تجريبي كمريض",
+    taglinePatient: "كل قطرة تصل حياةً. العائلات تطلب، الجمعيات توثّق، المتبرعون يستجيبون — عبر الجزائر، في الوقت الفعلي.",
+    hospitalMatched: "مستشفى معروف — سيظهر طلبك على خريطة المتبرعين.",
+    hospitalFreeTextHint: "اختر من القائمة ليظهر طلبك على الخريطة، أو اكتب اسم أي مستشفى.",
   },
 };

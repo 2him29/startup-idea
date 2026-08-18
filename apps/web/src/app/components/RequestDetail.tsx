@@ -1,5 +1,5 @@
 import { ArrowLeft, Phone, Clock, MapPin, AlertTriangle, Share2 } from "lucide-react";
-import { urgencyLabel, formatShareMessage, shareToWhatsApp, type BloodRequest } from "@weare/core";
+import { urgencyLabel, formatShareMessage, shareToWhatsApp, type BloodRequest, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { VerifiedBadge } from "./VerifiedBadge";
 
@@ -10,7 +10,7 @@ interface RequestDetailProps {
 }
 
 export function RequestDetail({ onBack, onRespond, request }: RequestDetailProps) {
-  const { t, dir } = useI18n();
+  const { t, lang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
   return (
@@ -67,7 +67,7 @@ export function RequestDetail({ onBack, onRespond, request }: RequestDetailProps
               <Clock className="w-[17px] h-[17px]" style={{ color: "#E5484D" }} />
             </span>
             <div className="flex-1">
-              <div className="text-[13.5px] font-semibold" style={{ color: "#0B2432" }}>{t.posted} {request.time}</div>
+              <div className="text-[13.5px] font-semibold" style={{ color: "#0B2432" }}>{t.posted} {formatRelativeTime(request.createdAt, lang)}</div>
               <div className="text-xs" style={{ color: "#8496A0" }}>{t.responseWindow}</div>
             </div>
           </div>

@@ -17,68 +17,63 @@ export interface DonorSearchResult {
   fullName: string;
   bloodType: string;
   wilaya: string | null;
+  /** Null unless the donor opted into contact sharing — see `sharesPhone`. */
   phone: string | null;
   isEligible: boolean;
   daysUntilEligible: number;
+  /** Whether this donor has agreed to be phoned directly by associations. */
+  sharesPhone: boolean;
 }
 
-interface DonorRow {
+interface DonorSearchRow {
   id: string;
+  full_name: string;
   blood_type: string;
-  last_donation_at: string | null;
-  profiles: { full_name: string; wilaya: string | null; phone: string | null } | null;
+  wilaya: string | null;
+  phone: string | null;
+  is_eligible: boolean;
+  days_until_eligible: number;
+  shares_phone: boolean;
 }
 
 export const ELIGIBILITY_INTERVAL_DAYS = 90;
 
-/** Days left in the cooldown, computed the same way the SQL view does. */
-function cooldown(lastDonationAt: string | null): { isEligible: boolean; daysUntilEligible: number } {
-  if (!lastDonationAt) return { isEligible: true, daysUntilEligible: 0 };
-  const elapsedDays = (Date.now() - new Date(lastDonationAt).getTime()) / 86400000;
-  const daysLeft = Math.max(0, Math.ceil(ELIGIBILITY_INTERVAL_DAYS - elapsedDays));
-  return { isEligible: daysLeft === 0, daysUntilEligible: daysLeft };
-}
-
 /**
- * Donors matching a blood type and/or wilaya.
+ * Donors an association may contact in its own wilaya.
  *
- * `includeIneligible` exists so a caller can choose between hiding cooling-off
- * donors outright (the default, for urgent matching) and showing them greyed
- * out with a countdown (useful on a console where the coordinator wants to
- * know that coverage exists but isn't available yet).
+ * Goes through the search_donors() database function rather than reading the
+ * tables: `profiles` and `donor_profiles` are readable only by their owner, so
+ * the function is the audited exception — it re-checks that the caller belongs
+ * to a verified association in that wilaya, and withholds phone numbers from
+ * donors who have not opted into contact sharing. A client cannot widen any of
+ * that by changing its query.
+ *
+ * `includeIneligible` shows donors still inside the 90-day cooldown, greyed
+ * out with a countdown, so a coordinator can tell "nobody is available yet"
+ * apart from "nobody exists here".
  */
 export async function searchDonors(params: {
+  wilaya: string;
   bloodType?: string;
-  wilaya?: string;
   includeIneligible?: boolean;
 }): Promise<DonorSearchResult[]> {
-  let query = getSupabase()
-    .from("donor_profiles")
-    .select("id, blood_type, last_donation_at, profiles(full_name, wilaya, phone)");
-
-  if (params.bloodType) query = query.eq("blood_type", params.bloodType);
-
-  const { data, error } = await query;
+  const { data, error } = await getSupabase().rpc("search_donors", {
+    p_wilaya: params.wilaya,
+    p_blood_type: params.bloodType ?? null,
+    p_include_ineligible: params.includeIneligible ?? false,
+  });
   if (error) throw error;
 
-  const rows = data as unknown as DonorRow[];
-
-  return rows
-    .map((row) => {
-      const { isEligible, daysUntilEligible } = cooldown(row.last_donation_at);
-      return {
-        id: row.id,
-        fullName: row.profiles?.full_name ?? "—",
-        bloodType: row.blood_type,
-        wilaya: row.profiles?.wilaya ?? null,
-        phone: row.profiles?.phone ?? null,
-        isEligible,
-        daysUntilEligible,
-      };
-    })
-    .filter((donor) => (params.wilaya ? donor.wilaya === params.wilaya : true))
-    .filter((donor) => (params.includeIneligible ? true : donor.isEligible))
-    .sort((a, b) => Number(b.isEligible) - Number(a.isEligible) || a.fullName.localeCompare(b.fullName));
+  return (data as DonorSearchRow[]).map((row) => ({
+    id: row.id,
+    fullName: row.full_name,
+    bloodType: row.blood_type,
+    wilaya: row.wilaya,
+    phone: row.phone,
+    isEligible: row.is_eligible,
+    daysUntilEligible: row.days_until_eligible,
+    sharesPhone: row.shares_phone,
+  }));
 }
 
 /**

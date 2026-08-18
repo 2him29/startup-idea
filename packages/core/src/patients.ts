@@ -50,6 +50,16 @@ export interface PatientRequestInput {
   units: number;
   urgency: Urgency;
   hospitalName?: string;
+  /**
+   * Set only when the typed hospital matches one in the directory.
+   *
+   * This is what puts a patient-posted request on the map: coordinates come
+   * from the hospitals join, so a request with no hospital_id has no pin. The
+   * name stays free text either way — a family must never be blocked because
+   * their clinic isn't in our directory — so this is precision when we happen
+   * to have it, never a requirement.
+   */
+  hospitalId?: string;
   contactPhone?: string;
   /** The handwritten file reference, when the family has one to hand. */
   patientFileRef?: string;
@@ -116,6 +126,7 @@ export async function createPatientRequest(input: PatientRequestInput): Promise<
       urgency: input.urgency,
       wilaya: input.wilaya,
       hospital_name: input.hospitalName?.trim() || null,
+      hospital_id: input.hospitalId ?? null,
     })
     .select("id")
     .single();

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Droplet, Users, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame, Share2, Building2 } from "lucide-react";
-import { RESERVE, RESERVE_STATUS, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, shareToWhatsApp, type Profile } from "@weare/core";
+import { RESERVE, RESERVE_STATUS, isPatientModelEnabled, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, shareToWhatsApp, type Profile } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LangSwitcher } from "./LangSwitcher";
 import { NotificationsBell } from "./NotificationsBell";
@@ -12,8 +12,12 @@ interface HomeScreenProps {
   onNavigate: (screen: string) => void;
   userType: "donor" | "hospital" | null;
   profile: Profile | null;
-  onSetUserType: (type: "donor" | "hospital") => void;
-  onDemoLogin: (role: "donor" | "hospital") => Promise<void>;
+  /**
+   * "patient" is an intent, not an account type: the database has no patient
+   * role. It signs in the same way a donor does and lands on the request form.
+   */
+  onSetUserType: (type: "donor" | "hospital" | "patient") => void;
+  onDemoLogin: (role: "donor" | "hospital" | "patient") => Promise<void>;
 }
 
 /** Today in the Islamic (Umm al-Qura) calendar, in the active language -- built into the browser, no library. */
@@ -27,7 +31,7 @@ function hijriToday(lang: string): string | null {
 
 export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDemoLogin }: HomeScreenProps) {
   const { t, lang, dir } = useI18n();
-  const [demoLoading, setDemoLoading] = useState<"donor" | "hospital" | null>(null);
+  const [demoLoading, setDemoLoading] = useState<"donor" | "hospital" | "patient" | null>(null);
   const [demoError, setDemoError] = useState<string | null>(null);
   const [ramadanMode] = useState(() => getBoolPref("ramadan", isRamadanNow()));
   const { requests: bloodRequests } = useBloodRequests();
@@ -50,7 +54,14 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
 
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
-  const handleDemo = async (role: "donor" | "hospital") => {
+  /**
+   * Under the patient model there is no hospital account to sign into — a
+   * hospital is a name typed onto a request. Offering "I'm a Hospital" here
+   * would be the front door to a role the rest of the app no longer has.
+   */
+  const patientModel = isPatientModelEnabled();
+
+  const handleDemo = async (role: "donor" | "hospital" | "patient") => {
     setDemoError(null);
     setDemoLoading(role);
     try {
@@ -87,7 +98,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
           <QatraWordmark size={50} className="mt-5 md:mt-6" />
           <div className="mt-0.5 text-[13px] font-extrabold tracking-[4px] uppercase" style={{ color: "#E5484D" }}>Qatra</div>
           <p className="mt-[10px] md:mt-3 text-base md:text-xl leading-relaxed max-w-[270px] md:max-w-md" style={{ color: "#5A6B75" }}>
-            {t.tagline}
+            {patientModel ? t.taglinePatient : t.tagline}
           </p>
 
           <div className="w-full md:w-full md:max-w-4xl mt-[34px] md:mt-14 flex flex-col md:flex-row gap-3.5 md:gap-5">
@@ -107,7 +118,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             </button>
 
             <button
-              onClick={() => onSetUserType("hospital")}
+              onClick={() => onSetUserType(patientModel ? "patient" : "hospital")}
               className="cursor-pointer text-left p-5 md:p-7 rounded-[24px] md:rounded-[28px] bg-white flex items-center gap-4 md:gap-5 shadow-[0_16px_30px_-18px_rgba(14,139,168,0.55)] border-[1.5px] md:flex-1 md:min-w-0"
               style={{ color: "#0B2432", borderColor: "#DDEFF3", textAlign: "start" }}
             >
@@ -115,8 +126,8 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
                 <Users className="w-[26px] h-[26px] md:w-8 md:h-8" style={{ color: "#0E8BA8" }} />
               </span>
               <span className="flex-1">
-                <span className="block text-lg md:text-2xl font-bold">{t.imHospital}</span>
-                <span className="block text-[13.5px] md:text-base mt-0.5" style={{ color: "#6B7C88" }}>{t.hospitalSub}</span>
+                <span className="block text-lg md:text-2xl font-bold">{patientModel ? t.imPatient : t.imHospital}</span>
+                <span className="block text-[13.5px] md:text-base mt-0.5" style={{ color: "#6B7C88" }}>{patientModel ? t.patientSub : t.hospitalSub}</span>
               </span>
               <ChevronRight className="w-5 h-5 md:w-6 md:h-6 shrink-0" style={{ color: "#0E8BA8", transform: chevronFlip }} />
             </button>
@@ -141,13 +152,17 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
               </button>
               <button
                 type="button"
-                onClick={() => handleDemo("hospital")}
+                onClick={() => handleDemo(patientModel ? "patient" : "hospital")}
                 disabled={demoLoading !== null}
                 className="cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2 text-[13.5px] md:text-sm font-bold px-4 py-3 md:flex-1 rounded-2xl border-[1.5px]"
                 style={{ color: "#0E8BA8", borderColor: "#CDEAF2", background: "#FFF" }}
               >
                 <PlayCircle className="w-4 h-4" />
-                {demoLoading === "hospital" ? "…" : lang === "fr" ? "Démo en tant qu'hôpital" : lang === "ar" ? "عرض تجريبي كمستشفى" : "View demo as Hospital"}
+                {demoLoading !== null && demoLoading !== "donor"
+                  ? "…"
+                  : patientModel
+                  ? t.demoAsPatient
+                  : lang === "fr" ? "Démo en tant qu'hôpital" : lang === "ar" ? "عرض تجريبي كمستشفى" : "View demo as Hospital"}
               </button>
             </div>
             {demoError && (
