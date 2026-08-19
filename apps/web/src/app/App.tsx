@@ -18,6 +18,7 @@ import { Sidebar } from "./components/Sidebar";
 import { PatientRequestScreen } from "./components/PatientRequestScreen";
 import { PhoneVerificationScreen } from "./components/PhoneVerificationScreen";
 import { AssociationConsole } from "./components/AssociationConsole";
+import { CommitteeHub } from "./components/CommitteeHub";
 import { DonorSearchScreen } from "./components/DonorSearchScreen";
 import { AssociationApplyScreen } from "./components/AssociationApplyScreen";
 import { ConsentScreen } from "./components/ConsentScreen";
@@ -236,6 +237,16 @@ export default function App() {
             // database will reject without a verified number, so offering
             // "skip" there would just send them back into the same wall.
             onSkip={afterVerify === "home" ? () => setCurrentScreen("home") : undefined}
+          />
+        ) : (
+          fallbackHome
+        );
+      case "committee":
+        return patientModel ? (
+          <CommitteeHub
+            onBack={handleBack}
+            onNavigate={handleNavigate}
+            onApply={() => setCurrentScreen("association-apply")}
           />
         ) : (
           fallbackHome

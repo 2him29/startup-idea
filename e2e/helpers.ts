@@ -103,6 +103,20 @@ export async function signOut(page: Page): Promise<void> {
  * can land on the hidden one and stall until it times out — hence the
  * visibility filter.
  */
+/**
+ * Open a committee tool through the Committee hub.
+ *
+ * Under Nav B, Verify and Donors are no longer top-level tabs — they live
+ * behind one Committee tab that opens a two-card hub. Tests reach them the way
+ * a volunteer does.
+ */
+export async function openCommittee(page: Page, tool: "verify" | "donors"): Promise<void> {
+  await clickNav(page, t("en").navCommittee);
+  const card = page.getByTestId(`committee-${tool}`);
+  await card.waitFor({ state: "visible", timeout: 30_000 });
+  await card.click();
+}
+
 export async function clickNav(page: Page, label: string): Promise<void> {
   const item = page.getByRole("button", { name: label, exact: true }).filter({ visible: true }).first();
   await item.waitFor({ state: "visible", timeout: 30_000 });

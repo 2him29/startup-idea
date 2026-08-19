@@ -1,5 +1,5 @@
-import { Home, Search, User, LayoutList, HeartHandshake, BadgeCheck, Droplet, Users } from "lucide-react";
-import { isPatientModelEnabled } from "@weare/core";
+import { Home, Search, User, LayoutList, HeartHandshake, BadgeCheck, Droplet } from "lucide-react";
+import { isPatientModelEnabled, useCommitteeInbox } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LangSwitcher } from "./LangSwitcher";
 import { useI18n } from "../i18n/LangContext";
@@ -11,24 +11,38 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
+  // Hooks first — this component returns null when signed out.
   const { t } = useI18n();
-  if (!userType) return null;
-
   const patientModel = isPatientModelEnabled();
+  const { isMember, waiting } = useCommitteeInbox();
+
+  if (!userType) return null;
   // Mirrors BottomNavigation: under the patient model the hospital role has no
   // console of its own, so the sidebar shows one navigation for everyone.
   const isHospital = userType === "hospital" && !patientModel;
   const accent = isHospital ? "#0E8BA8" : "#E5484D";
   const accentSoft = isHospital ? "#E4F6FB" : "#FFECEC";
 
+  /**
+   * Nav B: five slots, and the fourth is the one that changes.
+   *
+   * A donor sees Give. A member of an approved committee sees Committee, which
+   * opens a hub covering both verifying and donor search — one job with two
+   * tools, so one tab. Give stays reachable from the Home quick actions, which
+   * matters during Ramadan when compensation is the busiest flow in the app.
+   *
+   * Verify and Donors were separate tabs before this, which made six — two too
+   * many for a phone, and both irrelevant to the overwhelming majority of users
+   * who are only ever donors.
+   */
   const navItems = patientModel
     ? [
         { id: "home", icon: Home, label: t.navHome },
         { id: "matching", icon: Search, label: t.navFind },
         { id: "post-request", icon: Droplet, label: t.navRequestLabel },
-        { id: "association", icon: BadgeCheck, label: t.navVerifyLabel },
-        { id: "donor-search", icon: Users, label: t.navDonorsLabel },
-        { id: "compensate", icon: HeartHandshake, label: t.navGive },
+        isMember
+          ? { id: "committee", icon: BadgeCheck, label: t.navCommittee, badge: waiting }
+          : { id: "compensate", icon: HeartHandshake, label: t.navGive },
         { id: "profile", icon: User, label: t.navProfile },
       ]
     : [
@@ -67,7 +81,15 @@ export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
               }}
             >
               <Icon className="w-5 h-5 shrink-0" strokeWidth={2} />
-              <span className="text-[14.5px] font-bold">{item.label}</span>
+              <span className="text-[14.5px] font-bold flex-1">{item.label}</span>
+              {"badge" in item && typeof item.badge === "number" && item.badge > 0 && (
+                <span
+                  className="text-[11px] font-extrabold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center"
+                  style={{ background: "#E5484D", color: "#fff" }}
+                >
+                  {item.badge}
+                </span>
+              )}
             </button>
           );
         })}

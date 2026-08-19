@@ -293,3 +293,39 @@ export function useBloodDrives() {
 
   return { drives, loading };
 }
+
+/** A request open longer than this reads as stale on the committee hub. */
+const STALE_AFTER_DAYS = 30;
+
+/**
+ * Everything the Committee tab needs, in one call.
+ *
+ * The nav has to know two things before it can render — whether this account is
+ * in an approved committee at all, and how many requests are waiting — so
+ * gathering them here keeps that decision out of the navigation component.
+ *
+ * `stale` counts requests nobody has closed in a month. Nothing in the product
+ * expires a request, so without surfacing this a wilaya slowly fills with
+ * month-old pleas still marked Critical, which is exactly the WhatsApp problem
+ * Qatra exists to fix.
+ */
+export function useCommitteeInbox() {
+  const { verifying, loading: loadingMemberships } = useMyMemberships();
+  const association = verifying[0]?.association ?? null;
+  const { requests, loading, refresh } = useWilayaRequests(association?.wilaya ?? null);
+
+  const waiting = requests.filter((r) => !r.verifiedByName).length;
+  const staleBefore = Date.now() - STALE_AFTER_DAYS * 86400000;
+  const stale = requests.filter((r) => new Date(r.createdAt).getTime() < staleBefore).length;
+
+  return {
+    isMember: verifying.length > 0,
+    association,
+    memberships: verifying,
+    requests,
+    waiting,
+    stale,
+    loading: loadingMemberships || loading,
+    refresh,
+  };
+}

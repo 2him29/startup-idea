@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { gotoFresh, gotoFreshIn, demoLogin, clickNav, t } from "./helpers";
+import { gotoFresh, gotoFreshIn, demoLogin, clickNav, openCommittee, t } from "./helpers";
 
 /**
  * End-to-end cover for the patient/association model.
@@ -116,7 +116,7 @@ test.describe("patient/association model", () => {
     await page.getByRole("button", { name: "Post request" }).click();
     await expect(page.getByText("Urgent requests")).toBeVisible({ timeout: 15_000 });
 
-    await clickNav(page, "Verify");
+    await openCommittee(page, "verify");
     await expect(page.getByText("Association console")).toBeVisible();
 
     const card = page.getByTestId("request-card").filter({ hasText: marker });
@@ -140,7 +140,7 @@ test.describe("patient/association model", () => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
 
-    await clickNav(page, "Donors");
+    await openCommittee(page, "donors");
     await expect(page.getByText("Find donors")).toBeVisible();
 
     // The seed puts at least one eligible donor in the association's wilaya.
@@ -153,7 +153,7 @@ test.describe("patient/association model", () => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
 
-    await clickNav(page, "Donors");
+    await openCommittee(page, "donors");
     await page.getByTestId("donor-row").first().waitFor({ state: "visible", timeout: 30_000 });
 
     // The seed deliberately creates both states, so both must be on screen:
@@ -166,7 +166,7 @@ test.describe("patient/association model", () => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
 
-    await clickNav(page, "Donors");
+    await openCommittee(page, "donors");
     await page.getByTestId("donor-row").first().waitFor({ state: "visible", timeout: 30_000 });
 
     // The seed leaves one donor 10 days past a donation, so they are inside
@@ -198,10 +198,13 @@ test.describe("patient/association model", () => {
     await expect(page.getByText(ar.postRequestSub)).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 
-    await clickNav(page, ar.navVerifyLabel);
+    await clickNav(page, ar.navCommittee);
+    await expect(page.getByText(ar.committeeTitle)).toBeVisible();
+    await page.getByTestId("committee-verify").click();
     await expect(page.getByText(ar.assocConsoleTitle)).toBeVisible();
 
-    await clickNav(page, ar.navDonorsLabel);
+    await clickNav(page, ar.navCommittee);
+    await page.getByTestId("committee-donors").click();
     await expect(page.getByText(ar.donorSearchTitle)).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   });
@@ -211,7 +214,7 @@ test.describe("patient/association model", () => {
 
     await gotoFreshIn(page, "ar");
     await demoLogin(page, "donor", "ar");
-    await clickNav(page, ar.navDonorsLabel);
+    await openCommittee(page, "donors");
 
     const rows = page.getByTestId("donor-row");
     await rows.first().waitFor({ state: "visible", timeout: 30_000 });

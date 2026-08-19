@@ -98,6 +98,11 @@ export interface Strings {
   hospitalMatched: string; hospitalFreeTextHint: string;
   unitsOne: string; unitsTwo: string; unitsFew: string;
   imPatient: string; patientSub: string; demoAsPatient: string; taglinePatient: string;
+
+  // --- Committee hub (Nav B) ---
+  navCommittee: string; committeeTitle: string; committeeVerifyCard: string; committeeVerifySub: string;
+  committeeDonorsCard: string; committeeDonorsSub: string; committeeNoneToday: string;
+  staleTitle: string; staleBody: string;
 }
 
 export const I18N: Record<Lang, Strings> = {
@@ -214,6 +219,12 @@ export const I18N: Record<Lang, Strings> = {
     unitsOne: "unit", unitsTwo: "units", unitsFew: "units",
     imPatient: "I need blood", patientSub: "Post a request for a patient or family member", demoAsPatient: "View demo as Patient",
     taglinePatient: "Every drop connects a life. Families ask, associations vouch, donors answer — across Algeria, in real time.",
+    navCommittee: "Committee", committeeTitle: "Your committee",
+    committeeVerifyCard: "Verify requests", committeeVerifySub: "{waiting} waiting",
+    committeeDonorsCard: "Find donors", committeeDonorsSub: "Registered donors in {wilaya}",
+    committeeNoneToday: "Nothing waiting — the list is clear",
+    staleTitle: "{count} open more than a month",
+    staleBody: "Nothing closes them automatically. Call the families and clear the list.",
     hospitalMatched: "Matched to a known hospital — your request will show on the donor map.",
     hospitalFreeTextHint: "Pick from the list to place your request on the map, or type any hospital name.",
   },
@@ -330,6 +341,12 @@ export const I18N: Record<Lang, Strings> = {
     unitsOne: "unité", unitsTwo: "unités", unitsFew: "unités",
     imPatient: "J'ai besoin de sang", patientSub: "Publier une demande pour un proche", demoAsPatient: "Démo en tant que patient",
     taglinePatient: "Chaque goutte relie une vie. Les familles demandent, les associations vérifient, les donneurs répondent — partout en Algérie.",
+    navCommittee: "Comité", committeeTitle: "Votre comité",
+    committeeVerifyCard: "Vérifier les demandes", committeeVerifySub: "{waiting} en attente",
+    committeeDonorsCard: "Trouver des donneurs", committeeDonorsSub: "Donneurs inscrits à {wilaya}",
+    committeeNoneToday: "Rien en attente — la liste est à jour",
+    staleTitle: "{count} ouvertes depuis plus d'un mois",
+    staleBody: "Rien ne les ferme automatiquement. Appelez les familles et videz la liste.",
     hospitalMatched: "Hôpital reconnu — votre demande apparaîtra sur la carte des donneurs.",
     hospitalFreeTextHint: "Choisissez dans la liste pour apparaître sur la carte, ou saisissez n'importe quel hôpital.",
   },
@@ -446,6 +463,12 @@ export const I18N: Record<Lang, Strings> = {
     unitsOne: "وحدة", unitsTwo: "وحدتان", unitsFew: "وحدات",
     imPatient: "أحتاج إلى دم", patientSub: "انشر طلباً لمريض أو أحد الأقارب", demoAsPatient: "عرض تجريبي كمريض",
     taglinePatient: "كل قطرة تصل حياةً. العائلات تطلب، الجمعيات توثّق، المتبرعون يستجيبون — عبر الجزائر، في الوقت الفعلي.",
+    navCommittee: "اللجنة", committeeTitle: "لجنتك",
+    committeeVerifyCard: "توثيق الطلبات", committeeVerifySub: "{waiting} في الانتظار",
+    committeeDonorsCard: "البحث عن متبرعين", committeeDonorsSub: "المتبرعون المسجلون في {wilaya}",
+    committeeNoneToday: "لا شيء في الانتظار — القائمة خالية",
+    staleTitle: "{count} مفتوحة منذ أكثر من شهر",
+    staleBody: "لا شيء يغلقها تلقائياً. اتصل بالعائلات وأفرغ القائمة.",
     hospitalMatched: "مستشفى معروف — سيظهر طلبك على خريطة المتبرعين.",
     hospitalFreeTextHint: "اختر من القائمة ليظهر طلبك على الخريطة، أو اكتب اسم أي مستشفى.",
   },

@@ -1,5 +1,5 @@
-import { Home, Search, User, LayoutList, HeartHandshake, BadgeCheck, Droplet, Users } from "lucide-react";
-import { isPatientModelEnabled } from "@weare/core";
+import { Home, Search, User, LayoutList, HeartHandshake, BadgeCheck, Droplet } from "lucide-react";
+import { isPatientModelEnabled, useCommitteeInbox } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 interface BottomNavigationProps {
@@ -8,13 +8,17 @@ interface BottomNavigationProps {
   userType: "donor" | "hospital" | null;
 }
 
-const visibleOn = ["home", "matching", "profile", "hospital", "compensate", "post-request", "association", "donor-search"];
+const visibleOn = ["home", "matching", "profile", "hospital", "compensate", "post-request", "association", "donor-search", "committee"];
 
 export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomNavigationProps) {
+  // Every hook runs before the early return below: React requires the same
+  // hooks in the same order on every render, and this component returns null
+  // on most screens.
   const { t } = useI18n();
-  if (!userType || !visibleOn.includes(activeScreen)) return null;
-
   const patientModel = isPatientModelEnabled();
+  const { isMember, waiting } = useCommitteeInbox();
+
+  if (!userType || !visibleOn.includes(activeScreen)) return null;
   // Under the patient model the hospital account type no longer has a nav of
   // its own — hospitals are a text field on a request, not a role — so every
   // signed-in user gets the donor-side navigation.
@@ -22,13 +26,26 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
   const accent = isHospital ? "#0E8BA8" : "#E5484D";
   const accentSoft = isHospital ? "#E4F6FB" : "#FFECEC";
 
+  /**
+   * Nav B: five slots, and the fourth is the one that changes.
+   *
+   * A donor sees Give. A member of an approved committee sees Committee, which
+   * opens a hub covering both verifying and donor search — one job with two
+   * tools, so one tab. Give stays reachable from the Home quick actions, which
+   * matters during Ramadan when compensation is the busiest flow in the app.
+   *
+   * Verify and Donors were separate tabs before this, which made six — two too
+   * many for a phone, and both irrelevant to the overwhelming majority of users
+   * who are only ever donors.
+   */
   const navItems = patientModel
     ? [
         { id: "home", icon: Home, label: t.navHome },
         { id: "matching", icon: Search, label: t.navFind },
         { id: "post-request", icon: Droplet, label: t.navRequestLabel },
-        { id: "association", icon: BadgeCheck, label: t.navVerifyLabel },
-        { id: "donor-search", icon: Users, label: t.navDonorsLabel },
+        isMember
+          ? { id: "committee", icon: BadgeCheck, label: t.navCommittee, badge: waiting }
+          : { id: "compensate", icon: HeartHandshake, label: t.navGive },
         { id: "profile", icon: User, label: t.navProfile },
       ]
     : [
@@ -63,7 +80,19 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
                 color: isActive ? accent : "#9AA9B2",
               }}
             >
-              <Icon className="w-[23px] h-[23px]" strokeWidth={2} />
+              <span className="relative">
+                <Icon className="w-[23px] h-[23px]" strokeWidth={2} />
+                {/* Count on the tab, so a volunteer knows there is something
+                    to do without opening the hub first. */}
+                {"badge" in item && typeof item.badge === "number" && item.badge > 0 && (
+                  <span
+                    className="absolute text-[10px] font-extrabold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center"
+                    style={{ background: "#E5484D", color: "#fff", top: "-4px", insetInlineEnd: "-8px" }}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </span>
               <span className="text-[11px] font-bold">{item.label}</span>
             </button>
           );
