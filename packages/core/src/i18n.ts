@@ -75,6 +75,8 @@ export interface Strings {
   verifyPhoneTitle: string; verifyPhoneSub: string; sendCodeCta: string; sendingCode: string;
   codeLabel: string; verifyCodeCta: string; verifyingCode: string; phoneVerifiedToast: string;
   invalidPhone: string; verifyRequiredNote: string;
+  verifyWhyTitle: string; verifyWhyBody: string; verifyPhoneFormatHint: string;
+  skipConsequence: string; resendIn: string; changeNumber: string;
   assocConsoleTitle: string; assocConsoleSub: string; verifyAction: string; unverifyAction: string;
   verifiedToast: string; unverifiedToast: string; noRequestsWilaya: string;
   assocPendingTitle: string; assocPendingSub: string;
@@ -83,8 +85,15 @@ export interface Strings {
   assocApplyCta: string; assocAppliedToast: string;
   consentTitle: string; consentIntro: string; consentPoint1: string; consentPoint2: string; consentPoint3: string;
   consentAgreeLabel: string; consentContinueCta: string; consentRequiredError: string;
+  consentScope: string; consentNever1: string; consentNever2: string; consentVersionNote: string;
   dataRightsTitle: string; dataRightsSub: string; dsrExport: string; dsrCorrection: string; dsrDeletion: string;
   dsrSubmittedToast: string; dsrDetailsPh: string;
+  dsrExportDetail: string; dsrCorrectionDetail: string; dsrDeletionDetail: string;
+  dsrDeletionLegal: string; dsrQueueTitle: string;
+  assocWilayaHint: string; assocReviewNote: string;
+  assocStep1: string; assocStep1Body: string; assocStep2: string; assocStep2Body: string;
+  assocStep3: string; assocStep3Body: string;
+  assocMeanwhileTitle: string; assocMeanwhile1: string; assocMeanwhile2: string; assocMeanwhile3: string;
   navRequestLabel: string; navVerifyLabel: string;
   eligibleInDays: string; eligibleLabel: string;
 
@@ -181,6 +190,11 @@ export const I18N: Record<Lang, Strings> = {
     sendCodeCta: "Send code", sendingCode: "Sending…", codeLabel: "6-digit code",
     verifyCodeCta: "Verify", verifyingCode: "Verifying…", phoneVerifiedToast: "Phone verified",
     invalidPhone: "Enter a valid Algerian mobile number (05/06/07…)",
+    verifyWhyTitle: "Why we ask",
+    verifyWhyBody: "A donor who drives across the wilaya is trusting that a real person is at the other end of the number.",
+    verifyPhoneFormatHint: "Algerian mobile numbers only — 05, 06 or 07.",
+    skipConsequence: "You can donate, respond to requests, and use everything else. The one thing that waits is posting a request of your own — that needs a verified number, and you can come back to it any time.",
+    resendIn: "Resend in {seconds}", changeNumber: "Change number",
     verifyRequiredNote: "Verify your phone number before posting a request.",
     assocConsoleTitle: "Association console", assocConsoleSub: "Open requests in {wilaya}",
     verifyAction: "Verify", unverifyAction: "Remove verification",
@@ -197,11 +211,29 @@ export const I18N: Record<Lang, Strings> = {
     consentPoint1: "Your blood type and donation dates are used to match you with requests.",
     consentPoint2: "Hospitals and verifying associations see only what a match requires — never your full history.",
     consentPoint3: "You can request a copy, a correction, or deletion of your data at any time.",
+    consentScope: "Two things only: your blood type, and the dates you gave.",
+    consentNever1: "Never used to rank donors, and never shared with an employer or an insurer.",
+    consentNever2: "Your phone number is a separate choice, made in your profile, and off unless you turn it on.",
+    consentVersionNote: "Text version {version} · we store which version you agreed to",
     consentAgreeLabel: "I consent to Qatra processing my blood type and donation history for matching.",
     consentContinueCta: "Agree and continue", consentRequiredError: "Consent is required to continue",
     dataRightsTitle: "Your data", dataRightsSub: "Request a copy, a correction, or deletion",
     dsrExport: "Request a copy of my data", dsrCorrection: "Request a correction", dsrDeletion: "Request deletion",
     dsrSubmittedToast: "Request submitted — we'll get back to you", dsrDetailsPh: "What should we correct or delete?",
+    dsrExportDetail: "A file with your profile, donations and requests · about 5 days",
+    dsrCorrectionDetail: "Wrong blood type, wrong donation date, misspelled name",
+    dsrDeletionDetail: "Reviewed by a person, then confirmed to you",
+    dsrDeletionLegal: "A record that you consented has to stay, by law. Everything else goes.",
+    dsrQueueTitle: "Your requests",
+    assocWilayaHint: "You'll only be able to vouch for requests in this wilaya.",
+    assocReviewNote: "Qatra staff check that the committee exists and that you speak for it. Usually within a week.",
+    assocStep1: "Application received", assocStep1Body: "We have it — nothing was lost.",
+    assocStep2: "A person is checking it", assocStep2Body: "We confirm the committee exists and that you speak for it. Nothing for you to do.",
+    assocStep3: "Committee tab appears", assocStep3Body: "Approved committees can vouch for requests in {wilaya}.",
+    assocMeanwhileTitle: "Meanwhile, nothing is on hold",
+    assocMeanwhile1: "Respond to requests and donate as usual",
+    assocMeanwhile2: "Post a request for a patient",
+    assocMeanwhile3: "Share requests to WhatsApp — no badge needed",
     navRequestLabel: "Request", navVerifyLabel: "Verify",
     eligibleInDays: "Eligible in {days} days", eligibleLabel: "Eligible",
 
@@ -304,6 +336,11 @@ export const I18N: Record<Lang, Strings> = {
     sendCodeCta: "Envoyer le code", sendingCode: "Envoi…", codeLabel: "Code à 6 chiffres",
     verifyCodeCta: "Vérifier", verifyingCode: "Vérification…", phoneVerifiedToast: "Téléphone vérifié",
     invalidPhone: "Saisissez un numéro de mobile algérien valide (05/06/07…)",
+    verifyWhyTitle: "Pourquoi nous le demandons",
+    verifyWhyBody: "Un donneur qui traverse la wilaya fait confiance au fait qu'une vraie personne est au bout du numéro.",
+    verifyPhoneFormatHint: "Numéros de mobile algériens uniquement — 05, 06 ou 07.",
+    skipConsequence: "Vous pouvez donner, répondre aux demandes et utiliser tout le reste. La seule chose qui attend, c'est publier votre propre demande — cela exige un numéro vérifié, et vous pouvez y revenir quand vous voulez.",
+    resendIn: "Renvoyer dans {seconds}", changeNumber: "Changer de numéro",
     verifyRequiredNote: "Vérifiez votre numéro avant de publier une demande.",
     assocConsoleTitle: "Console association", assocConsoleSub: "Demandes ouvertes à {wilaya}",
     verifyAction: "Vérifier", unverifyAction: "Retirer la vérification",
@@ -320,11 +357,29 @@ export const I18N: Record<Lang, Strings> = {
     consentPoint1: "Votre groupe sanguin et vos dates de don servent à vous jumeler avec des demandes.",
     consentPoint2: "Les hôpitaux et les associations vérificatrices ne voient que le nécessaire — jamais tout votre historique.",
     consentPoint3: "Vous pouvez demander une copie, une correction ou la suppression de vos données à tout moment.",
+    consentScope: "Deux choses seulement : votre groupe sanguin et vos dates de don.",
+    consentNever1: "Jamais utilisé pour classer les donneurs, jamais transmis à un employeur ou à un assureur.",
+    consentNever2: "Votre numéro est un choix distinct, fait dans votre profil, et désactivé tant que vous ne l'activez pas.",
+    consentVersionNote: "Version du texte {version} · nous conservons la version que vous avez acceptée",
     consentAgreeLabel: "Je consens à ce que Qatra traite mon groupe sanguin et mon historique de dons à des fins de jumelage.",
     consentContinueCta: "Accepter et continuer", consentRequiredError: "Le consentement est nécessaire pour continuer",
     dataRightsTitle: "Vos données", dataRightsSub: "Demander une copie, une correction ou la suppression",
     dsrExport: "Demander une copie de mes données", dsrCorrection: "Demander une correction", dsrDeletion: "Demander la suppression",
     dsrSubmittedToast: "Demande envoyée — nous vous répondrons", dsrDetailsPh: "Que devons-nous corriger ou supprimer ?",
+    dsrExportDetail: "Un fichier avec votre profil, vos dons et vos demandes · environ 5 jours",
+    dsrCorrectionDetail: "Groupe sanguin erroné, date de don erronée, nom mal orthographié",
+    dsrDeletionDetail: "Examinée par une personne, puis confirmée",
+    dsrDeletionLegal: "La preuve de votre consentement doit être conservée, par la loi. Tout le reste est supprimé.",
+    dsrQueueTitle: "Vos demandes",
+    assocWilayaHint: "Vous ne pourrez vérifier que les demandes de cette wilaya.",
+    assocReviewNote: "Qatra vérifie que le comité existe et que vous le représentez. En général sous une semaine.",
+    assocStep1: "Demande reçue", assocStep1Body: "Nous l'avons bien — rien n'a été perdu.",
+    assocStep2: "Une personne l'examine", assocStep2Body: "Nous confirmons que le comité existe et que vous le représentez. Rien à faire de votre côté.",
+    assocStep3: "L'onglet Comité apparaît", assocStep3Body: "Les comités approuvés peuvent vérifier les demandes de {wilaya}.",
+    assocMeanwhileTitle: "En attendant, rien n'est bloqué",
+    assocMeanwhile1: "Répondez aux demandes et donnez comme d'habitude",
+    assocMeanwhile2: "Publiez une demande pour un patient",
+    assocMeanwhile3: "Partagez des demandes sur WhatsApp — sans badge",
     navRequestLabel: "Demander", navVerifyLabel: "Vérifier",
     eligibleInDays: "Éligible dans {days} jours", eligibleLabel: "Éligible",
 
@@ -427,6 +482,11 @@ export const I18N: Record<Lang, Strings> = {
     sendCodeCta: "إرسال الرمز", sendingCode: "جارٍ الإرسال…", codeLabel: "الرمز المكوّن من 6 أرقام",
     verifyCodeCta: "تحقّق", verifyingCode: "جارٍ التحقق…", phoneVerifiedToast: "تم توثيق الهاتف",
     invalidPhone: "أدخل رقم هاتف جزائري صالح (05/06/07…)",
+    verifyWhyTitle: "لماذا نطلب ذلك",
+    verifyWhyBody: "المتبرع الذي يقطع الولاية يثق بأن شخصاً حقيقياً على الطرف الآخر من الرقم.",
+    verifyPhoneFormatHint: "أرقام الهاتف الجزائرية فقط — 05 أو 06 أو 07.",
+    skipConsequence: "يمكنك التبرع والاستجابة للطلبات واستخدام كل شيء آخر. الشيء الوحيد الذي ينتظر هو نشر طلبك الخاص — وهذا يحتاج رقماً موثّقاً، ويمكنك العودة إليه في أي وقت.",
+    resendIn: "إعادة الإرسال خلال {seconds}", changeNumber: "تغيير الرقم",
     verifyRequiredNote: "وثّق رقم هاتفك قبل نشر طلب.",
     assocConsoleTitle: "لوحة الجمعية", assocConsoleSub: "الطلبات المفتوحة في {wilaya}",
     verifyAction: "توثيق", unverifyAction: "إزالة التوثيق",
@@ -443,11 +503,29 @@ export const I18N: Record<Lang, Strings> = {
     consentPoint1: "تُستخدم فصيلة دمك وتواريخ تبرعك لتوفيقك مع الطلبات.",
     consentPoint2: "لا ترى المستشفيات والجمعيات الموثِّقة إلا ما يتطلبه التوفيق — لا سجلّك الكامل.",
     consentPoint3: "يمكنك طلب نسخة من بياناتك أو تصحيحها أو حذفها في أي وقت.",
+    consentScope: "شيئان فقط: فصيلة دمك، وتواريخ تبرعك.",
+    consentNever1: "لا تُستخدم أبداً لترتيب المتبرعين، ولا تُشارك مع صاحب عمل أو شركة تأمين.",
+    consentNever2: "رقم هاتفك خيار منفصل تتحكم فيه من ملفك، ويبقى مغلقاً ما لم تفعّله.",
+    consentVersionNote: "إصدار النص {version} · نحفظ الإصدار الذي وافقت عليه",
     consentAgreeLabel: "أوافق على معالجة قطرة لفصيلة دمي وسجل تبرعاتي لأغراض التوفيق.",
     consentContinueCta: "أوافق وأتابع", consentRequiredError: "الموافقة مطلوبة للمتابعة",
     dataRightsTitle: "بياناتك", dataRightsSub: "اطلب نسخة أو تصحيحاً أو حذفاً",
     dsrExport: "طلب نسخة من بياناتي", dsrCorrection: "طلب تصحيح", dsrDeletion: "طلب الحذف",
     dsrSubmittedToast: "أُرسل الطلب — سنعود إليك", dsrDetailsPh: "ما الذي نصححه أو نحذفه؟",
+    dsrExportDetail: "ملف يضم ملفك الشخصي وتبرعاتك وطلباتك · نحو 5 أيام",
+    dsrCorrectionDetail: "فصيلة دم خاطئة، تاريخ تبرع خاطئ، اسم مكتوب بشكل غير صحيح",
+    dsrDeletionDetail: "يراجعها شخص، ثم تُؤكَّد لك",
+    dsrDeletionLegal: "يجب الاحتفاظ بسجل موافقتك بحكم القانون. وكل ما عداه يُحذف.",
+    dsrQueueTitle: "طلباتك",
+    assocWilayaHint: "لن تتمكن من توثيق سوى طلبات هذه الولاية.",
+    assocReviewNote: "تتحقق قطرة من وجود اللجنة ومن أنك تمثّلها. عادةً خلال أسبوع.",
+    assocStep1: "تم استلام الطلب", assocStep1Body: "وصلنا الطلب — لم يضع شيء.",
+    assocStep2: "شخص يراجعه", assocStep2Body: "نتأكد من وجود اللجنة ومن أنك تمثّلها. لا شيء عليك فعله.",
+    assocStep3: "تظهر خانة اللجنة", assocStep3Body: "يمكن للجان المعتمدة توثيق طلبات {wilaya}.",
+    assocMeanwhileTitle: "في هذه الأثناء، لا شيء متوقف",
+    assocMeanwhile1: "استجب للطلبات وتبرّع كالمعتاد",
+    assocMeanwhile2: "انشر طلباً لمريض",
+    assocMeanwhile3: "شارك الطلبات عبر واتساب — دون حاجة إلى توثيق",
     navRequestLabel: "طلب", navVerifyLabel: "توثيق",
     eligibleInDays: "مؤهل خلال {days} يوماً", eligibleLabel: "مؤهل",
 

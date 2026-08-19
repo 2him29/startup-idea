@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ArrowLeft, ShieldCheck, Smartphone } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, Info, ShieldCheck, Smartphone } from "lucide-react";
 import { sendVerificationCode, confirmVerificationCode, normalizeAlgerianPhone } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
@@ -36,6 +36,15 @@ export function PhoneVerificationScreen({ onBack, onVerified, onSkip }: PhoneVer
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // A visible countdown, because the alternative is a Resend button that does
+  // nothing for 30 seconds and makes the user think the app is broken.
+  const [resendIn, setResendIn] = useState(0);
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const id = setTimeout(() => setResendIn((n) => n - 1), 1000);
+    return () => clearTimeout(id);
+  }, [resendIn]);
+
   const inputStyle = { borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432" } as const;
 
   const handleSend = async (e: React.FormEvent) => {
@@ -53,6 +62,7 @@ export function PhoneVerificationScreen({ onBack, onVerified, onSkip }: PhoneVer
       await sendVerificationCode(e164);
       setNormalized(e164);
       setStep("code");
+      setResendIn(30);
     } catch (err) {
       setError(err instanceof Error ? err.message : t.genericError);
     } finally {
@@ -91,9 +101,17 @@ export function PhoneVerificationScreen({ onBack, onVerified, onSkip }: PhoneVer
         </div>
       </div>
 
+      {/*
+        Why, before what. Asking for a phone number without a reason reads as
+        data collection; naming the donor on the other end makes it the point
+        of the product.
+      */}
       <div className="flex items-start gap-3 rounded-2xl p-4 mb-4" style={{ background: "#E4F6FB", border: "1px solid rgba(14,139,168,0.2)" }}>
         <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#0E8BA8" }} />
-        <div className="text-[13px]" style={{ color: "#0B4A5A", textAlign: "start" }}>{t.verifyRequiredNote}</div>
+        <div style={{ textAlign: "start" }}>
+          <div className="text-[13px] font-extrabold" style={{ color: "#0B4A5A" }}>{t.verifyWhyTitle}</div>
+          <div className="text-[12.5px] mt-1 leading-relaxed" style={{ color: "#0B4A5A" }}>{t.verifyWhyBody}</div>
+        </div>
       </div>
 
       <form onSubmit={step === "phone" ? handleSend : handleVerify}>
@@ -113,6 +131,9 @@ export function PhoneVerificationScreen({ onBack, onVerified, onSkip }: PhoneVer
                   style={{ ...inputStyle, direction: "ltr", textAlign: "start", paddingInlineStart: "40px", paddingInlineEnd: "14px" }}
                 />
               </div>
+              <div className="mt-1.5 text-[11.5px]" style={{ color: "#8496A0", textAlign: "start" }}>
+                {t.verifyPhoneFormatHint}
+              </div>
             </>
           ) : (
             <>
@@ -126,7 +147,22 @@ export function PhoneVerificationScreen({ onBack, onVerified, onSkip }: PhoneVer
                 className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[19px] font-extrabold tracking-[6px] outline-none"
                 style={{ ...inputStyle, direction: "ltr", textAlign: "center" }}
               />
-              <div className="mt-2 text-[12px]" style={{ color: "#8496A0", direction: "ltr", textAlign: "start" }}>{normalized}</div>
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <span className="text-[12px]" style={{ color: "#8496A0", direction: "ltr" }}>{normalized}</span>
+                <button
+                  type="button"
+                  onClick={() => { setStep("phone"); setCode(""); setError(null); }}
+                  className="cursor-pointer text-[12px] font-bold border-none bg-transparent"
+                  style={{ color: "#0E8BA8" }}
+                >
+                  {t.changeNumber}
+                </button>
+              </div>
+              {resendIn > 0 && (
+                <div className="mt-1.5 text-[11.5px]" style={{ color: "#8496A0", textAlign: "start" }}>
+                  {t.resendIn.replace("{seconds}", `0:${String(resendIn).padStart(2, "0")}`)}
+                </div>
+              )}
             </>
           )}
         </div>
@@ -164,8 +200,14 @@ export function PhoneVerificationScreen({ onBack, onVerified, onSkip }: PhoneVer
             >
               {t.skipForNow}
             </button>
-            <div className="mt-1.5 text-center text-[12px]" style={{ color: "#8496A0" }}>
-              {t.verifyLaterHint}
+            <div
+              className="mt-3 flex items-start gap-2.5 rounded-2xl px-3.5 py-3"
+              style={{ background: "#F7FAFB", border: "1px solid rgba(11,36,50,0.06)", textAlign: "start" }}
+            >
+              <Info className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#8496A0" }} />
+              {/* Written as what still works. "You won't be able to…" reads as
+                  a threat for a step we are choosing not to enforce. */}
+              <span className="text-[12px] leading-relaxed" style={{ color: "#5A6B75" }}>{t.skipConsequence}</span>
             </div>
           </>
         )}

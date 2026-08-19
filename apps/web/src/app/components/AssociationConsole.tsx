@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, BadgeCheck, Clock, Droplet, MapPin, ShieldQuestion, X } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Check, Clock, Droplet, MapPin, ShieldQuestion, X } from "lucide-react";
 import {
   unitsLabel,
   urgencyStyle,
@@ -104,6 +104,67 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
   // action in either case is to wait or to apply.
   if (!active) {
     const hasPending = memberships.length > 0;
+    const pendingWilaya = memberships[0]?.association.wilaya ?? null;
+
+    /**
+     * The wait, made legible.
+     *
+     * A volunteer who applies and then sees an unchanging "pending" screen
+     * assumes it was lost. Three steps show where the application actually is,
+     * and the list underneath answers the question they are really asking —
+     * whether they are shut out of the app until someone gets round to them.
+     * They are not: everything except vouching still works.
+     */
+    if (hasPending) {
+      const steps = [
+        { title: t.assocStep1, body: t.assocStep1Body, done: true },
+        { title: t.assocStep2, body: t.assocStep2Body, done: false },
+        {
+          title: t.assocStep3,
+          body: t.assocStep3Body.replace("{wilaya}", pendingWilaya ? wilayaLabel(pendingWilaya, lang) : ""),
+          done: false,
+        },
+      ];
+      return shell(
+        <>
+          <div className="bg-white border rounded-[20px] p-[18px]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+            <div className="text-lg font-extrabold" style={{ color: "#0B2432", textAlign: "start" }}>{t.assocPendingTitle}</div>
+            <div className="mt-4 flex flex-col gap-4">
+              {steps.map((step, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <span
+                    className="w-6 h-6 rounded-full shrink-0 mt-0.5 flex items-center justify-center"
+                    style={{
+                      background: step.done ? "#12B76A" : "#EAF0F2",
+                      color: step.done ? "#fff" : "#8496A0",
+                    }}
+                  >
+                    {step.done ? <Check className="w-3.5 h-3.5" strokeWidth={3.5} /> : <span className="text-[11px] font-extrabold">{i + 1}</span>}
+                  </span>
+                  <div style={{ textAlign: "start" }}>
+                    <div className="text-[13.5px] font-bold" style={{ color: "#0B2432" }}>{step.title}</div>
+                    <div className="text-[12.5px] mt-0.5 leading-relaxed" style={{ color: "#8496A0" }}>{step.body}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-[20px] p-[18px]" style={{ background: "#EAF6EF", border: "1px solid rgba(18,183,106,0.25)" }}>
+            <div className="text-[13.5px] font-extrabold" style={{ color: "#0E7A4B", textAlign: "start" }}>{t.assocMeanwhileTitle}</div>
+            <div className="mt-2.5 flex flex-col gap-2">
+              {[t.assocMeanwhile1, t.assocMeanwhile2, t.assocMeanwhile3].map((line) => (
+                <div key={line} className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#0E7A4B" }} strokeWidth={3} />
+                  <span className="text-[12.5px]" style={{ color: "#0B4A32", textAlign: "start" }}>{line}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      );
+    }
+
     return shell(
       <div className="bg-white border rounded-[20px] p-6 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
         <span className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center" style={{ background: "#EEE9FB" }}>

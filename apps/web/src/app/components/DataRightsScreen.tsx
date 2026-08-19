@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Download, FileEdit, Trash2 } from "lucide-react";
-import { submitDataSubjectRequest, fetchMyDataSubjectRequests, type DsrKind, type DataSubjectRequest } from "@weare/core";
+import { submitDataSubjectRequest, fetchMyDataSubjectRequests, formatRelativeTime, type DsrKind, type DataSubjectRequest } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
 
@@ -19,7 +19,7 @@ interface DataRightsScreenProps {
  * obliged to keep or quietly not delete what the user thinks it deleted.
  */
 export function DataRightsScreen({ onBack }: DataRightsScreenProps) {
-  const { t, dir } = useI18n();
+  const { t, lang, dir } = useI18n();
   const toast = useToast();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
@@ -40,10 +40,16 @@ export function DataRightsScreen({ onBack }: DataRightsScreenProps) {
     };
   }, []);
 
-  const options: { kind: DsrKind; label: string; icon: typeof Download; bg: string; fg: string }[] = [
-    { kind: "export", label: t.dsrExport, icon: Download, bg: "#E4F6FB", fg: "#0E8BA8" },
-    { kind: "correction", label: t.dsrCorrection, icon: FileEdit, bg: "#FFF3E0", fg: "#F5871F" },
-    { kind: "deletion", label: t.dsrDeletion, icon: Trash2, bg: "#FFECEC", fg: "#E5484D" },
+  /**
+   * Each right says what it produces and roughly how long it takes. "Request a
+   * copy" with no timescale invites people to ask again on day two, and a
+   * deletion request with no note about what survives invites the complaint
+   * that we kept something.
+   */
+  const options: { kind: DsrKind; label: string; detail: string; note?: string; icon: typeof Download; bg: string; fg: string }[] = [
+    { kind: "export", label: t.dsrExport, detail: t.dsrExportDetail, icon: Download, bg: "#E4F6FB", fg: "#0E8BA8" },
+    { kind: "correction", label: t.dsrCorrection, detail: t.dsrCorrectionDetail, icon: FileEdit, bg: "#FFF3E0", fg: "#F5871F" },
+    { kind: "deletion", label: t.dsrDeletion, detail: t.dsrDeletionDetail, note: t.dsrDeletionLegal, icon: Trash2, bg: "#FFECEC", fg: "#E5484D" },
   ];
 
   const submit = async (kind: DsrKind) => {
@@ -94,11 +100,22 @@ export function DataRightsScreen({ onBack }: DataRightsScreenProps) {
                 <span className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: option.bg }}>
                   <Icon className="w-[17px] h-[17px]" style={{ color: option.fg }} />
                 </span>
-                <span className="flex-1 text-[14.5px] font-semibold" style={{ color: "#0B2432" }}>{option.label}</span>
+                <span className="flex-1" style={{ textAlign: "start" }}>
+                  <span className="block text-[14.5px] font-semibold" style={{ color: "#0B2432" }}>{option.label}</span>
+                  <span className="block text-[11.5px] mt-0.5" style={{ color: "#8496A0" }}>{option.detail}</span>
+                </span>
               </button>
 
               {isOpen && (
                 <div className="px-[15px] pb-[15px]">
+                  {option.note && (
+                    <div
+                      className="mb-2.5 rounded-2xl px-3.5 py-2.5 text-[12px] leading-relaxed"
+                      style={{ background: "#F7FAFB", color: "#5A6B75", textAlign: "start" }}
+                    >
+                      {option.note}
+                    </div>
+                  )}
                   <textarea
                     value={details}
                     onChange={(e) => setDetails(e.target.value)}
@@ -123,15 +140,24 @@ export function DataRightsScreen({ onBack }: DataRightsScreenProps) {
       </div>
 
       {existing.length > 0 && (
-        <div className="mt-5 bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+        <>
+        <div className="mt-5 mb-[11px] text-[15px] font-extrabold" style={{ color: "#0B2432", textAlign: "start" }}>
+          {t.dsrQueueTitle}
+        </div>
+        <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
           {existing.map((row, i) => (
             <div
               key={row.id}
               className="px-[15px] py-[13px] flex items-center justify-between gap-3"
               style={i < existing.length - 1 ? { borderBottom: "1px solid rgba(11,36,50,0.05)" } : undefined}
             >
-              <span className="text-[13.5px] font-semibold" style={{ color: "#0B2432", textAlign: "start" }}>
-                {options.find((o) => o.kind === row.kind)?.label ?? row.kind}
+              <span style={{ textAlign: "start" }}>
+                <span className="block text-[13.5px] font-semibold" style={{ color: "#0B2432" }}>
+                  {options.find((o) => o.kind === row.kind)?.label ?? row.kind}
+                </span>
+                <span className="block text-[11.5px] mt-0.5" style={{ color: "#8496A0" }}>
+                  {formatRelativeTime(row.createdAt, lang)}
+                </span>
               </span>
               <span
                 className="text-[11px] font-extrabold px-2.5 py-1 rounded-full shrink-0"
@@ -146,6 +172,7 @@ export function DataRightsScreen({ onBack }: DataRightsScreenProps) {
             </div>
           ))}
         </div>
+        </>
       )}
     </div>
   );

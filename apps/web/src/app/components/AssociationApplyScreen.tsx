@@ -123,6 +123,11 @@ export function AssociationApplyScreen({ onBack, onApplied }: AssociationApplySc
             </select>
             <ChevronDown className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none" style={{ insetInlineEnd: "14px", color: "#8496A0" }} />
           </div>
+          {/* Wilaya is the whole scope of the permission being applied for, so
+              it is stated at the point of choosing rather than discovered later. */}
+          <div className="-mt-2.5 mb-4 text-[11.5px]" style={{ color: "#8496A0", textAlign: "start" }}>
+            {t.assocWilayaHint}
+          </div>
 
           <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.contactPhoneLabel}</label>
           <input
@@ -159,6 +164,10 @@ export function AssociationApplyScreen({ onBack, onApplied }: AssociationApplySc
         >
           {busy ? t.posting : t.assocApplyCta}
         </button>
+
+        <div className="mt-2.5 text-center text-[11.5px] leading-relaxed" style={{ color: "#8496A0" }}>
+          {t.assocReviewNote}
+        </div>
       </form>
     </div>
   );
