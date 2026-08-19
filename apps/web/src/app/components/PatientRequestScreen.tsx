@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, ChevronDown, Minus, Plus, ShieldAlert } from "lucide-react";
+import { ArrowLeft, ChevronDown, Minus, Plus, Plus as PlusIcon, ShieldAlert } from "lucide-react";
 import {
   createPatientRequest,
   urgencyStyle,
@@ -7,10 +7,12 @@ import {
   usePhoneVerified,
   useHospitals,
   WILAYAS,
+  wilayaLabel,
   type Urgency,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
+import { BloodType } from "./BloodType";
 
 interface PatientRequestScreenProps {
   onBack: () => void;
@@ -45,10 +47,40 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
   const [hospitalName, setHospitalName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [fileRef, setFileRef] = useState("");
+  // Folded away by default. Most families do not have the file number to hand,
+  // and an empty field they cannot fill reads as a requirement they are failing.
+  const [showFileRef, setShowFileRef] = useState(false);
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const inputStyle = { borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432" } as const;
+
+  /**
+   * Three numbered blocks, in the order someone in a hospital corridor can
+   * actually answer them: who the patient is, where they are, and how urgent
+   * it is. One long undifferentiated form asks a frightened person to hold the
+   * whole thing in their head at once.
+   */
+  const block = (n: number, title: string) => (
+    <div className="flex items-center gap-2.5 mb-3">
+      <span
+        className="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[11px] font-extrabold shrink-0"
+        style={{ background: "#FFECEC", color: "#E5484D" }}
+      >
+        {n}
+      </span>
+      <span className="text-[13.5px] font-extrabold uppercase tracking-[0.4px]" style={{ color: "#0B2432" }}>
+        {title}
+      </span>
+    </div>
+  );
+
+  const urgencyHint: Record<Urgency, string> = {
+    Critical: t.urgencyCriticalHint,
+    High: t.urgencyHighHint,
+    Medium: t.urgencyMediumHint,
+    Low: t.urgencyLowHint,
+  };
 
   // Hospitals in the chosen wilaya, offered as suggestions. Narrowed to the
   // wilaya because a national list is too long to skim and the treating
@@ -113,12 +145,17 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
           style={{ background: "#FFF3E0", border: "1px solid rgba(245,135,31,0.3)", textAlign: "start" }}
         >
           <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#F5871F" }} />
-          <span className="text-[13px] font-semibold" style={{ color: "#7A4A10" }}>{t.verifyRequiredNote}</span>
+          <span style={{ textAlign: "start" }}>
+            <span className="block text-[13px] font-semibold" style={{ color: "#7A4A10" }}>{t.verifyRequiredNote}</span>
+            {/* The form is not blocked — say so, or people abandon it here. */}
+            <span className="block text-[12px] mt-1 leading-relaxed" style={{ color: "#8A6534" }}>{t.verifyBannerSub}</span>
+          </span>
         </button>
       )}
 
       <form onSubmit={handleSubmit}>
         <div className="bg-white border rounded-[20px] p-[18px]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+          {block(1, t.blockWho)}
           <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.patientName}</label>
           <input
             value={patientName}
@@ -145,12 +182,17 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
                     borderColor: active ? "#E5484D" : "rgba(11,36,50,0.12)",
                   }}
                 >
-                  {b}
+                  <BloodType value={b} />
                 </button>
               );
             })}
           </div>
 
+          {/* Nobody should stall here: the hospital knows the blood type. */}
+          <div className="-mt-2 mb-5 text-[11.5px]" style={{ color: "#8496A0", textAlign: "start" }}>{t.bloodTypeUnsure}</div>
+
+          <div className="pt-4" style={{ borderTop: "1px solid rgba(11,36,50,0.06)" }} />
+          {block(2, t.blockWhere)}
           <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.wilayaField}</label>
           <div className="relative mb-4">
             <select
@@ -211,6 +253,8 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
               : t.hospitalNoDirectoryHint}
           </div>
 
+          <div className="pt-4" style={{ borderTop: "1px solid rgba(11,36,50,0.06)" }} />
+          {block(3, t.blockUrgency)}
           <label className="block text-[12.5px] font-bold mb-2" style={{ color: "#5A6B75", textAlign: "start" }}>{t.unitsNeeded}</label>
           <div className="flex items-center gap-3 h-12 rounded-[13px] border-[1.5px] px-2 justify-between mb-4" style={inputStyle}>
             <button
@@ -233,7 +277,7 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
           </div>
 
           <label className="block text-[12.5px] font-bold mb-2" style={{ color: "#5A6B75", textAlign: "start" }}>{t.urgencyHeader}</label>
-          <div className="grid grid-cols-4 gap-2 mb-4">
+          <div className="grid grid-cols-1 gap-2 mb-4">
             {urgencies.map((u) => {
               const active = u === urgency;
               const style = urgencyStyle[u];
@@ -242,14 +286,18 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
                   key={u}
                   type="button"
                   onClick={() => setUrgency(u)}
-                  className="cursor-pointer h-10 rounded-xl text-[11.5px] font-extrabold border-[1.5px] px-1"
+                  className="cursor-pointer rounded-xl border-[1.5px] px-3 py-2.5 flex items-center gap-2.5"
                   style={{
                     background: active ? style.bg : "#F7FAFB",
                     color: active ? style.fg : "#0B2432",
                     borderColor: active ? style.bg : "rgba(11,36,50,0.12)",
+                    textAlign: "start",
                   }}
                 >
-                  {urgencyLabel(u, t)}
+                  <span className="text-[12.5px] font-extrabold">{urgencyLabel(u, t)}</span>
+                  {/* What each level means in plain words. "High" means nothing
+                      on its own to someone who has never used the app. */}
+                  <span className="text-[11.5px]" style={{ opacity: active ? 0.85 : 0.6 }}>{urgencyHint[u]}</span>
                 </button>
               );
             })}
@@ -261,10 +309,23 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
             onChange={(e) => setContactPhone(e.target.value)}
             placeholder="05 55 12 34 56"
             inputMode="tel"
-            className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none mb-4"
+            className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none"
             style={{ ...inputStyle, direction: "ltr", textAlign: "start" }}
           />
+          <div className="mt-1.5 mb-4 text-[11.5px]" style={{ color: "#8496A0", textAlign: "start" }}>{t.contactPhoneHint}</div>
 
+          {!showFileRef ? (
+            <button
+              type="button"
+              onClick={() => setShowFileRef(true)}
+              className="cursor-pointer flex items-center gap-2 text-[13px] font-bold border-none bg-transparent p-0"
+              style={{ color: "#0E8BA8" }}
+            >
+              <PlusIcon className="w-4 h-4" />
+              {t.addFileNumber}
+            </button>
+          ) : (
+          <>
           <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.patientFileOptional}</label>
           <input
             value={fileRef}
@@ -273,6 +334,8 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
             className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none"
             style={{ ...inputStyle, direction: "ltr", textAlign: "start" }}
           />
+          </>
+          )}
         </div>
 
         {error && (
@@ -289,6 +352,12 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
         >
           {posting ? t.posting : t.postRequestCta}
         </button>
+
+        {/* Verification is a bonus, not a gate — say so before someone waits
+            for a badge that may never come. */}
+        <div className="mt-2.5 text-center text-[11.5px] leading-relaxed" style={{ color: "#8496A0" }}>
+          {t.postRequestFooter.replace("{wilaya}", wilayaLabel(wilaya, lang))}
+        </div>
       </form>
     </div>
   );

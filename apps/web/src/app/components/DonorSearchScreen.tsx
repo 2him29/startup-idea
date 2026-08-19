@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Phone, PhoneOff, ShieldQuestion, Clock, Droplet } from "lucide-react";
 import { searchDonors, useMyMemberships, wilayaLabel, type DonorSearchResult } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { BloodType } from "./BloodType";
 import { RequestCardSkeleton } from "./Skeletons";
 
 interface DonorSearchScreenProps {
@@ -203,7 +204,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
                 <div className="min-w-0">
                   <div className="text-[15px] font-bold truncate" style={{ color: "#0B2432" }}>{donor.fullName}</div>
                   <div className="text-[12.5px]" style={{ color: "#8496A0" }}>
-                    {donor.bloodType} · {wilayaLabel(donor.wilaya, lang)}
+                    <BloodType value={donor.bloodType} /> · {wilayaLabel(donor.wilaya, lang)}
                   </div>
                 </div>
               </div>

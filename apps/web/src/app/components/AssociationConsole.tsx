@@ -12,6 +12,7 @@ import {
   formatRelativeTime,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { BloodType } from "./BloodType";
 import { useToast } from "./Toast";
 import { RequestCardSkeleton } from "./Skeletons";
 import { VerifiedBadge } from "./VerifiedBadge";
@@ -258,7 +259,7 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
               </div>
 
               <div className="mt-3.5 flex items-center gap-2.5 flex-wrap">
-                <span className="font-extrabold text-sm px-3 py-1.5 rounded-xl" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
+                <BloodType value={r.bloodType} className="font-extrabold text-sm px-3 py-1.5 rounded-xl" style={{ color: "#E5484D", background: "#FFECEC" }} />
                 <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>
                 {r.wilaya && (
                   <span className="flex items-center gap-1 text-[12.5px]" style={{ color: "#8496A0" }}>

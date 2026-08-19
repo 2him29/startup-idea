@@ -105,6 +105,10 @@ export interface Strings {
   contactConsentOn: string; contactConsentOff: string; navDonorsLabel: string;
   skipForNow: string; verifyLaterHint: string;
   hospitalMatched: string; hospitalFreeTextHint: string; hospitalNoDirectoryHint: string;
+  blockWho: string; blockWhere: string; blockUrgency: string;
+  bloodTypeUnsure: string; contactPhoneHint: string; addFileNumber: string;
+  verifyBannerSub: string; postRequestFooter: string;
+  urgencyCriticalHint: string; urgencyHighHint: string; urgencyMediumHint: string; urgencyLowHint: string;
   unitsOne: string; unitsTwo: string; unitsFew: string;
   imPatient: string; patientSub: string; demoAsPatient: string; taglinePatient: string;
 
@@ -260,6 +264,14 @@ export const I18N: Record<Lang, Strings> = {
     hospitalMatched: "Matched to a known hospital — your request will show on the donor map.",
     hospitalFreeTextHint: "Pick from the list to place your request on the map, or type any hospital name.",
     hospitalNoDirectoryHint: "We'll use exactly what you typed. Nothing else is needed.",
+    blockWho: "Who needs blood", blockWhere: "Where", blockUrgency: "How urgent, and how to reach you",
+    bloodTypeUnsure: "Not sure? The hospital's file has it — leave it and call us.",
+    contactPhoneHint: "Shown to donors who open your request.",
+    addFileNumber: "Add patient file number",
+    verifyBannerSub: "One code by SMS. Fill this in first if you like — we'll keep what you typed.",
+    postRequestFooter: "Donors in {wilaya} see it straight away. A committee may add its badge later — your request is live either way.",
+    urgencyCriticalHint: "needed today", urgencyHighHint: "in the next few days",
+    urgencyMediumHint: "planned operation", urgencyLowHint: "no date set yet",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -406,6 +418,14 @@ export const I18N: Record<Lang, Strings> = {
     hospitalMatched: "Hôpital reconnu — votre demande apparaîtra sur la carte des donneurs.",
     hospitalFreeTextHint: "Choisissez dans la liste pour apparaître sur la carte, ou saisissez n'importe quel hôpital.",
     hospitalNoDirectoryHint: "Nous utiliserons exactement ce que vous avez saisi. Rien d'autre n'est nécessaire.",
+    blockWho: "Qui a besoin de sang", blockWhere: "Où", blockUrgency: "Urgence, et comment vous joindre",
+    bloodTypeUnsure: "Vous ne savez pas ? Le dossier de l'hôpital l'indique — laissez et appelez-nous.",
+    contactPhoneHint: "Visible par les donneurs qui ouvrent votre demande.",
+    addFileNumber: "Ajouter le numéro de dossier",
+    verifyBannerSub: "Un code par SMS. Remplissez d'abord si vous préférez — nous gardons ce que vous avez saisi.",
+    postRequestFooter: "Les donneurs de {wilaya} la voient immédiatement. Un comité peut ajouter son badge plus tard — votre demande est active dans tous les cas.",
+    urgencyCriticalHint: "nécessaire aujourd'hui", urgencyHighHint: "dans les prochains jours",
+    urgencyMediumHint: "opération programmée", urgencyLowHint: "pas encore de date",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -552,5 +572,13 @@ export const I18N: Record<Lang, Strings> = {
     hospitalMatched: "مستشفى معروف — سيظهر طلبك على خريطة المتبرعين.",
     hospitalFreeTextHint: "اختر من القائمة ليظهر طلبك على الخريطة، أو اكتب اسم أي مستشفى.",
     hospitalNoDirectoryHint: "سنستخدم ما كتبته تماماً. لا حاجة لشيء آخر.",
+    blockWho: "من يحتاج الدم", blockWhere: "أين", blockUrgency: "مدى الاستعجال، وكيف نتواصل معك",
+    bloodTypeUnsure: "لست متأكداً؟ ملف المستشفى يحتويها — اتركها واتصل بنا.",
+    contactPhoneHint: "يظهر للمتبرعين الذين يفتحون طلبك.",
+    addFileNumber: "إضافة رقم ملف المريض",
+    verifyBannerSub: "رمز واحد عبر رسالة نصية. املأ النموذج أولاً إن أردت — سنحتفظ بما كتبته.",
+    postRequestFooter: "يراه المتبرعون في {wilaya} فوراً. قد تضيف لجنة توثيقها لاحقاً — وطلبك فعّال في الحالتين.",
+    urgencyCriticalHint: "مطلوب اليوم", urgencyHighHint: "خلال الأيام القادمة",
+    urgencyMediumHint: "عملية مبرمجة", urgencyLowHint: "لا يوجد تاريخ بعد",
   },
 };

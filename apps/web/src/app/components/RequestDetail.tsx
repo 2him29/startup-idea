@@ -1,6 +1,7 @@
 import { ArrowLeft, Phone, Clock, MapPin, AlertTriangle, Share2 } from "lucide-react";
 import { urgencyLabel, formatShareMessage, shareToWhatsApp, type BloodRequest, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { BloodType } from "./BloodType";
 import { VerifiedBadge } from "./VerifiedBadge";
 
 interface RequestDetailProps {
@@ -39,7 +40,7 @@ export function RequestDetail({ onBack, onRespond, request }: RequestDetailProps
         </div>
         <div className="mt-5 flex gap-2.5">
           <div className="flex-1 bg-white/[0.16] rounded-2xl p-3 text-center">
-            <div className="text-[22px] font-extrabold">{request.bloodType}</div>
+            <BloodType value={request.bloodType} className="text-[22px] font-extrabold" />
             <div className="text-[11px] opacity-90">{t.bloodType}</div>
           </div>
           <div className="flex-1 bg-white/[0.16] rounded-2xl p-3 text-center">

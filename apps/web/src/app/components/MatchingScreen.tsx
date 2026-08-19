@@ -5,6 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, wilayaLabel, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { BloodType } from "./BloodType";
 import { getDefaultWilaya } from "../prefs";
 import { RequestCardSkeleton } from "./Skeletons";
 import { VerifiedBadge } from "./VerifiedBadge";
@@ -179,12 +180,11 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                       <div className="flex items-center gap-1.5">
                         {/* Type first: a donor is scanning for their own blood
                             group, not for the hospital they already tapped. */}
-                        <span
+                        <BloodType
+                          value={r.bloodType}
                           className="text-[11px] font-extrabold px-2 py-0.5 rounded-lg"
                           style={{ background: "#FFECEC", color: "#E5484D" }}
-                        >
-                          {r.bloodType}
-                        </span>
+                        />
                         <span
                           className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full"
                           style={{ background: urgencyStyle[r.urgency].bg, color: urgencyStyle[r.urgency].fg }}
@@ -260,7 +260,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                 </span>
               </div>
               <div className="mt-3.5 flex items-center gap-2.5">
-                <span className="font-extrabold text-sm px-3 py-1.5 rounded-xl" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
+                <BloodType value={r.bloodType} className="font-extrabold text-sm px-3 py-1.5 rounded-xl" style={{ color: "#E5484D", background: "#FFECEC" }} />
                 <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>
                 <span className="ms-auto text-[13px] font-extrabold" style={{ color: accent }}>{t.view} →</span>
               </div>
