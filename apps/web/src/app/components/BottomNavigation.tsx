@@ -74,6 +74,19 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
+              data-testid={`nav-${item.id}`}
+              /*
+               * The badge digit sits inside the button, so without an explicit
+               * label the accessible name comes out as "Committee8" — which a
+               * screen reader reads as one word and which no name-based query
+               * can match. Spell the count out instead, and hide the visual
+               * badge from the accessibility tree as the duplicate it is.
+               */
+              aria-label={
+                "badge" in item && typeof item.badge === "number" && item.badge > 0
+                  ? t.navCommitteeWaiting.replace("{count}", String(item.badge))
+                  : item.label
+              }
               className="cursor-pointer border-none flex flex-col items-center gap-[3px] px-4 py-2 rounded-[14px]"
               style={{
                 background: isActive ? accentSoft : "transparent",
@@ -86,6 +99,7 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
                     to do without opening the hub first. */}
                 {"badge" in item && typeof item.badge === "number" && item.badge > 0 && (
                   <span
+                    aria-hidden="true"
                     className="absolute text-[10px] font-extrabold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center"
                     style={{ background: "#E5484D", color: "#fff", top: "-4px", insetInlineEnd: "-8px" }}
                   >

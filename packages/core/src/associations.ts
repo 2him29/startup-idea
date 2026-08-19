@@ -116,9 +116,22 @@ export async function applyForAssociation(input: {
   return association;
 }
 
-/** The associations this user belongs to, with the role they hold in each. */
+/**
+ * The associations this user belongs to, with the role they hold in each.
+ *
+ * Signed out resolves to an empty list rather than throwing. This is a read,
+ * and "nobody is signed in" is an ordinary state for it: the navigation asks
+ * this question on the splash screen, before login. Throwing there turned into
+ * a caught-and-logged error that left the Committee tab hidden for the rest of
+ * the session, so the honest answer — you belong to nothing — is also the safe
+ * one. Writes still go through requireUserId and still refuse.
+ */
 export async function fetchMyMemberships(): Promise<AssociationMembership[]> {
-  const userId = await requireUserId("view memberships");
+  const { data: sessionData, error: sessionError } = await getSupabase().auth.getSession();
+  if (sessionError) throw sessionError;
+  if (!sessionData.session) return [];
+  const userId = sessionData.session.user.id;
+
   const { data, error } = await getSupabase()
     .from("association_members")
     .select(`role, associations(${ASSOCIATION_COLUMNS})`)

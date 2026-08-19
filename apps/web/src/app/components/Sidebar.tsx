@@ -73,6 +73,19 @@ export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
+              data-testid={`nav-${item.id}`}
+              /*
+               * The badge digit sits inside the button, so without an explicit
+               * label the accessible name comes out as "Committee8" — which a
+               * screen reader reads as one word and which no name-based query
+               * can match. Spell the count out instead, and hide the visual
+               * badge from the accessibility tree as the duplicate it is.
+               */
+              aria-label={
+                "badge" in item && typeof item.badge === "number" && item.badge > 0
+                  ? t.navCommitteeWaiting.replace("{count}", String(item.badge))
+                  : item.label
+              }
               className="cursor-pointer border-none flex items-center gap-3 px-3 py-3 rounded-[14px]"
               style={{
                 background: isActive ? accentSoft : "transparent",
@@ -84,6 +97,7 @@ export function Sidebar({ activeScreen, onNavigate, userType }: SidebarProps) {
               <span className="text-[14.5px] font-bold flex-1">{item.label}</span>
               {"badge" in item && typeof item.badge === "number" && item.badge > 0 && (
                 <span
+                  aria-hidden="true"
                   className="text-[11px] font-extrabold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center"
                   style={{ background: "#E5484D", color: "#fff" }}
                 >

@@ -480,10 +480,27 @@ async function checkSeed() {
     if (r.rowCount !== 1 || r.rows[0].is_verified !== true) throw new Error("association not verified");
   });
   await check("second run is idempotent", async () => {
+    // Compare before against after rather than against a hardcoded fixture
+    // size: what this asserts is that re-running duplicates nothing, and
+    // pinning the number meant every new seed row failed this check for the
+    // wrong reason.
+    const counts = async () => {
+      const p = await client.query("select count(*)::int n from patients where full_name like 'Seed Patient%'");
+      const q = await client.query("select count(*)::int n from blood_requests where patient_id like 'SEED-%'");
+      return { patients: p.rows[0].n, requests: q.rows[0].n };
+    };
+
+    const before = await counts();
+    if (before.patients === 0 || before.requests === 0) throw new Error("first run seeded nothing");
+
     await client.query(seedSql);
-    const p = await client.query("select count(*)::int n from patients where full_name like 'Seed Patient%'");
-    const q = await client.query("select count(*)::int n from blood_requests where patient_id like 'SEED-%'");
-    if (p.rows[0].n !== 2 || q.rows[0].n !== 2) throw new Error(`duplicated: ${p.rows[0].n} patients, ${q.rows[0].n} requests`);
+    const after = await counts();
+
+    if (after.patients !== before.patients || after.requests !== before.requests) {
+      throw new Error(
+        `duplicated: ${before.patients}->${after.patients} patients, ${before.requests}->${after.requests} requests`
+      );
+    }
   });
 }
 

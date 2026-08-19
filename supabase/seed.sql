@@ -26,6 +26,7 @@ declare
   assoc_id    uuid;
   patient_a   uuid;
   patient_b   uuid;
+  patient_c   uuid;
 begin
   select id into admin_id  from auth.users where email = 'demo.admin@weare.app';
   select id into member_id from auth.users where email = 'demo.association@weare.app';
@@ -136,6 +137,33 @@ begin
   update blood_requests
   set verified_by = null, verified_at = null, status = 'open'
   where patient_record_id = patient_b;
+
+  -- A third request, deliberately backdated past the staleness threshold.
+  --
+  -- useCommitteeInbox() counts anything open for more than STALE_AFTER_DAYS
+  -- (30) as stale and the committee hub nudges about it. Every other row here
+  -- is created at now(), so without this the count is structurally always zero
+  -- and that nudge cannot be seen — the seed could never produce the state the
+  -- code exists to handle.
+  --
+  -- 45 days puts it clearly past the boundary rather than on it, so the
+  -- fixture does not start failing the day someone tunes the threshold.
+  select id into patient_c from patients where full_name = 'Seed Patient — Nadia S.';
+  if patient_c is null then
+    insert into patients (full_name, blood_type, wilaya, hospital_name, created_by, contact_phone)
+    values ('Seed Patient — Nadia S.', 'B+', 'Blida', 'EPH Boufarik', family_id, '+213555000444')
+    returning id into patient_c;
+
+    insert into blood_requests (patient_record_id, patient_id, blood_type, units, urgency, wilaya, hospital_name, distance_km, created_at)
+    values (patient_c, 'SEED-0003', 'B+', 2, 'High', 'Blida', 'EPH Boufarik', 52, now() - interval '45 days');
+  end if;
+
+  -- Reset on every run, for the same reason patients A and B are: a previous
+  -- run (or a click in the console) may have verified or closed it, and the
+  -- stale count only looks at open requests.
+  update blood_requests
+  set status = 'open', created_at = now() - interval '45 days'
+  where patient_record_id = patient_c;
 
   -- Also vouch for a legacy hospital-authored request in this wilaya, if there
   -- is one with coordinates.

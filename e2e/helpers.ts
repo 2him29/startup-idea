@@ -111,10 +111,24 @@ export async function signOut(page: Page): Promise<void> {
  * a volunteer does.
  */
 export async function openCommittee(page: Page, tool: "verify" | "donors"): Promise<void> {
-  await clickNav(page, t("en").navCommittee);
+  await clickNavById(page, "committee");
   const card = page.getByTestId(`committee-${tool}`);
   await card.waitFor({ state: "visible", timeout: 30_000 });
   await card.click();
+}
+
+/**
+ * Click a nav entry by its screen id rather than its label.
+ *
+ * The Committee tab carries a count badge, so its accessible name is now
+ * "Committee, 8 awaiting verification" — correct for a screen reader, but not
+ * something a label match should have to predict. The id is stable in every
+ * language and whatever the badge says.
+ */
+export async function clickNavById(page: Page, id: string): Promise<void> {
+  const item = page.getByTestId(`nav-${id}`).filter({ visible: true }).first();
+  await item.waitFor({ state: "visible", timeout: 30_000 });
+  await item.click();
 }
 
 export async function clickNav(page: Page, label: string): Promise<void> {

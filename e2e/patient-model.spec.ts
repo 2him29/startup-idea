@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { gotoFresh, gotoFreshIn, demoLogin, clickNav, openCommittee, t } from "./helpers";
+import { gotoFresh, gotoFreshIn, demoLogin, clickNav, openCommittee, t, clickNavById } from "./helpers";
 
 /**
  * End-to-end cover for the patient/association model.
@@ -127,6 +127,29 @@ test.describe("patient/association model", () => {
     await expect(card.getByText(/Verified by/)).toBeVisible();
   });
 
+  /**
+   * The committee hub's staleness nudge.
+   *
+   * Every other seeded request is created at now(), so before the seed grew a
+   * deliberately backdated one this count was structurally always zero and
+   * this warning could never appear — the code was unreachable rather than
+   * untested. SEED-0003 is 45 days old for exactly this assertion.
+   */
+  test("committee hub warns about requests left open for a month", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+
+    await clickNavById(page, "committee");
+    await expect(page.getByText(t("en").committeeTitle)).toBeVisible();
+
+    // The count is whatever the wilaya currently holds; assert the nudge is
+    // there and names a number, not a specific one, since other tests post
+    // into the same shared staging database.
+    const nudge = page.getByText(/open more than a month/);
+    await expect(nudge).toBeVisible();
+    await expect(nudge).toHaveText(/^[1-9]\d* open more than a month$/);
+  });
+
   test("donor sees the verified badge on the find screen", async ({ page }) => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
@@ -198,12 +221,12 @@ test.describe("patient/association model", () => {
     await expect(page.getByText(ar.postRequestSub)).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 
-    await clickNav(page, ar.navCommittee);
+    await clickNavById(page, "committee");
     await expect(page.getByText(ar.committeeTitle)).toBeVisible();
     await page.getByTestId("committee-verify").click();
     await expect(page.getByText(ar.assocConsoleTitle)).toBeVisible();
 
-    await clickNav(page, ar.navCommittee);
+    await clickNavById(page, "committee");
     await page.getByTestId("committee-donors").click();
     await expect(page.getByText(ar.donorSearchTitle)).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");

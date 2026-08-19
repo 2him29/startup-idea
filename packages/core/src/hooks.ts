@@ -182,18 +182,36 @@ export function useMyMemberships() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchMyMemberships()
-      .then((data) => {
-        if (!cancelled) setMemberships(data);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch association memberships", err);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+
+    const load = () => {
+      fetchMyMemberships()
+        .then((data) => {
+          if (!cancelled) setMemberships(data);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch association memberships", err);
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    };
+
+    load();
+
+    /**
+     * Reload whenever auth changes, not only on mount.
+     *
+     * Both navigation components call this hook above the early return that
+     * hides them, so its first run happens on the splash screen with nobody
+     * signed in. A mount-only fetch therefore answered "no memberships" and
+     * never asked again, hiding the Committee tab for the whole session and
+     * making the hub unreachable for the volunteers it exists for.
+     */
+    const { data: subscription } = getSupabase().auth.onAuthStateChange(() => load());
+
     return () => {
       cancelled = true;
+      subscription.subscription.unsubscribe();
     };
   }, []);
 
