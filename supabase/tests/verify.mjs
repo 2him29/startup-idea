@@ -120,7 +120,7 @@ async function applyMigrations() {
 
 async function checkRls() {
   const ids = {};
-  for (const who of ["family", "outsider", "member", "wrongWilaya", "admin", "donor"]) {
+  for (const who of ["family", "outsider", "member", "volunteer", "wrongWilaya", "admin", "donor"]) {
     const r = await client.query("insert into auth.users (email) values ($1) returning id", [`${who}@qatra.test`]);
     ids[who] = r.rows[0].id;
     await client.query(
@@ -138,6 +138,9 @@ async function checkRls() {
   )).rows[0].id;
 
   await client.query("insert into association_members (association_id,user_id,role) values ($1,$2,'admin')", [verified, ids.member]);
+  // Same association, same wilaya, same everything as ids.member except the
+  // role — so a difference in what they may do can only come from the role.
+  await client.query("insert into association_members (association_id,user_id,role) values ($1,$2,'volunteer')", [verified, ids.volunteer]);
   await client.query("insert into association_members (association_id,user_id,role) values ($1,$2,'admin')", [pending, ids.wrongWilaya]);
 
   const patient = (await client.query(
@@ -186,6 +189,29 @@ async function checkRls() {
       const r = await client.query("update blood_requests set verified_by=$1 where id=$2", [verified, request]);
       if (r.rowCount !== 0) throw new Error("update unexpectedly affected rows");
     }));
+
+  /*
+   * Verification binds the association's name, so it belongs to whoever may
+   * bind the association — its admins. A volunteer of the *same verified
+   * association in the same wilaya* is the case that used to pass and should
+   * not: everything about them matches an admin except the role column.
+   */
+  await check("volunteer of the same association cannot verify", () =>
+    asUser(ids.volunteer, async () => {
+      const r = await client.query("update blood_requests set verified_by=$1 where id=$2", [verified, request]);
+      if (r.rowCount !== 0) throw new Error("a volunteer verified a request");
+    }));
+  await check("volunteer still reads the wilaya's requests", () =>
+    asUser(ids.volunteer, () => expectRows("select 1 from blood_requests where id=$1", [request], 1)));
+  /*
+   * The split that 20260820120000 exists to make: narrowing verification must
+   * not narrow the volunteer's actual job. Donor search stays open to any
+   * member; the patient's name and phone follow the vetting right instead.
+   */
+  await check("volunteer can still search donors", () =>
+    asUser(ids.volunteer, () => client.query("select * from search_donors('Blida')")));
+  await check("volunteer cannot read the patient row behind a request", () =>
+    asUser(ids.volunteer, () => expectRows("select 1 from patients where id=$1", [patient], 0)));
 
   section("is_verified: only via verify_association()");
   await check("member cannot self-verify directly", () =>
@@ -480,10 +506,27 @@ async function checkSeed() {
     if (r.rowCount !== 1 || r.rows[0].is_verified !== true) throw new Error("association not verified");
   });
   await check("second run is idempotent", async () => {
+    // Compare before against after rather than against a hardcoded fixture
+    // size: what this asserts is that re-running duplicates nothing, and
+    // pinning the number meant every new seed row failed this check for the
+    // wrong reason.
+    const counts = async () => {
+      const p = await client.query("select count(*)::int n from patients where full_name like 'Seed Patient%'");
+      const q = await client.query("select count(*)::int n from blood_requests where patient_id like 'SEED-%'");
+      return { patients: p.rows[0].n, requests: q.rows[0].n };
+    };
+
+    const before = await counts();
+    if (before.patients === 0 || before.requests === 0) throw new Error("first run seeded nothing");
+
     await client.query(seedSql);
-    const p = await client.query("select count(*)::int n from patients where full_name like 'Seed Patient%'");
-    const q = await client.query("select count(*)::int n from blood_requests where patient_id like 'SEED-%'");
-    if (p.rows[0].n !== 2 || q.rows[0].n !== 2) throw new Error(`duplicated: ${p.rows[0].n} patients, ${q.rows[0].n} requests`);
+    const after = await counts();
+
+    if (after.patients !== before.patients || after.requests !== before.requests) {
+      throw new Error(
+        `duplicated: ${before.patients}->${after.patients} patients, ${before.requests}->${after.requests} requests`
+      );
+    }
   });
 }
 

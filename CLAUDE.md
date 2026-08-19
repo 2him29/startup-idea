@@ -53,6 +53,10 @@ npm workspaces monorepo:
 
 **The `VITE_PATIENT_MODEL` flag gates SQL, not just UI.** The app is mid-migration from *hospitals post requests* to *patients post requests, associations verify them*. `api.ts` picks between `LEGACY_COLUMNS` and `PATIENT_MODEL_COLUMNS` based on the flag, because PostgREST rejects an entire query with a 400 if it names a column or embedded table that doesn't exist — and the fallback above then hides that as mock data. Never add a new column to a query without gating it, and never set the flag against an unmigrated database.
 
+The e2e suite reads that flag from `apps/web/.env` itself, so the app and the tests cannot disagree about which model is running. They could once, and the failure was thoroughly misleading: the browser had the flag on while the specs assumed it off, so the legacy tests exercised an app with no hospital account (18 red) and the patient-model tests silently skipped. Set `VITE_PATIENT_MODEL` in the environment only to override a single run.
+
+**Verification is an admin act; donor search is not.** `can_verify_in_wilaya()` requires `role = 'admin'` — vouching publishes an attestation under the association's name, so it belongs to whoever may bind the association. Donor search uses `is_association_in_wilaya()` instead, which any member passes. These were one predicate until `20260820120000`, and narrowing it without splitting it locked volunteers out of donor search — `verify:db` caught that, seven assertions deep.
+
 **`npm run verify:db` is Postgres, not Supabase.** It runs real Postgres binaries (no Docker — Docker Desktop is unreliable on these machines), applies every migration, and exercises RLS as several different users. But there is no PostgREST or GoTrue and the `auth` schema is stubbed, so it cannot cover the HTTP API, auth, or anything Playwright does. Passing `verify:db` is not the same as the feature working.
 
 **The build does not typecheck.** There is no `tsconfig.json`; Vite strips types with esbuild. `npm run build` passes with type errors in it. Run `npm run typecheck` separately. That script also carries explicit compiler flags for the same reason.

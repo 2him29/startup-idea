@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { gotoFresh, gotoFreshIn, switchLanguage, demoLogin, t, expectedDir, LANGUAGES } from "./helpers";
+import { gotoFresh, gotoFreshIn, switchLanguage, demoLogin, t, expectedDir, LANGUAGES, PATIENT_MODEL_ENABLED } from "./helpers";
 
 /**
  * Regression cover for the pre-patient-model app.
@@ -16,6 +16,13 @@ import { gotoFresh, gotoFreshIn, switchLanguage, demoLogin, t, expectedDir, LANG
  * rendering path completely unwatched.
  */
 
+/**
+ * The hospital account only exists with the flag off. These assertions are the
+ * counterpart to patient-model.spec.ts, which asserts the same surfaces are
+ * gone with it on — so each suite is correct exactly when the other skips.
+ */
+
+
 test.describe("splash screen", () => {
   for (const lang of LANGUAGES) {
     test(`renders in ${lang} with dir=${expectedDir(lang)}`, async ({ page }) => {
@@ -23,7 +30,9 @@ test.describe("splash screen", () => {
       await switchLanguage(page, lang);
 
       await expect(page.getByRole("button", { name: t(lang).imDonor })).toBeVisible();
-      await expect(page.getByRole("button", { name: t(lang).imHospital })).toBeVisible();
+      if (!PATIENT_MODEL_ENABLED) {
+        await expect(page.getByRole("button", { name: t(lang).imHospital })).toBeVisible();
+      }
 
       // Arabic must flip the whole document, not just translate the copy.
       await expect(page.locator("html")).toHaveAttribute("dir", expectedDir(lang));
@@ -74,6 +83,8 @@ test.describe("donor journey", () => {
 });
 
 test.describe("hospital journey (legacy role)", () => {
+  test.skip(PATIENT_MODEL_ENABLED, "the hospital account does not exist under VITE_PATIENT_MODEL");
+
   for (const lang of LANGUAGES) {
     test(`[${lang}] demo hospital reaches its dashboard`, async ({ page }) => {
       await gotoFreshIn(page, lang);

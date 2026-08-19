@@ -78,6 +78,7 @@ export interface Strings {
   verifyWhyTitle: string; verifyWhyBody: string; verifyPhoneFormatHint: string;
   skipConsequence: string; resendIn: string; changeNumber: string;
   assocConsoleTitle: string; assocConsoleSub: string; verifyAction: string; unverifyAction: string;
+  verifyAdminsOnly: string;
   verifiedToast: string; unverifiedToast: string; noRequestsWilaya: string;
   assocPendingTitle: string; assocPendingSub: string;
   assocApplyTitle: string; assocApplySub: string; assocNameLabel: string; assocTypeLabel: string;
@@ -113,7 +114,7 @@ export interface Strings {
   imPatient: string; patientSub: string; demoAsPatient: string; taglinePatient: string;
 
   // --- Committee hub (Nav B) ---
-  navCommittee: string; committeeTitle: string; committeeVerifyCard: string; committeeVerifySub: string;
+  navCommittee: string; navCommitteeWaiting: string; committeeTitle: string; committeeVerifyCard: string; committeeVerifySub: string;
   committeeDonorsCard: string; committeeDonorsSub: string; committeeNoneToday: string;
   staleTitle: string; staleBody: string;
 }
@@ -202,6 +203,7 @@ export const I18N: Record<Lang, Strings> = {
     verifyRequiredNote: "Verify your phone number before posting a request.",
     assocConsoleTitle: "Association console", assocConsoleSub: "Open requests in {wilaya}",
     verifyAction: "Verify", unverifyAction: "Remove verification",
+    verifyAdminsOnly: "Only your committee's admins can verify a request — verifying signs the association's name to it. Ask an admin to review this one.",
     verifiedToast: "Request verified", unverifiedToast: "Verification removed",
     noRequestsWilaya: "No open requests in this wilaya right now",
     assocPendingTitle: "Awaiting Qatra approval",
@@ -255,7 +257,7 @@ export const I18N: Record<Lang, Strings> = {
     unitsOne: "unit", unitsTwo: "units", unitsFew: "units",
     imPatient: "I need blood", patientSub: "Post a request for a patient or family member", demoAsPatient: "View demo as Patient",
     taglinePatient: "Every drop connects a life. Families ask, associations vouch, donors answer — across Algeria, in real time.",
-    navCommittee: "Committee", committeeTitle: "Your committee",
+    navCommittee: "Committee", navCommitteeWaiting: "Committee, {count} awaiting verification", committeeTitle: "Your committee",
     committeeVerifyCard: "Verify requests", committeeVerifySub: "{waiting} waiting",
     committeeDonorsCard: "Find donors", committeeDonorsSub: "Registered donors in {wilaya}",
     committeeNoneToday: "Nothing waiting — the list is clear",
@@ -356,6 +358,7 @@ export const I18N: Record<Lang, Strings> = {
     verifyRequiredNote: "Vérifiez votre numéro avant de publier une demande.",
     assocConsoleTitle: "Console association", assocConsoleSub: "Demandes ouvertes à {wilaya}",
     verifyAction: "Vérifier", unverifyAction: "Retirer la vérification",
+    verifyAdminsOnly: "Seuls les administrateurs de votre comité peuvent vérifier une demande — vérifier engage le nom de l'association. Demandez à un administrateur de l'examiner.",
     verifiedToast: "Demande vérifiée", unverifiedToast: "Vérification retirée",
     noRequestsWilaya: "Aucune demande ouverte dans cette wilaya pour le moment",
     assocPendingTitle: "En attente d'approbation",
@@ -409,7 +412,7 @@ export const I18N: Record<Lang, Strings> = {
     unitsOne: "unité", unitsTwo: "unités", unitsFew: "unités",
     imPatient: "J'ai besoin de sang", patientSub: "Publier une demande pour un proche", demoAsPatient: "Démo en tant que patient",
     taglinePatient: "Chaque goutte relie une vie. Les familles demandent, les associations vérifient, les donneurs répondent — partout en Algérie.",
-    navCommittee: "Comité", committeeTitle: "Votre comité",
+    navCommittee: "Comité", navCommitteeWaiting: "Comité, {count} en attente de vérification", committeeTitle: "Votre comité",
     committeeVerifyCard: "Vérifier les demandes", committeeVerifySub: "{waiting} en attente",
     committeeDonorsCard: "Trouver des donneurs", committeeDonorsSub: "Donneurs inscrits à {wilaya}",
     committeeNoneToday: "Rien en attente — la liste est à jour",
@@ -510,6 +513,7 @@ export const I18N: Record<Lang, Strings> = {
     verifyRequiredNote: "وثّق رقم هاتفك قبل نشر طلب.",
     assocConsoleTitle: "لوحة الجمعية", assocConsoleSub: "الطلبات المفتوحة في {wilaya}",
     verifyAction: "توثيق", unverifyAction: "إزالة التوثيق",
+    verifyAdminsOnly: "لا يمكن توثيق الطلب إلا لمشرفي لجنتك — فالتوثيق يضع اسم الجمعية على الطلب. اطلب من مشرف مراجعته.",
     verifiedToast: "تم توثيق الطلب", unverifiedToast: "أُزيل التوثيق",
     noRequestsWilaya: "لا توجد طلبات مفتوحة في هذه الولاية حالياً",
     assocPendingTitle: "في انتظار موافقة قطرة",
@@ -563,7 +567,7 @@ export const I18N: Record<Lang, Strings> = {
     unitsOne: "وحدة", unitsTwo: "وحدتان", unitsFew: "وحدات",
     imPatient: "أحتاج إلى دم", patientSub: "انشر طلباً لمريض أو أحد الأقارب", demoAsPatient: "عرض تجريبي كمريض",
     taglinePatient: "كل قطرة تصل حياةً. العائلات تطلب، الجمعيات توثّق، المتبرعون يستجيبون — عبر الجزائر، في الوقت الفعلي.",
-    navCommittee: "اللجنة", committeeTitle: "لجنتك",
+    navCommittee: "اللجنة", navCommitteeWaiting: "اللجنة، {count} بانتظار التحقق", committeeTitle: "لجنتك",
     committeeVerifyCard: "توثيق الطلبات", committeeVerifySub: "{waiting} في الانتظار",
     committeeDonorsCard: "البحث عن متبرعين", committeeDonorsSub: "المتبرعون المسجلون في {wilaya}",
     committeeNoneToday: "لا شيء في الانتظار — القائمة خالية",

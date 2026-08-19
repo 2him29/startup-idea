@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { gotoFresh, gotoFreshIn, demoLogin, clickNav, openCommittee, t } from "./helpers";
+import { gotoFresh, gotoFreshIn, demoLogin, clickNav, openCommittee, t, clickNavById, PATIENT_MODEL_ENABLED } from "./helpers";
 
 /**
  * End-to-end cover for the patient/association model.
@@ -12,17 +12,19 @@ import { gotoFresh, gotoFreshIn, demoLogin, clickNav, openCommittee, t } from ".
  *      verified association, enrols the demo donor in it, marks the account
  *      phone-verified, and leaves exactly one request unverified so the
  *      Verify action below always has something to act on.
- *   3. `VITE_PATIENT_MODEL=true` — in apps/web/.env for the app, and in the
- *      environment of the test run itself, which is what the guard below
- *      reads. The nav entries these tests click do not render otherwise.
+ *   3. `VITE_PATIENT_MODEL=true` in apps/web/.env. The guard below reads that
+ *      same file, so the app and the suite cannot disagree about which model
+ *      is running; set VITE_PATIENT_MODEL in the environment to override it
+ *      for one run. The nav entries these tests click do not render otherwise.
  *
- * Verified against a real staging Supabase project on 2026-08-18: 12/12.
+ * Verified against a real staging Supabase project on 2026-08-20: full suite
+ * 63 passed, 0 failed.
  *
  * The skip is deliberate: a suite that fails because the database was never
  * migrated tells you nothing about the code, and teaches people to ignore red.
  */
 
-const PATIENT_MODEL_ENABLED = process.env.VITE_PATIENT_MODEL === "true";
+
 
 test.describe("patient/association model", () => {
   test.skip(
@@ -127,6 +129,29 @@ test.describe("patient/association model", () => {
     await expect(card.getByText(/Verified by/)).toBeVisible();
   });
 
+  /**
+   * The committee hub's staleness nudge.
+   *
+   * Every other seeded request is created at now(), so before the seed grew a
+   * deliberately backdated one this count was structurally always zero and
+   * this warning could never appear — the code was unreachable rather than
+   * untested. SEED-0003 is 45 days old for exactly this assertion.
+   */
+  test("committee hub warns about requests left open for a month", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+
+    await clickNavById(page, "committee");
+    await expect(page.getByText(t("en").committeeTitle)).toBeVisible();
+
+    // The count is whatever the wilaya currently holds; assert the nudge is
+    // there and names a number, not a specific one, since other tests post
+    // into the same shared staging database.
+    const nudge = page.getByText(/open more than a month/);
+    await expect(nudge).toBeVisible();
+    await expect(nudge).toHaveText(/^[1-9]\d* open more than a month$/);
+  });
+
   test("donor sees the verified badge on the find screen", async ({ page }) => {
     await gotoFresh(page);
     await demoLogin(page, "donor");
@@ -198,12 +223,12 @@ test.describe("patient/association model", () => {
     await expect(page.getByText(ar.postRequestSub)).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 
-    await clickNav(page, ar.navCommittee);
+    await clickNavById(page, "committee");
     await expect(page.getByText(ar.committeeTitle)).toBeVisible();
     await page.getByTestId("committee-verify").click();
     await expect(page.getByText(ar.assocConsoleTitle)).toBeVisible();
 
-    await clickNav(page, ar.navCommittee);
+    await clickNavById(page, "committee");
     await page.getByTestId("committee-donors").click();
     await expect(page.getByText(ar.donorSearchTitle)).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
