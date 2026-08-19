@@ -89,6 +89,16 @@ export async function fetchBloodRequests(): Promise<BloodRequest[]> {
  * in the wilaya it is verified for, so showing it any others would just be
  * offering actions that the database will reject.
  */
+/**
+ * How many requests the association console will render at once.
+ *
+ * A wilaya has no natural ceiling on open requests, and nothing in the product
+ * closes one automatically — the stale nudge exists precisely because they
+ * accumulate. An uncapped list is therefore a slow page waiting to happen on
+ * the cheapest Android phone in the room, which is the device this is for.
+ */
+export const WILAYA_REQUEST_LIMIT = 200;
+
 export async function fetchRequestsForWilaya(wilaya: string): Promise<BloodRequest[]> {
   // Always the extended shape: this endpoint only exists under the patient
   // model, so there is no legacy caller to keep compatible.
@@ -97,10 +107,44 @@ export async function fetchRequestsForWilaya(wilaya: string): Promise<BloodReque
     .select(PATIENT_MODEL_COLUMNS)
     .eq("status", "open")
     .eq("wilaya", wilaya)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(WILAYA_REQUEST_LIMIT);
 
   if (error) throw error;
   return (data as unknown as BloodRequestRow[]).map(toBloodRequest);
+}
+
+/**
+ * Totals for the committee hub, counted in the database rather than derived
+ * from the fetched page.
+ *
+ * These drive the tab badge and the stale nudge, so they have to describe the
+ * whole wilaya. Counting the capped array instead would quietly report "200
+ * waiting" for a wilaya with a thousand — a badge that under-reports the
+ * backlog is worse than no badge, because it reads as authoritative.
+ *
+ * `head: true` asks PostgREST for the count alone and no rows.
+ */
+export async function countWilayaRequests(
+  wilaya: string,
+  staleBefore: string
+): Promise<{ waiting: number; stale: number }> {
+  const base = () =>
+    getSupabase()
+      .from("blood_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "open")
+      .eq("wilaya", wilaya);
+
+  const [waiting, stale] = await Promise.all([
+    base().is("verified_by", null),
+    base().lt("created_at", staleBefore),
+  ]);
+
+  if (waiting.error) throw waiting.error;
+  if (stale.error) throw stale.error;
+
+  return { waiting: waiting.count ?? 0, stale: stale.count ?? 0 };
 }
 
 /**

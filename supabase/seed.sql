@@ -73,15 +73,24 @@ begin
 
   insert into association_members (association_id, user_id, role)
   values (assoc_id, member_id, 'admin')
-  on conflict (association_id, user_id) do nothing;
+  on conflict (association_id, user_id) do update set role = 'admin';
 
-  -- The demo donor is enrolled as a volunteer too, so the one account the
-  -- splash screen can log into can actually reach the association console.
-  -- Without this the console shows only its empty state, which makes the
-  -- verification flow impossible to demo or to test end to end.
+  -- The demo donor is enrolled too, so the one account the splash screen can
+  -- log into can actually reach the association console. Without this the
+  -- console shows only its empty state, which makes the verification flow
+  -- impossible to demo or to test end to end.
+  --
+  -- admin, not volunteer: since 20260820120000 only admins may verify, and a
+  -- demo whose headline action is greyed out demonstrates nothing. The rule
+  -- itself is covered where it belongs — supabase/tests/verify.mjs asserts RLS
+  -- refuses a volunteer — rather than by crippling the demo account.
+  --
+  -- do update, not do nothing: this row already exists as 'volunteer' on every
+  -- database seeded before that migration, and "do nothing" would leave it
+  -- there for exactly the people who ran the seed early.
   insert into association_members (association_id, user_id, role)
-  values (assoc_id, family_id, 'volunteer')
-  on conflict (association_id, user_id) do nothing;
+  values (assoc_id, family_id, 'admin')
+  on conflict (association_id, user_id) do update set role = 'admin';
 
   -- Verification goes through verify_association(), never a direct UPDATE.
   --

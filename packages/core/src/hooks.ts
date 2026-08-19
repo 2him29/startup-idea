@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { fetchBloodRequests } from "./api";
 import { bloodRequests as fallbackRequests, type BloodRequest } from "./requests";
 import { getCurrentProfile, getDonorProfile, type DonorProfile, type Profile } from "./auth";
@@ -7,7 +7,7 @@ import { fetchHospitals, fallbackHospitals, type Hospital } from "./compensation
 import { fetchBloodDrives, fallbackDrives, type BloodDrive } from "./drives";
 import { ELIGIBILITY_INTERVAL_DAYS } from "./donors";
 import { fetchMyMemberships, type AssociationMembership } from "./associations";
-import { fetchRequestsForWilaya } from "./api";
+import { fetchRequestsForWilaya, countWilayaRequests } from "./api";
 import { isPhoneVerified } from "./otp";
 
 /**
@@ -127,18 +127,28 @@ export function useDonorProfile() {
 
   useEffect(() => {
     let cancelled = false;
-    getDonorProfile()
-      .then((d) => {
-        if (!cancelled) setDonorProfile(d);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch donor profile", err);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+
+    const load = () => {
+      getDonorProfile()
+        .then((d) => {
+          if (!cancelled) setDonorProfile(d);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch donor profile", err);
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    };
+
+    load();
+    // Auth-scoped read: without this it keeps the previous account's profile
+    // after a logout-and-login with no page reload. See useMyMemberships.
+    const { data: subscription } = getSupabase().auth.onAuthStateChange(() => load());
+
     return () => {
       cancelled = true;
+      subscription.subscription.unsubscribe();
     };
   }, []);
 
@@ -269,16 +279,29 @@ export function usePhoneVerified() {
 
   useEffect(() => {
     let cancelled = false;
-    isPhoneVerified()
-      .then((v) => {
-        if (!cancelled) setVerified(v);
-      })
-      .catch((err) => console.error("Failed to check phone verification", err))
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+
+    const load = () => {
+      isPhoneVerified()
+        .then((v) => {
+          if (!cancelled) setVerified(v);
+        })
+        .catch((err) => console.error("Failed to check phone verification", err))
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    };
+
+    load();
+    /*
+     * This one gates the request form, so a stale answer is a wrong gate:
+     * carried over from a verified account, it offers an unverified user a
+     * form whose insert RLS will refuse.
+     */
+    const { data: subscription } = getSupabase().auth.onAuthStateChange(() => load());
+
     return () => {
       cancelled = true;
+      subscription.subscription.unsubscribe();
     };
   }, []);
 
@@ -330,19 +353,51 @@ const STALE_AFTER_DAYS = 30;
 export function useCommitteeInbox() {
   const { verifying, loading: loadingMemberships } = useMyMemberships();
   const association = verifying[0]?.association ?? null;
-  const { requests, loading, refresh } = useWilayaRequests(association?.wilaya ?? null);
+  const wilaya = association?.wilaya ?? null;
+  const { requests, loading, refresh: refreshList } = useWilayaRequests(wilaya);
 
-  const waiting = requests.filter((r) => !r.verifiedByName).length;
-  const staleBefore = Date.now() - STALE_AFTER_DAYS * 86400000;
-  const stale = requests.filter((r) => new Date(r.createdAt).getTime() < staleBefore).length;
+  /*
+   * Counted in the database, not over `requests`.
+   *
+   * `requests` is capped at WILAYA_REQUEST_LIMIT for rendering, so deriving
+   * the badge from it would silently stop counting at the cap — and a badge
+   * that under-reports the backlog is read as authoritative and believed.
+   */
+  const [counts, setCounts] = useState({ waiting: 0, stale: 0 });
+
+  const loadCounts = useCallback(() => {
+    if (!wilaya) {
+      setCounts({ waiting: 0, stale: 0 });
+      return Promise.resolve();
+    }
+    const staleBefore = new Date(Date.now() - STALE_AFTER_DAYS * 86400000).toISOString();
+    return countWilayaRequests(wilaya, staleBefore)
+      .then(setCounts)
+      .catch((err) => console.error("Failed to count wilaya requests", err));
+  }, [wilaya]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadCounts().then(() => {
+      if (cancelled) return;
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadCounts]);
+
+  /** Verifying a request changes both the list and the badge. */
+  const refresh = async () => {
+    await Promise.all([refreshList(), loadCounts()]);
+  };
 
   return {
     isMember: verifying.length > 0,
     association,
     memberships: verifying,
     requests,
-    waiting,
-    stale,
+    waiting: counts.waiting,
+    stale: counts.stale,
     loading: loadingMemberships || loading,
     refresh,
   };

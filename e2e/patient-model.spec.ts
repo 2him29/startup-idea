@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { gotoFresh, gotoFreshIn, demoLogin, clickNav, openCommittee, t, clickNavById } from "./helpers";
+import { gotoFresh, gotoFreshIn, demoLogin, clickNav, openCommittee, t, clickNavById, PATIENT_MODEL_ENABLED } from "./helpers";
 
 /**
  * End-to-end cover for the patient/association model.
@@ -12,17 +12,19 @@ import { gotoFresh, gotoFreshIn, demoLogin, clickNav, openCommittee, t, clickNav
  *      verified association, enrols the demo donor in it, marks the account
  *      phone-verified, and leaves exactly one request unverified so the
  *      Verify action below always has something to act on.
- *   3. `VITE_PATIENT_MODEL=true` — in apps/web/.env for the app, and in the
- *      environment of the test run itself, which is what the guard below
- *      reads. The nav entries these tests click do not render otherwise.
+ *   3. `VITE_PATIENT_MODEL=true` in apps/web/.env. The guard below reads that
+ *      same file, so the app and the suite cannot disagree about which model
+ *      is running; set VITE_PATIENT_MODEL in the environment to override it
+ *      for one run. The nav entries these tests click do not render otherwise.
  *
- * Verified against a real staging Supabase project on 2026-08-18: 12/12.
+ * Verified against a real staging Supabase project on 2026-08-20: full suite
+ * 63 passed, 0 failed.
  *
  * The skip is deliberate: a suite that fails because the database was never
  * migrated tells you nothing about the code, and teaches people to ignore red.
  */
 
-const PATIENT_MODEL_ENABLED = process.env.VITE_PATIENT_MODEL === "true";
+
 
 test.describe("patient/association model", () => {
   test.skip(

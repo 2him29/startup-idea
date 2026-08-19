@@ -1,5 +1,36 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import type { Page } from "@playwright/test";
 import { I18N, dir as dirFor, type Lang, type Strings } from "../packages/core/src/i18n";
+
+/**
+ * Whether the app under test is running the patient/association model.
+ *
+ * Read from apps/web/.env — the same file Vite reads — because the app and the
+ * suite must never disagree about this. They used to: the specs consulted
+ * process.env while the browser got its answer from .env, so setting the flag
+ * in one place produced a run where the legacy tests exercised an app that no
+ * longer had a hospital account (18 failures that looked like regressions) and
+ * the patient-model tests silently skipped. One flag, one source.
+ *
+ * An explicit environment variable still wins, so a single run can be forced
+ * either way without editing .env.
+ */
+export const PATIENT_MODEL_ENABLED = (() => {
+  if (process.env.VITE_PATIENT_MODEL !== undefined) {
+    return process.env.VITE_PATIENT_MODEL === "true";
+  }
+  // process.cwd(), not import.meta: Playwright transpiles specs to CommonJS,
+  // where import.meta is a syntax error. Playwright resolves its config from
+  // the repo root, so that is the cwd for the run.
+  try {
+    const env = readFileSync(path.resolve(process.cwd(), "apps", "web", ".env"), "utf8");
+    return /^\s*VITE_PATIENT_MODEL\s*=\s*true\s*$/m.test(env);
+  } catch {
+    // No .env at all: the app falls back to the legacy flow, so match it.
+    return false;
+  }
+})();
 
 /**
  * Shared steps for the Qatra suite.

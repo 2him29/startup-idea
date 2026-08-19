@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, BadgeCheck, Check, Clock, Droplet, MapPin, ShieldQuestion, X } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Check, Clock, Droplet, Info, MapPin, ShieldQuestion, X } from "lucide-react";
 import {
   unitsLabel,
   urgencyStyle,
@@ -41,6 +41,14 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
   const active = verifying[activeIndex]?.association ?? null;
   const { requests, loading, refresh } = useWilayaRequests(active?.wilaya ?? null);
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  /**
+   * Verification binds the association's name, so RLS allows it only for its
+   * admins (migration 20260820120000). Volunteers still get the list — knowing
+   * what is waiting is most of the job — but offering them a button the
+   * database will refuse would turn a rule into a bug report.
+   */
+  const canVerify = verifying[activeIndex]?.role === "admin";
 
   const handleVerify = async (requestId: string) => {
     if (!active) return;
@@ -275,23 +283,40 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
                 </div>
               )}
 
-              <button
-                // The nav carries a "Verify" label too, so tests need a way to
-                // reach this action that cannot accidentally match the sidebar
-                // or the bottom bar.
-                data-testid="verify-request"
-                onClick={() => (isVerified ? handleUnverify(r.id) : handleVerify(r.id))}
-                disabled={busy}
-                className="cursor-pointer disabled:opacity-60 mt-3.5 w-full h-[46px] rounded-2xl text-[14px] font-extrabold flex items-center justify-center gap-2 border-none"
-                style={
-                  isVerified
-                    ? { background: "#F1F5F6", color: "#5A6B75" }
-                    : { background: "linear-gradient(135deg,#12B76A,#0E9F5B)", color: "#fff" }
-                }
-              >
-                {isVerified ? <X className="w-[17px] h-[17px]" /> : <BadgeCheck className="w-[17px] h-[17px]" />}
-                {isVerified ? t.unverifyAction : t.verifyAction}
-              </button>
+              {canVerify ? (
+                <button
+                  // The nav carries a "Verify" label too, so tests need a way to
+                  // reach this action that cannot accidentally match the sidebar
+                  // or the bottom bar.
+                  data-testid="verify-request"
+                  onClick={() => (isVerified ? handleUnverify(r.id) : handleVerify(r.id))}
+                  disabled={busy}
+                  className="cursor-pointer disabled:opacity-60 mt-3.5 w-full h-[46px] rounded-2xl text-[14px] font-extrabold flex items-center justify-center gap-2 border-none"
+                  style={
+                    isVerified
+                      ? { background: "#F1F5F6", color: "#5A6B75" }
+                      : { background: "linear-gradient(135deg,#12B76A,#0E9F5B)", color: "#fff" }
+                  }
+                >
+                  {isVerified ? <X className="w-[17px] h-[17px]" /> : <BadgeCheck className="w-[17px] h-[17px]" />}
+                  {isVerified ? t.unverifyAction : t.verifyAction}
+                </button>
+              ) : (
+                /* Said once per card would be nagging; said once, at the top of
+                   the list, is where a volunteer looks for why the button is
+                   missing. Rendered here only when the card would have had one. */
+                !isVerified && (
+                  <div
+                    className="mt-3.5 flex items-start gap-2.5 rounded-2xl px-3.5 py-3"
+                    style={{ background: "#F7FAFB", border: "1px solid rgba(11,36,50,0.06)", textAlign: "start" }}
+                  >
+                    <Info className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#8496A0" }} />
+                    <span className="text-[12px] leading-relaxed" style={{ color: "#5A6B75" }}>
+                      {t.verifyAdminsOnly}
+                    </span>
+                  </div>
+                )
+              )}
             </div>
           );
         })}

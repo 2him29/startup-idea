@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { gotoFresh, gotoFreshIn, switchLanguage, demoLogin, t, expectedDir, LANGUAGES } from "./helpers";
+import { gotoFresh, gotoFreshIn, switchLanguage, demoLogin, t, expectedDir, LANGUAGES, PATIENT_MODEL_ENABLED } from "./helpers";
 
 /**
  * Regression cover for the pre-patient-model app.
@@ -21,7 +21,7 @@ import { gotoFresh, gotoFreshIn, switchLanguage, demoLogin, t, expectedDir, LANG
  * counterpart to patient-model.spec.ts, which asserts the same surfaces are
  * gone with it on — so each suite is correct exactly when the other skips.
  */
-const PATIENT_MODEL_ENABLED = process.env.VITE_PATIENT_MODEL === "true";
+
 
 test.describe("splash screen", () => {
   for (const lang of LANGUAGES) {
