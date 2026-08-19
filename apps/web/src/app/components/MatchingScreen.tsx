@@ -17,10 +17,17 @@ interface MatchingScreenProps {
 
 const ALGIERS_CENTER: [number, number] = [36.7755, 3.0597];
 
-function urgencyIcon(color: string) {
+function urgencyIcon(color: string, count: number) {
+  // The count rides on the pin because one hospital routinely holds several
+  // requests — Blida has a single hospital in the directory — and a bare dot
+  // gives a donor no reason to open it.
+  const badge =
+    count > 1
+      ? `<span style="position:absolute;top:-6px;inset-inline-end:-6px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#0B2432;color:#fff;font:700 10px/16px 'Plus Jakarta Sans',system-ui,sans-serif;text-align:center;box-sizing:border-box">${count}</span>`
+      : "";
   return L.divIcon({
     className: "",
-    html: `<div style="width:20px;height:20px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 2px 6px rgba(11,36,50,0.4)"></div>`,
+    html: `<div style="position:relative;width:20px;height:20px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 2px 6px rgba(11,36,50,0.4)">${badge}</div>`,
     iconSize: [20, 20],
     iconAnchor: [10, 10],
   });
@@ -70,7 +77,13 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
     ...group,
     // The pin takes the colour of the most urgent request it stands for —
     // a critical case must not be hidden behind a low-urgency dot.
-    requests: [...group.requests].sort((a, b) => URGENCY_RANK[a.urgency] - URGENCY_RANK[b.urgency]),
+    // Urgency first, then recency: a donor opening a pin is triaging, and
+    // between two Critical requests the newer one is the one still live.
+    requests: [...group.requests].sort(
+      (a, b) =>
+        URGENCY_RANK[a.urgency] - URGENCY_RANK[b.urgency] ||
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ),
   }));
 
   // Re-center the map on the filtered wilaya's own hospitals instead of always
@@ -123,7 +136,17 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
         </div>
       )}
 
-      {/* map */}
+      {/*
+        The map is an enhancement, not a fixture.
+
+        Coordinates come from the hospital directory, which covers 12 of 58
+        wilayas — so in the other 46 there is nothing to plot. Rendering an
+        empty grey rectangle there would tell a donor in Tissemsilt that
+        something is broken, when in fact the list below is the whole product.
+        The slot is removed, not emptied, and returns wherever coordinates
+        exist.
+      */}
+      {markerGroups.length > 0 && (
       <div className="rounded-[22px] overflow-hidden h-[220px] relative border shadow-[0_12px_26px_-18px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.08)" }}>
         <MapContainer key={effectiveWilaya ?? "all"} center={mapCenter} zoom={mapZoom} scrollWheelZoom style={{ width: "100%", height: "100%" }}>
           <TileLayer
@@ -134,7 +157,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
             <Marker
               key={group.key}
               position={[group.lat, group.lng]}
-              icon={urgencyIcon(urgencyStyle[group.requests[0].urgency].bg)}
+              icon={urgencyIcon(urgencyStyle[group.requests[0].urgency].bg, group.requests.length)}
             >
               <Popup>
                 <div className="min-w-[170px] max-h-[220px] overflow-y-auto">
@@ -154,13 +177,21 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                       style={i > 0 ? { marginTop: "8px", borderTop: "1px solid rgba(11,36,50,0.08)" } : undefined}
                     >
                       <div className="flex items-center gap-1.5">
+                        {/* Type first: a donor is scanning for their own blood
+                            group, not for the hospital they already tapped. */}
+                        <span
+                          className="text-[11px] font-extrabold px-2 py-0.5 rounded-lg"
+                          style={{ background: "#FFECEC", color: "#E5484D" }}
+                        >
+                          {r.bloodType}
+                        </span>
                         <span
                           className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full"
                           style={{ background: urgencyStyle[r.urgency].bg, color: urgencyStyle[r.urgency].fg }}
                         >
                           {urgencyLabel(r.urgency, t)}
                         </span>
-                        <span className="text-[11px]" style={{ color: "#6B7C88" }}>{r.bloodType} · {r.distance}</span>
+                        <span className="text-[11px]" style={{ color: "#6B7C88" }}>{r.distance}</span>
                       </div>
                       {/* Same badge as the list below. A pin and a card are two
                           views of one request, so trust that shows in one and
@@ -189,6 +220,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
           <div className="text-[11px]" style={{ color: "#8496A0" }}>{bloodRequests.length} {t.nearby}</div>
         </div>
       </div>
+      )}
 
       {/* request list */}
       <div className="mt-5 flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">

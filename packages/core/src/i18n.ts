@@ -95,7 +95,7 @@ export interface Strings {
   contactConsentTitle: string; contactConsentBody: string; contactConsentToggle: string;
   contactConsentOn: string; contactConsentOff: string; navDonorsLabel: string;
   skipForNow: string; verifyLaterHint: string;
-  hospitalMatched: string; hospitalFreeTextHint: string;
+  hospitalMatched: string; hospitalFreeTextHint: string; hospitalNoDirectoryHint: string;
   unitsOne: string; unitsTwo: string; unitsFew: string;
   imPatient: string; patientSub: string; demoAsPatient: string; taglinePatient: string;
 
@@ -227,6 +227,7 @@ export const I18N: Record<Lang, Strings> = {
     staleBody: "Nothing closes them automatically. Call the families and clear the list.",
     hospitalMatched: "Matched to a known hospital — your request will show on the donor map.",
     hospitalFreeTextHint: "Pick from the list to place your request on the map, or type any hospital name.",
+    hospitalNoDirectoryHint: "We'll use exactly what you typed. Nothing else is needed.",
   },
   fr: {
     tagline: "Chaque goutte relie une vie. Reliez donneurs et hôpitaux à travers l'Algérie, en temps réel.",
@@ -349,6 +350,7 @@ export const I18N: Record<Lang, Strings> = {
     staleBody: "Rien ne les ferme automatiquement. Appelez les familles et videz la liste.",
     hospitalMatched: "Hôpital reconnu — votre demande apparaîtra sur la carte des donneurs.",
     hospitalFreeTextHint: "Choisissez dans la liste pour apparaître sur la carte, ou saisissez n'importe quel hôpital.",
+    hospitalNoDirectoryHint: "Nous utiliserons exactement ce que vous avez saisi. Rien d'autre n'est nécessaire.",
   },
   ar: {
     tagline: "كل قطرة تصل حياةً. اربط المتبرعين والمستشفيات عبر الجزائر، في الوقت الفعلي.",
@@ -471,5 +473,6 @@ export const I18N: Record<Lang, Strings> = {
     staleBody: "لا شيء يغلقها تلقائياً. اتصل بالعائلات وأفرغ القائمة.",
     hospitalMatched: "مستشفى معروف — سيظهر طلبك على خريطة المتبرعين.",
     hospitalFreeTextHint: "اختر من القائمة ليظهر طلبك على الخريطة، أو اكتب اسم أي مستشفى.",
+    hospitalNoDirectoryHint: "سنستخدم ما كتبته تماماً. لا حاجة لشيء آخر.",
   },
 };

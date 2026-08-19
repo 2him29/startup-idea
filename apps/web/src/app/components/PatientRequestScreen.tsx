@@ -189,8 +189,26 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
               <option key={h.id} value={h.name} />
             ))}
           </datalist>
-          <div className="mt-1.5 mb-4 text-[11.5px]" style={{ color: matchedHospital ? "#0E7A4B" : "#8496A0", textAlign: "start" }}>
-            {matchedHospital ? t.hospitalMatched : t.hospitalFreeTextHint}
+          {/*
+            Three states, and none of them is a failure.
+
+            The directory covers 12 of 58 wilayas, so "no suggestions" is the
+            common case, not an error — in Tissemsilt there is nothing to
+            match against and never will be. A field that searched and
+            announced "no results" would teach a family they had typed
+            something wrong. This one only ever confirms: it offers
+            suggestions silently where they exist, and otherwise says plainly
+            that what they typed is enough.
+          */}
+          <div
+            className="mt-1.5 mb-4 text-[11.5px]"
+            style={{ color: matchedHospital ? "#0E7A4B" : "#8496A0", textAlign: "start" }}
+          >
+            {matchedHospital
+              ? t.hospitalMatched
+              : suggestions.length > 0
+              ? t.hospitalFreeTextHint
+              : t.hospitalNoDirectoryHint}
           </div>
 
           <label className="block text-[12.5px] font-bold mb-2" style={{ color: "#5A6B75", textAlign: "start" }}>{t.unitsNeeded}</label>
