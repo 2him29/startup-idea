@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, ArrowLeft, BadgeCheck, Check, Clock, Droplet, Info, MapPin, ShieldQuestion, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BadgeCheck, Check, ChevronDown, Clock, Droplet, Info, MapPin, ShieldQuestion, X } from "lucide-react";
 import {
   unitsLabel,
   urgencyStyle,
@@ -21,6 +21,7 @@ import { useToast } from "./Toast";
 import { RequestCardSkeleton } from "./Skeletons";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { VouchConfirm } from "./VouchConfirm";
+import { PlausibilityPanel } from "./PlausibilityPanel";
 
 interface AssociationConsoleProps {
   onBack: () => void;
@@ -100,6 +101,13 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
    * which is the part a volunteer should see before, not after.
    */
   const [confirming, setConfirming] = useState<BloodRequest | null>(null);
+
+  /*
+   * Opened one at a time. The panel reads the family's phone number, so
+   * expanding every card at once would mean pulling the contact details of a
+   * whole wilaya to read one of them.
+   */
+  const [openDetail, setOpenDetail] = useState<string | null>(null);
 
   const handleVerify = async (requestId: string) => {
     if (!active) return;
@@ -381,6 +389,28 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
                 exists to fix. Vouching for one would launder that staleness
                 into the committee's own credibility.
               */}
+              {/* Only for admins: this is the material you read in order to
+                  vouch, and it follows the right to vouch. */}
+              {canVerify && (
+                <button
+                  onClick={() => setOpenDetail(openDetail === r.id ? null : r.id)}
+                  data-testid="plausibility-toggle"
+                  className="cursor-pointer mt-3 w-full flex items-center justify-between gap-2 rounded-2xl px-3.5 py-2.5 border-none"
+                  style={{ background: "#F1F5F6" }}
+                >
+                  <span className="flex items-center gap-2 text-[12.5px] font-bold" style={{ color: "#5A6B75" }}>
+                    <ShieldQuestion className="w-4 h-4" />
+                    {t.whoPostedThis}
+                  </span>
+                  <ChevronDown
+                    className="w-4 h-4"
+                    style={{ color: "#8496A0", transform: openDetail === r.id ? "rotate(180deg)" : undefined }}
+                  />
+                </button>
+              )}
+
+              {canVerify && openDetail === r.id && <PlausibilityPanel requestId={r.id} />}
+
               {stale && !isVerified && (
                 <div className="mt-3 rounded-2xl px-3.5 py-3" style={{ background: "#FFF3E0", border: "1px solid rgba(245,135,31,0.3)" }}>
                   <div className="flex items-start gap-2.5">

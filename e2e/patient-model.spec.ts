@@ -196,6 +196,35 @@ test.describe("patient/association model", () => {
     await expect(nudge).toHaveText(/^[1-9]\d* open more than a month$/);
   });
 
+  /**
+   * The signals a committee actually weighs.
+   *
+   * Nobody vouches for a hospital, so the console has to answer "is this plea
+   * real": who posted it, can we reach them, did they have a file number, is
+   * the hospital one we know. The poster's name comes from `profiles`, which
+   * stays owner-only — request_plausibility() is the narrow window, not a
+   * widened policy.
+   */
+  test("the console can show who posted a request", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+    await openCommittee(page, "verify");
+    await expect(page.getByText("Association console")).toBeVisible();
+
+    const toggle = page.getByTestId("plausibility-toggle").first();
+    await toggle.waitFor({ state: "visible", timeout: 30_000 });
+    await toggle.click();
+
+    const panel = page.getByTestId("plausibility-panel").first();
+    await expect(panel).toBeVisible({ timeout: 20_000 });
+    await expect(panel.getByText(/Posted by /)).toBeVisible();
+    // Stated either way, never left blank: an absent file number is the common
+    // case, not a mark against a family.
+    await expect(
+      panel.getByText(new RegExp(`${t("en").noFileRef}|File`))
+    ).toBeVisible();
+  });
+
   test("cancelling the vouch sheet publishes nothing", async ({ page }) => {
     await gotoFresh(page);
     await demoLogin(page, "donor");

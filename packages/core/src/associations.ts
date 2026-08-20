@@ -180,3 +180,40 @@ export async function isPlatformAdmin(): Promise<boolean> {
   if (error) throw error;
   return Boolean(data);
 }
+
+/** The signals a committee weighs before vouching for a request. */
+export interface RequestPlausibility {
+  postedByName: string | null;
+  postedByPhoneVerified: boolean;
+  contactPhone: string | null;
+  /** The hospital's own file reference, as the family typed it. Often absent. */
+  fileRef: string | null;
+  /** Whether the named hospital matched our directory, and so has a map pin. */
+  inDirectory: boolean;
+}
+
+/**
+ * Read who posted a request and how reachable they are.
+ *
+ * Fetched per request rather than joined into the list: it reaches into
+ * `profiles`, which is owner-only, through a SECURITY DEFINER function that
+ * exists precisely so that table's policy does not have to be widened. Pulling
+ * it for fifty rows at once would also be reading fifty families' phone
+ * numbers to look at one.
+ *
+ * Throws for anyone who is not an admin of a verifying association in the
+ * request's wilaya — the same right that allows vouching.
+ */
+export async function fetchRequestPlausibility(requestId: string): Promise<RequestPlausibility | null> {
+  const { data, error } = await getSupabase().rpc("request_plausibility", { p_request_id: requestId });
+  if (error) throw error;
+  const row = (data as Array<Record<string, unknown>> | null)?.[0];
+  if (!row) return null;
+  return {
+    postedByName: (row.posted_by_name as string) ?? null,
+    postedByPhoneVerified: Boolean(row.posted_by_phone_verified),
+    contactPhone: (row.contact_phone as string) ?? null,
+    fileRef: (row.file_ref as string) ?? null,
+    inDirectory: Boolean(row.in_directory),
+  };
+}

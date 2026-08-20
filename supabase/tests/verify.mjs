@@ -213,6 +213,29 @@ async function checkRls() {
   await check("volunteer cannot read the patient row behind a request", () =>
     asUser(ids.volunteer, () => expectRows("select 1 from patients where id=$1", [patient], 0)));
 
+  section("plausibility: what a committee may read in order to vouch");
+  /*
+   * profiles is readable by its owner alone, and stays that way. This function
+   * is the narrow exception: the poster's name and reachability, for one
+   * request, to the people entitled to vouch for it.
+   */
+  await check("a verifying admin can read the plausibility signals", () =>
+    asUser(ids.member, async () => {
+      const r = await client.query("select * from request_plausibility($1)", [request]);
+      if (r.rowCount !== 1) throw new Error("no row returned");
+      if (r.rows[0].posted_by_name !== "family") throw new Error(`wrong poster: ${r.rows[0].posted_by_name}`);
+      if (r.rows[0].posted_by_phone_verified !== true) throw new Error("phone_verified not reported");
+    }));
+  await check("a volunteer of the same association cannot", () =>
+    asUser(ids.volunteer, () => expectDenied("select * from request_plausibility($1)", [request])));
+  await check("an association in another wilaya cannot", () =>
+    asUser(ids.wrongWilaya, () => expectDenied("select * from request_plausibility($1)", [request])));
+  await check("an ordinary donor cannot", () =>
+    asUser(ids.donor, () => expectDenied("select * from request_plausibility($1)", [request])));
+  // The point of the function is that it does not widen the table it reads.
+  await check("and profiles itself is still owner-only", () =>
+    asUser(ids.member, () => expectRows("select 1 from profiles where id=$1", [ids.family], 0)));
+
   section("is_verified: only via verify_association()");
   await check("member cannot self-verify directly", () =>
     asUser(ids.member, () => expectDenied("update associations set is_verified=true where id=$1", [pending])));
@@ -597,6 +620,18 @@ const pg = new EmbeddedPostgres({
   password: "postgres",
   port: 55432,
   persistent: false,
+  /*
+   * Initialise the cluster as UTF-8, not the host default.
+   *
+   * initdb otherwise takes its encoding from the machine's locale, which on a
+   * French Windows install is WIN1252. Migrations are UTF-8 files and
+   * legitimately contain characters that encoding has no room for — a NUMERO
+   * SIGN inside a comment was enough to abort one with "has no equivalent in
+   * encoding WIN1252", which reads as a SQL error and is nothing of the kind.
+   * Arabic in a seed would fail the same way, and Supabase itself is UTF-8, so
+   * this also makes the harness match what it stands in for.
+   */
+  initdbFlags: ["-E", "UTF8", "--locale=C"],
 });
 
 async function main() {
@@ -604,6 +639,18 @@ async function main() {
   await pg.start();
   client = pg.getPgClient();
   await client.connect();
+
+  /*
+   * Speak UTF-8 to the server, whatever Windows thinks the console codepage is.
+   *
+   * embedded-postgres initialises the cluster with the host's default, which on
+   * a French Windows install is WIN1252. Migrations are UTF-8 files and
+   * legitimately contain characters WIN1252 has no room for — a NUMERO SIGN in
+   * a comment was enough to abort a migration with "has no equivalent in
+   * encoding WIN1252", which reads as a SQL error and is not one. Arabic in a
+   * seed would fail the same way.
+   */
+  await client.query("set client_encoding to 'UTF8'");
 
   const version = (await client.query("select version()")).rows[0].version.split(",")[0];
   console.log(`${version}\n(not Supabase: auth schema is stubbed, no PostgREST/GoTrue)`);

@@ -93,6 +93,10 @@ export interface Strings {
   openDays: string;
   healthDataBannerTitle: string; healthDataBannerBody: string;
   revealNumber: string; revealedJustNow: string; revealing: string;
+  whoPostedThis: string; postedByName: string;
+  phoneVerifiedLabel: string; phoneUnverifiedLabel: string;
+  fileRefLabel: string; noFileRef: string; inDirectoryLabel: string;
+  familyContactNote: string;
   assocConsoleTitle: string; assocConsoleSub: string; verifyAction: string; unverifyAction: string;
   verifyAdminsOnly: string;
   verifiedToast: string; unverifiedToast: string; noRequestsWilaya: string;
@@ -232,6 +236,10 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Share on WhatsApp", postedSeeMine: "See my request", postedStartAgain: "Start again",
     assocConsoleTitle: "Association console", assocConsoleSub: "Open requests in {wilaya}",
     verifyAction: "Verify", unverifyAction: "Remove verification",
+    whoPostedThis: "Who posted this", postedByName: "Posted by {name}",
+    phoneVerifiedLabel: "Phone verified", phoneUnverifiedLabel: "Phone not verified",
+    fileRefLabel: "File № {ref}", noFileRef: "No file number given", inDirectoryLabel: "In the hospital directory",
+    familyContactNote: "Family's contact number · handled under Loi 18-07",
     healthDataBannerTitle: "Health data — reveal only what you'll use",
     healthDataBannerBody: "Each number you open is written to your committee's log with your name and the time. Loi 18-07 / 25-11.",
     revealNumber: "Reveal number", revealedJustNow: "Opened by you just now · logged", revealing: "Opening…",
@@ -415,6 +423,10 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Partager sur WhatsApp", postedSeeMine: "Voir ma demande", postedStartAgain: "Recommencer",
     assocConsoleTitle: "Console association", assocConsoleSub: "Demandes ouvertes à {wilaya}",
     verifyAction: "Vérifier", unverifyAction: "Retirer la vérification",
+    whoPostedThis: "Qui a publié la demande", postedByName: "Publiée par {name}",
+    phoneVerifiedLabel: "Numéro vérifié", phoneUnverifiedLabel: "Numéro non vérifié",
+    fileRefLabel: "Dossier n° {ref}", noFileRef: "Aucun numéro de dossier fourni", inDirectoryLabel: "Dans l'annuaire des hôpitaux",
+    familyContactNote: "Numéro de contact de la famille · traité selon la loi 18-07",
     healthDataBannerTitle: "Données de santé — n'ouvrez que ce que vous utiliserez",
     healthDataBannerBody: "Chaque numéro que vous ouvrez est inscrit au journal de votre comité avec votre nom et l'heure. Loi 18-07 / 25-11.",
     revealNumber: "Afficher le numéro", revealedJustNow: "Ouvert par vous à l'instant · enregistré", revealing: "Ouverture…",
@@ -598,6 +610,10 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "المشاركة عبر واتساب", postedSeeMine: "عرض طلبي", postedStartAgain: "البدء من جديد",
     assocConsoleTitle: "لوحة الجمعية", assocConsoleSub: "الطلبات المفتوحة في {wilaya}",
     verifyAction: "توثيق", unverifyAction: "إزالة التوثيق",
+    whoPostedThis: "من نشر الطلب", postedByName: "نشره {name}",
+    phoneVerifiedLabel: "رقم موثّق", phoneUnverifiedLabel: "رقم غير موثّق",
+    fileRefLabel: "ملف رقم {ref}", noFileRef: "لم يُذكر رقم الملف", inDirectoryLabel: "موجود في دليل المستشفيات",
+    familyContactNote: "رقم التواصل بالعائلة · يُعالَج وفق القانون 18-07",
     healthDataBannerTitle: "بيانات صحية — لا تفتح إلا ما ستستخدمه",
     healthDataBannerBody: "يُسجّل كل رقم تفتحه في سجل لجنتك مع اسمك والوقت. القانون 18-07 / 25-11.",
     revealNumber: "إظهار الرقم", revealedJustNow: "فتحته الآن · مُسجّل", revealing: "جارٍ الفتح…",
