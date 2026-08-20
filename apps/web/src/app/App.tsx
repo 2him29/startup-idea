@@ -5,6 +5,7 @@ import { DonorRegistration } from "./components/DonorRegistration";
 import { HospitalDashboard } from "./components/HospitalDashboard";
 import { MatchingScreen } from "./components/MatchingScreen";
 import { RequestDetail } from "./components/RequestDetail";
+import { RequestPostedScreen } from "./components/RequestPostedScreen";
 import { MatchConfirm } from "./components/MatchConfirm";
 import { CompensateScreen } from "./components/CompensateScreen";
 import { HospitalConsole } from "./components/HospitalConsole";
@@ -15,7 +16,7 @@ import { EditProfileScreen } from "./components/EditProfileScreen";
 import { SettingsScreen } from "./components/SettingsScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { Sidebar } from "./components/Sidebar";
-import { PatientRequestScreen } from "./components/PatientRequestScreen";
+import { PatientRequestScreen, type RequestDraft } from "./components/PatientRequestScreen";
 import { PhoneVerificationScreen } from "./components/PhoneVerificationScreen";
 import { AssociationConsole } from "./components/AssociationConsole";
 import { CommitteeHub } from "./components/CommitteeHub";
@@ -23,7 +24,7 @@ import { DonorSearchScreen } from "./components/DonorSearchScreen";
 import { AssociationApplyScreen } from "./components/AssociationApplyScreen";
 import { ConsentScreen } from "./components/ConsentScreen";
 import { DataRightsScreen } from "./components/DataRightsScreen";
-import { bloodRequests, isPatientModelEnabled, signInDemo, signOut, useSession, type BloodRequest, type Profile } from "@weare/core";
+import { bloodRequests, createPatientRequest, isPatientModelEnabled, signInDemo, signOut, unitsLabel, useSession, wilayaLabel, type BloodRequest, type Profile } from "@weare/core";
 import { useI18n } from "./i18n/LangContext";
 import { WifiOff } from "lucide-react";
 
@@ -64,7 +65,7 @@ function useOnline(): boolean {
 
 export default function App() {
   const { profile, loading: sessionLoading, refresh: refreshProfile } = useSession();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const online = useOnline();
   const [currentScreen, setCurrentScreen] = useState<string>("home");
   const [userType, setUserType] = useState<"donor" | "hospital" | null>(null);
@@ -100,6 +101,47 @@ export default function App() {
    * blocked on.
    */
   const [afterVerify, setAfterVerify] = useState<string>("home");
+
+  /*
+   * The request being posted, held across the verification detour.
+   *
+   * Kept in memory rather than localStorage on purpose. This is a patient's
+   * name, blood type and a contact number — health data under Loi 18-07 — and
+   * persisting it to disk would outlive the flow, survive the tab closing, and
+   * sit there for the next person to use the phone. A reload mid-verification
+   * loses the draft; that is the right trade against leaving medical details
+   * on a shared device.
+   */
+  const [requestDraft, setRequestDraft] = useState<RequestDraft | null>(null);
+  const [postedDraft, setPostedDraft] = useState<RequestDraft | null>(null);
+
+  /**
+   * Verification succeeded. If a request was waiting on it, post it now.
+   *
+   * The whole point of letting the form run first is that the person does not
+   * have to type it again, so finishing the job here is the promise being
+   * kept — a return to a still-filled form with the button live would be a
+   * second ask after they already pressed Post.
+   *
+   * A failure leaves the draft alone and returns to the form, where the error
+   * belongs and where the text is still on screen.
+   */
+  const handleVerified = async () => {
+    const draft = requestDraft;
+    if (!draft) {
+      setCurrentScreen(afterVerify);
+      return;
+    }
+    try {
+      await createPatientRequest(draft);
+      setRequestDraft(null);
+      setPostedDraft(draft);
+      setCurrentScreen("request-posted");
+    } catch (err) {
+      console.error("Failed to post the held request after verification", err);
+      setCurrentScreen("post-request");
+    }
+  };
 
   const handleAuthenticated = (authProfile: Profile, isNewAccount: boolean) => {
     setUserType(authProfile.role);
@@ -218,8 +260,12 @@ export default function App() {
         return patientModel ? (
           <PatientRequestScreen
             onBack={handleBack}
-            onPosted={() => setCurrentScreen("matching")}
-            onNeedsVerification={() => {
+            onPosted={(draft) => {
+              setPostedDraft(draft);
+              setCurrentScreen("request-posted");
+            }}
+            onNeedsVerification={(draft) => {
+              setRequestDraft(draft);
               setAfterVerify("post-request");
               setCurrentScreen("verify-phone");
             }}
@@ -231,12 +277,37 @@ export default function App() {
         return patientModel ? (
           <PhoneVerificationScreen
             onBack={() => setCurrentScreen(afterVerify)}
-            onVerified={() => setCurrentScreen(afterVerify)}
+            onVerified={handleVerified}
+            draftSummary={
+              requestDraft
+                ? [
+                    requestDraft.patientName,
+                    requestDraft.bloodType,
+                    unitsLabel(requestDraft.units, t, lang),
+                    requestDraft.hospitalName.trim() || wilayaLabel(requestDraft.wilaya, lang),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")
+                : undefined
+            }
             // Skippable only as a registration step. Arriving here from the
             // request form means the user already tried to do something the
             // database will reject without a verified number, so offering
             // "skip" there would just send them back into the same wall.
             onSkip={afterVerify === "home" ? () => setCurrentScreen("home") : undefined}
+          />
+        ) : (
+          fallbackHome
+        );
+      case "request-posted":
+        return patientModel && postedDraft ? (
+          <RequestPostedScreen
+            draft={postedDraft}
+            onSeeRequest={() => setCurrentScreen("matching")}
+            onStartAgain={() => {
+              setPostedDraft(null);
+              setCurrentScreen("post-request");
+            }}
           />
         ) : (
           fallbackHome

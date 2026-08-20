@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, Info, ShieldCheck, Smartphone } from "lucide-react";
+import { ArrowLeft, FileText, Info, ShieldCheck, Smartphone } from "lucide-react";
 import { sendVerificationCode, confirmVerificationCode, normalizeAlgerianPhone } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
+import { FlowSteps } from "./FlowSteps";
 
 interface PhoneVerificationScreenProps {
   onBack: () => void;
@@ -13,6 +14,15 @@ interface PhoneVerificationScreenProps {
    * chosen to take.
    */
   onSkip?: () => void;
+  /**
+   * One line describing the request waiting behind this screen, e.g.
+   * "Amel K. · O− · 3 units · CHU Mustapha Pacha".
+   *
+   * Present only when arriving mid-flow from the request form. Showing the
+   * draft back is the difference between "we saved your work" as a claim and
+   * as evidence — and this screen exists because we interrupted someone.
+   */
+  draftSummary?: string;
 }
 
 /**
@@ -24,7 +34,7 @@ interface PhoneVerificationScreenProps {
  * swappable (see packages/core/src/otp.ts); nothing here knows which one is
  * configured.
  */
-export function PhoneVerificationScreen({ onBack, onVerified, onSkip }: PhoneVerificationScreenProps) {
+export function PhoneVerificationScreen({ onBack, onVerified, onSkip, draftSummary }: PhoneVerificationScreenProps) {
   const { t, dir } = useI18n();
   const toast = useToast();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
@@ -101,6 +111,25 @@ export function PhoneVerificationScreen({ onBack, onVerified, onSkip }: PhoneVer
         </div>
       </div>
 
+      {draftSummary && <FlowSteps current="verify" />}
+
+      {/*
+        The draft, shown rather than promised.
+
+        This screen appears because the app interrupted someone who had just
+        finished typing. "Saved as a draft" is a claim; the summary underneath
+        is the evidence, and it is what stops the back button being pressed.
+      */}
+      {draftSummary && (
+        <div className="flex items-start gap-3 rounded-2xl p-4 mb-4" style={{ background: "#F7FAFB", border: "1px solid rgba(11,36,50,0.08)" }}>
+          <FileText className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#5A6B75" }} />
+          <div style={{ textAlign: "start" }}>
+            <div className="text-[13px] font-extrabold" style={{ color: "#0B2432" }}>{t.draftSavedTitle}</div>
+            <div className="text-[12.5px] mt-1 leading-relaxed" style={{ color: "#5A6B75" }}>{draftSummary}</div>
+          </div>
+        </div>
+      )}
+
       {/*
         Why, before what. Asking for a phone number without a reason reads as
         data collection; naming the donor on the other end makes it the point
@@ -110,6 +139,9 @@ export function PhoneVerificationScreen({ onBack, onVerified, onSkip }: PhoneVer
         <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#0E8BA8" }} />
         <div style={{ textAlign: "start" }}>
           <div className="text-[13px] font-extrabold" style={{ color: "#0B4A5A" }}>{t.verifyWhyTitle}</div>
+          {/* The general claim first, then the person it protects. Trust is
+              the abstraction; the donor crossing the wilaya is the reason. */}
+          <div className="text-[12.5px] mt-1 font-semibold" style={{ color: "#0B4A5A" }}>{t.verifyWhyLead}</div>
           <div className="text-[12.5px] mt-1 leading-relaxed" style={{ color: "#0B4A5A" }}>{t.verifyWhyBody}</div>
         </div>
       </div>

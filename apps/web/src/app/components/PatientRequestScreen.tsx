@@ -11,14 +11,37 @@ import {
   type Urgency,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
-import { useToast } from "./Toast";
 import { BloodType } from "./BloodType";
+import { FlowSteps } from "./FlowSteps";
+
+/** Everything the form collected, in the shape createPatientRequest() wants. */
+export interface RequestDraft {
+  patientName: string;
+  bloodType: string;
+  wilaya: string;
+  units: number;
+  urgency: Urgency;
+  hospitalName: string;
+  hospitalId?: string;
+  contactPhone: string;
+  patientFileRef: string;
+  /** True when the hospital matched the directory, so the request gets a map pin. */
+  mapped: boolean;
+}
 
 interface PatientRequestScreenProps {
   onBack: () => void;
-  onPosted: () => void;
-  /** Routes to phone verification, which RLS requires before a request can be inserted. */
-  onNeedsVerification: () => void;
+  onPosted: (draft: RequestDraft) => void;
+  /**
+   * Hands the filled-in draft to phone verification, which RLS requires before
+   * a request can be inserted.
+   *
+   * The draft travels rather than the form re-asking for it: verification
+   * interrupts *after* the form, so the words a frightened person found at 3am
+   * are already written down, and losing them to a detour we imposed would be
+   * unforgivable.
+   */
+  onNeedsVerification: (draft: RequestDraft) => void;
 }
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -34,7 +57,6 @@ const urgencies: Urgency[] = ["Critical", "High", "Medium", "Low"];
  */
 export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: PatientRequestScreenProps) {
   const { t, lang, dir } = useI18n();
-  const toast = useToast();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
   const { verified, loading: checkingVerification } = usePhoneVerified();
   const { hospitals } = useHospitals();
@@ -87,6 +109,10 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
   // hospital is nearly always in the patient's own province.
   const suggestions = hospitals.filter((h) => h.wilaya === wilaya);
 
+  // How many wilayas the directory actually covers — counted from the data so
+  // the copy cannot drift from it. It was 12 of 58 when this was written.
+  const coveredWilayas = new Set(hospitals.map((h) => h.wilaya)).size;
+
   /**
    * Resolve what the family typed against the directory.
    *
@@ -98,24 +124,42 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
     (h) => h.name.trim().toLowerCase() === hospitalName.trim().toLowerCase()
   );
 
+  const draft = (): RequestDraft => ({
+    patientName,
+    bloodType,
+    wilaya,
+    units,
+    urgency,
+    hospitalName,
+    hospitalId: matchedHospital?.id,
+    contactPhone,
+    patientFileRef: fileRef,
+    mapped: Boolean(matchedHospital),
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    /*
+     * Unverified: hand the draft over and let verification finish the job.
+     *
+     * Attempting the insert first would fail on the RLS phone-verification
+     * check and surface as a generic error on a form the person has just
+     * finished filling in — the worst possible moment to be told "something
+     * went wrong". The gate is known in advance, so honour it in advance.
+     */
+    if (!checkingVerification && !verified) {
+      onNeedsVerification(draft());
+      return;
+    }
+
     setPosting(true);
     try {
-      await createPatientRequest({
-        patientName,
-        bloodType,
-        wilaya,
-        units,
-        urgency,
-        hospitalName,
-        hospitalId: matchedHospital?.id,
-        contactPhone,
-        patientFileRef: fileRef,
-      });
-      toast("success", t.requestPosted);
-      onPosted();
+      await createPatientRequest(draft());
+      // No toast: the screen this navigates to leads with the same sentence,
+      // and a toast saying it over the top of it is the app talking twice.
+      onPosted(draft());
     } catch (err) {
       setError(err instanceof Error ? err.message : t.genericError);
       setPosting(false);
@@ -138,9 +182,13 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
         </div>
       </div>
 
+      <FlowSteps current="request" />
+
       {!checkingVerification && !verified && (
         <button
-          onClick={onNeedsVerification}
+          // Carries whatever has been typed so far. Tapping the banner
+          // mid-form is a detour, not a restart.
+          onClick={() => onNeedsVerification(draft())}
           className="cursor-pointer w-full flex items-start gap-3 rounded-2xl p-4 mb-4 border-none"
           style={{ background: "#FFF3E0", border: "1px solid rgba(245,135,31,0.3)", textAlign: "start" }}
         >
@@ -209,6 +257,22 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
               ))}
             </select>
             <ChevronDown className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none" style={{ insetInlineEnd: "14px", color: "#8496A0" }} />
+          </div>
+          {/*
+            Said before the hospital field, not after it.
+
+            Whether suggestions appear at all is a property of the wilaya, and
+            a family in Tissemsilt should learn that here — while choosing —
+            rather than by typing into a field that stays silent and wondering
+            what they got wrong. The count is derived, not written down, so it
+            stops being true the day a hospital is added.
+          */}
+          <div className="-mt-3 mb-4 text-[11.5px]" style={{ color: "#8496A0", textAlign: "start" }}>
+            {suggestions.length > 0
+              ? t.coverageMapped
+                  .replace("{wilaya}", wilayaLabel(wilaya, lang))
+                  .replace("{count}", String(coveredWilayas))
+              : t.coverageUnmapped.replace("{wilaya}", wilayaLabel(wilaya, lang))}
           </div>
 
           <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.hospitalNameOptional}</label>
@@ -352,6 +416,16 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
         >
           {posting ? t.posting : t.postRequestCta}
         </button>
+
+        {/* What the button is about to do, when it isn't what the label says.
+            An unverified account is one SMS away from posting, and knowing
+            that in advance turns the detour into a step rather than a
+            surprise. */}
+        {!checkingVerification && !verified && (
+          <div className="mt-2.5 text-center text-[11.5px] font-semibold" style={{ color: "#8496A0" }}>
+            {t.postCtaHint}
+          </div>
+        )}
 
         {/* Verification is a bonus, not a gate — say so before someone waits
             for a badge that may never come. */}

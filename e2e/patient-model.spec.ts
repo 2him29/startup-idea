@@ -69,20 +69,50 @@ test.describe("patient/association model", () => {
     await expect(page.getByText("For a patient or a family member")).toBeVisible();
   });
 
-  test("request form demands phone verification before posting", async ({ page }) => {
+  /**
+   * The interruption, and what survives it.
+   *
+   * Verification happens *after* the form so a 3am plea is written down while
+   * the person still has the words. That only works if the draft comes back:
+   * the whole design rests on the promise that pressing Post does not lose
+   * what was typed. This signs up a fresh (therefore unverified) account so
+   * the detour actually happens, rather than the conditional it replaced,
+   * which passed silently whenever the demo account was already verified.
+   *
+   * Needs VITE_DEMO_OTP=true, otherwise the code step needs real SMS.
+   */
+  test("verification interrupts after the form, and the draft survives", async ({ page }) => {
     await gotoFresh(page);
-    await demoLogin(page, "donor");
 
-    await clickNav(page, "Request");
+    const email = `e2e.flow.${Date.now()}@qatra.test`;
+    await page.getByRole("button", { name: "I'm a Donor" }).click();
+    await page.getByPlaceholder("Yacine B.").fill("E2E Flow");
+    await page.getByPlaceholder("you@email.com").fill(email);
+    await page.getByPlaceholder("••••••••").fill("WeAreDemo123!");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page.getByText("Verify your phone", { exact: true })).toBeVisible({ timeout: 30_000 });
+    await page.getByRole("button", { name: "Skip for now" }).click();
+    await expect(page.getByText(t("en").quickActions)).toBeVisible();
 
-    // Unverified accounts get the banner, and it routes to the OTP step
-    // rather than letting the form be submitted into an RLS rejection.
-    const banner = page.getByText("Verify your phone number before posting a request.");
-    if (await banner.isVisible()) {
-      await banner.click();
-      await expect(page.getByText("Verify your phone")).toBeVisible();
-      await expect(page.getByRole("button", { name: "Send code" })).toBeVisible();
-    }
+    await clickNavById(page, "post-request");
+    const patientName = `Flow ${Date.now()}`;
+    await page.getByPlaceholder("e.g. Amel K.").fill(patientName);
+    await page.locator("select").first().selectOption("Blida");
+    await page.getByPlaceholder("CHU Mustapha Pacha").fill("CHU Frantz Fanon – Blida");
+    await page.getByRole("button", { name: "Post request" }).click();
+
+    // Not an error, and not a lost form: the OTP step, carrying the draft.
+    await expect(page.getByText(t("en").draftSavedTitle)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(patientName)).toBeVisible();
+
+    await page.locator('input[inputmode="tel"]').fill("0555123456");
+    await page.getByRole("button", { name: "Send code" }).click();
+    await page.locator('input[inputmode="numeric"]').fill("000000");
+    await page.getByRole("button", { name: "Verify", exact: true }).click();
+
+    // Verification finishes the job it interrupted — no second Post press.
+    await expect(page.getByText(t("en").requestPosted)).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(t("en").postedWhatNow)).toBeVisible();
   });
 
   test("posting a request makes it visible on the find screen", async ({ page }) => {
@@ -97,6 +127,10 @@ test.describe("patient/association model", () => {
     await page.getByPlaceholder("CHU Mustapha Pacha").fill("CHU Test");
     await page.getByRole("button", { name: "Post request" }).click();
 
+    // The success screen now stands between posting and the list. It shows the
+    // request as a donor will see it; "See my request" is the way onward.
+    await expect(page.getByText(t("en").requestPosted)).toBeVisible({ timeout: 20_000 });
+    await page.getByRole("button", { name: t("en").postedSeeMine }).click();
     await expect(page.getByText("Urgent requests")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText("CHU Test").first()).toBeVisible();
   });
@@ -116,7 +150,7 @@ test.describe("patient/association model", () => {
     await page.locator("select").first().selectOption("Blida");
     await page.getByPlaceholder("CHU Mustapha Pacha").fill(marker);
     await page.getByRole("button", { name: "Post request" }).click();
-    await expect(page.getByText("Urgent requests")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(t("en").requestPosted)).toBeVisible({ timeout: 20_000 });
 
     await openCommittee(page, "verify");
     await expect(page.getByText("Association console")).toBeVisible();
@@ -336,6 +370,8 @@ test.describe("patient/association model", () => {
     await expect(page.getByText(t("en").hospitalMatched)).toBeVisible();
     await page.getByRole("button", { name: "Post request" }).click();
 
+    await expect(page.getByText(t("en").requestPosted)).toBeVisible({ timeout: 20_000 });
+    await page.getByRole("button", { name: t("en").postedSeeMine }).click();
     await expect(page.getByText(t("en").urgentRequests).first()).toBeVisible({ timeout: 15_000 });
 
     // Greater-than rather than exactly one more: both browser projects run

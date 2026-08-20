@@ -8,7 +8,10 @@ interface BottomNavigationProps {
   userType: "donor" | "hospital" | null;
 }
 
-const visibleOn = ["home", "matching", "profile", "hospital", "compensate", "post-request", "association", "donor-search", "committee"];
+// "request-posted" belongs here: it is the end of a flow, not a modal. Losing
+// the bar there strands someone on a success screen with no way back into the
+// app except the two buttons it happens to offer.
+const visibleOn = ["home", "matching", "profile", "hospital", "compensate", "post-request", "request-posted", "association", "donor-search", "committee"];
 
 export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomNavigationProps) {
   // Every hook runs before the early return below: React requires the same

@@ -34,3 +34,10 @@ Thumbs.db
 /backup*.sql
 /*-dump.sql
 /dump*.sql
+
+# Claude Design exports, dropped in the root to be read and then finished with.
+# They are large (several MB of screenshots) and the implemented result is the
+# thing worth versioning, not the archive it came from.
+/*.dc.html
+/Qatra*.zip
+/Design*.zip
