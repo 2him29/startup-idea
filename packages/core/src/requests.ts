@@ -19,6 +19,14 @@ export interface BloodRequest {
   /** Set on patient-authored requests; null on legacy hospital-authored ones. */
   patientRecordId: string | null;
   /**
+   * The patient's name, for the association console only.
+   *
+   * Null everywhere else — the donor-facing query does not ask for it, and RLS
+   * would refuse it if it did. Null also for a volunteer, who since
+   * 20260820120000 cannot verify and so has no need of it.
+   */
+  patientName?: string | null;
+  /**
    * Name of the association vouching for this request, or null when nobody
    * has. Verification is optional by design — an unverified request is still
    * shown, just without the badge, because a family in a wilaya with no active

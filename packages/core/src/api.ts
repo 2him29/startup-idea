@@ -20,6 +20,8 @@ interface BloodRequestRow {
   hospital_name?: string | null;
   verified_at?: string | null;
   verifier?: { name: string } | null;
+  /** Present only on the console query, and null when RLS filters it away. */
+  patient?: { full_name: string } | null;
 }
 
 /**
@@ -43,6 +45,10 @@ function toBloodRequest(row: BloodRequestRow): BloodRequest {
     wilaya: row.wilaya ?? row.hospitals?.wilaya ?? null,
     verifiedByName: row.verifier?.name ?? null,
     verifiedAt: row.verified_at ?? null,
+    // Only ever populated by the console query, and only for callers RLS lets
+    // read the patient row. A donor fetching the same request gets null here
+    // because the embed is filtered away, not because we chose to hide it.
+    patientName: row.patient?.full_name ?? null,
   };
 }
 
@@ -99,12 +105,32 @@ export async function fetchBloodRequests(): Promise<BloodRequest[]> {
  */
 export const WILAYA_REQUEST_LIMIT = 200;
 
+/**
+ * The console's own column list: the request, plus the name of the patient
+ * behind it.
+ *
+ * Kept separate from PATIENT_MODEL_COLUMNS on purpose. The donor-facing list
+ * must not ask for patient rows at all — the whole point of denormalising
+ * blood_type and hospital_name onto blood_requests was that a donor never
+ * needs the patients table. Here the embed is both allowed and useful: an
+ * association deciding whether a plea is real is looking at a person, and
+ * "CHU Lamine Debaghine" is not a person.
+ *
+ * A volunteer gets null for the name rather than an error: since
+ * 20260820120000 they are not a verifier, so the patients policy filters the
+ * embedded row away. The console renders the hospital instead, which is the
+ * right amount for someone who cannot vouch anyway.
+ */
+const CONSOLE_COLUMNS = `${PATIENT_MODEL_COLUMNS},
+  patient:patients(full_name)
+`;
+
 export async function fetchRequestsForWilaya(wilaya: string): Promise<BloodRequest[]> {
   // Always the extended shape: this endpoint only exists under the patient
   // model, so there is no legacy caller to keep compatible.
   const { data, error } = await getSupabase()
     .from("blood_requests")
-    .select(PATIENT_MODEL_COLUMNS)
+    .select(CONSOLE_COLUMNS)
     .eq("status", "open")
     .eq("wilaya", wilaya)
     .order("created_at", { ascending: false })

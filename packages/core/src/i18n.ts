@@ -84,6 +84,13 @@ export interface Strings {
   postedGeoMapped: string; postedGeoUnmapped: string;
   postedBadgeNote: string; postedPrivacyNote: string;
   postedShareWhatsApp: string; postedSeeMine: string; postedStartAgain: string;
+  groupNeedsReview: string; groupVerifiedByUs: string; groupOpenLongTime: string;
+  notInDirectory: string; vouchedBy: string;
+  staleWarnBody: string; callFamily: string;
+  confirmVouchTitle: string; confirmVouchBody: string; confirmVouchYes: string; confirmVouchCancel: string;
+  vouchingAs: string;
+  consoleEmptyTitle: string; consoleEmptyBody: string;
+  openDays: string;
   assocConsoleTitle: string; assocConsoleSub: string; verifyAction: string; unverifyAction: string;
   verifyAdminsOnly: string;
   verifiedToast: string; unverifiedToast: string; noRequestsWilaya: string;
@@ -223,6 +230,18 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Share on WhatsApp", postedSeeMine: "See my request", postedStartAgain: "Start again",
     assocConsoleTitle: "Association console", assocConsoleSub: "Open requests in {wilaya}",
     verifyAction: "Verify", unverifyAction: "Remove verification",
+    groupNeedsReview: "Needs review", groupVerifiedByUs: "Verified by us", groupOpenLongTime: "Open a long time",
+    notInDirectory: "Not in the hospital directory",
+    vouchedBy: "Attested by {name}",
+    staleWarnBody: "Nobody has closed this. Ask the family whether it is still open before vouching for it.",
+    callFamily: "Call family",
+    confirmVouchTitle: "Vouch for {patient}?",
+    confirmVouchBody: "Your committee's name goes on this request, and donors across {wilaya} will use it to decide whether to answer.",
+    confirmVouchYes: "Yes, verify it", confirmVouchCancel: "Cancel",
+    vouchingAs: "You are vouching as {name}.",
+    consoleEmptyTitle: "No open requests in this wilaya right now",
+    consoleEmptyBody: "Nothing to review. Requests appear here as soon as a family in {wilaya} posts one.",
+    openDays: "open {days} days",
     verifyAdminsOnly: "Only your committee's admins can verify a request — verifying signs the association's name to it. Ask an admin to review this one.",
     verifiedToast: "Request verified", unverifiedToast: "Verification removed",
     noRequestsWilaya: "No open requests in this wilaya right now",
@@ -391,6 +410,18 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Partager sur WhatsApp", postedSeeMine: "Voir ma demande", postedStartAgain: "Recommencer",
     assocConsoleTitle: "Console association", assocConsoleSub: "Demandes ouvertes à {wilaya}",
     verifyAction: "Vérifier", unverifyAction: "Retirer la vérification",
+    groupNeedsReview: "À examiner", groupVerifiedByUs: "Vérifiées par nous", groupOpenLongTime: "Ouvertes depuis longtemps",
+    notInDirectory: "Absent de l'annuaire des hôpitaux",
+    vouchedBy: "Attestée par {name}",
+    staleWarnBody: "Personne ne l'a clôturée. Demandez à la famille si elle est toujours d'actualité avant de l'attester.",
+    callFamily: "Appeler la famille",
+    confirmVouchTitle: "Attester la demande de {patient} ?",
+    confirmVouchBody: "Le nom de votre comité apparaîtra sur cette demande, et les donneurs de {wilaya} s'en serviront pour décider de répondre.",
+    confirmVouchYes: "Oui, la vérifier", confirmVouchCancel: "Annuler",
+    vouchingAs: "Vous attestez en tant que {name}.",
+    consoleEmptyTitle: "Aucune demande ouverte dans cette wilaya pour le moment",
+    consoleEmptyBody: "Rien à examiner. Les demandes apparaîtront ici dès qu'une famille de {wilaya} en publiera une.",
+    openDays: "ouverte depuis {days} jours",
     verifyAdminsOnly: "Seuls les administrateurs de votre comité peuvent vérifier une demande — vérifier engage le nom de l'association. Demandez à un administrateur de l'examiner.",
     verifiedToast: "Demande vérifiée", unverifiedToast: "Vérification retirée",
     noRequestsWilaya: "Aucune demande ouverte dans cette wilaya pour le moment",
@@ -559,6 +590,18 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "المشاركة عبر واتساب", postedSeeMine: "عرض طلبي", postedStartAgain: "البدء من جديد",
     assocConsoleTitle: "لوحة الجمعية", assocConsoleSub: "الطلبات المفتوحة في {wilaya}",
     verifyAction: "توثيق", unverifyAction: "إزالة التوثيق",
+    groupNeedsReview: "بحاجة إلى مراجعة", groupVerifiedByUs: "وثّقناها", groupOpenLongTime: "مفتوحة منذ مدة طويلة",
+    notInDirectory: "غير موجود في دليل المستشفيات",
+    vouchedBy: "وثّقها {name}",
+    staleWarnBody: "لم يغلقها أحد. اسأل العائلة إن كانت لا تزال قائمة قبل توثيقها.",
+    callFamily: "اتصل بالعائلة",
+    confirmVouchTitle: "توثيق طلب {patient}؟",
+    confirmVouchBody: "سيظهر اسم لجنتك على هذا الطلب، وسيعتمد عليه المتبرعون في {wilaya} لتقرير الاستجابة.",
+    confirmVouchYes: "نعم، وثّقه", confirmVouchCancel: "إلغاء",
+    vouchingAs: "أنت توثّق باسم {name}.",
+    consoleEmptyTitle: "لا توجد طلبات مفتوحة في هذه الولاية حالياً",
+    consoleEmptyBody: "لا شيء لمراجعته. ستظهر الطلبات هنا فور نشر عائلة في {wilaya} لطلب.",
+    openDays: "مفتوح منذ {days} يوماً",
     verifyAdminsOnly: "لا يمكن توثيق الطلب إلا لمشرفي لجنتك — فالتوثيق يضع اسم الجمعية على الطلب. اطلب من مشرف مراجعته.",
     verifiedToast: "تم توثيق الطلب", unverifiedToast: "أُزيل التوثيق",
     noRequestsWilaya: "لا توجد طلبات مفتوحة في هذه الولاية حالياً",

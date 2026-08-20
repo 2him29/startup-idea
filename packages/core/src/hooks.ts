@@ -336,7 +336,24 @@ export function useBloodDrives() {
 }
 
 /** A request open longer than this reads as stale on the committee hub. */
-const STALE_AFTER_DAYS = 30;
+export const STALE_AFTER_DAYS = 30;
+
+/**
+ * Whether a request has been open long enough that somebody should telephone
+ * the family rather than vouch for it.
+ *
+ * Exported so the console groups by the same rule the committee hub counts by.
+ * Two definitions of "stale" that drift apart would show a badge saying 4 above
+ * a list showing 3, and the badge would be believed.
+ */
+export function isStale(createdAt: string, now: number = Date.now()): boolean {
+  return new Date(createdAt).getTime() < now - STALE_AFTER_DAYS * 86400000;
+}
+
+/** Whole days a request has been open, for "open 34 days". */
+export function daysOpen(createdAt: string, now: number = Date.now()): number {
+  return Math.max(0, Math.floor((now - new Date(createdAt).getTime()) / 86400000));
+}
 
 /**
  * Everything the Committee tab needs, in one call.

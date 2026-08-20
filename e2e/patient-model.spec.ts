@@ -157,7 +157,17 @@ test.describe("patient/association model", () => {
 
     const card = page.getByTestId("request-card").filter({ hasText: marker });
     await card.waitFor({ state: "visible", timeout: 30_000 });
+    // Verifying is confirmed now, not one-tapped: it publishes the committee's
+    // name to strangers, so the sheet restates what is about to go out and in
+    // whose name before anything is written.
     await card.getByTestId("verify-request").click();
+    await expect(page.getByTestId("vouch-confirm")).toBeVisible();
+    // The body is unconditional; the "vouching as" line depends on the profile
+    // carrying a name, so assert the part that is always there.
+    await expect(
+      page.getByText(t("en").confirmVouchBody.split("{wilaya}")[0].trim())
+    ).toBeVisible();
+    await page.getByTestId("vouch-confirm-yes").click();
 
     await expect(page.getByText("Request verified")).toBeVisible();
     await expect(card.getByText(/Verified by/)).toBeVisible();
@@ -184,6 +194,23 @@ test.describe("patient/association model", () => {
     const nudge = page.getByText(/open more than a month/);
     await expect(nudge).toBeVisible();
     await expect(nudge).toHaveText(/^[1-9]\d* open more than a month$/);
+  });
+
+  test("cancelling the vouch sheet publishes nothing", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+    await openCommittee(page, "verify");
+    await expect(page.getByText("Association console")).toBeVisible();
+
+    const verify = page.getByTestId("verify-request").first();
+    await verify.waitFor({ state: "visible", timeout: 30_000 });
+    await verify.click();
+    await expect(page.getByTestId("vouch-confirm")).toBeVisible();
+
+    await page.getByRole("button", { name: t("en").confirmVouchCancel, exact: true }).click();
+    await expect(page.getByTestId("vouch-confirm")).toHaveCount(0);
+    // The toast is the tell: nothing was written, so nothing announces itself.
+    await expect(page.getByText("Request verified")).toHaveCount(0);
   });
 
   test("donor sees the verified badge on the find screen", async ({ page }) => {

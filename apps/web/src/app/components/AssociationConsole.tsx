@@ -1,21 +1,26 @@
 import { useState } from "react";
-import { ArrowLeft, BadgeCheck, Check, Clock, Droplet, Info, MapPin, ShieldQuestion, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BadgeCheck, Check, Clock, Droplet, Info, MapPin, ShieldQuestion, X } from "lucide-react";
 import {
   unitsLabel,
   urgencyStyle,
   urgencyLabel,
+  isStale,
+  daysOpen,
   useMyMemberships,
+  useSession,
   useWilayaRequests,
   verifyRequest,
   unverifyRequest,
   wilayaLabel,
   formatRelativeTime,
+  type BloodRequest,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { useToast } from "./Toast";
 import { RequestCardSkeleton } from "./Skeletons";
 import { VerifiedBadge } from "./VerifiedBadge";
+import { VouchConfirm } from "./VouchConfirm";
 
 interface AssociationConsoleProps {
   onBack: () => void;
@@ -36,6 +41,7 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
   const { memberships, verifying, loading: loadingMemberships } = useMyMemberships();
+  const { profile } = useSession();
   const [activeIndex, setActiveIndex] = useState(0);
 
   const active = verifying[activeIndex]?.association ?? null;
@@ -49,6 +55,51 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
    * database will refuse would turn a rule into a bug report.
    */
   const canVerify = verifying[activeIndex]?.role === "admin";
+
+  /** The member doing the vouching, named on the confirmation. */
+  const memberName = profile?.fullName ?? "";
+
+  /**
+   * Three groups, in the order a volunteer's attention should fall.
+   *
+   * A flat list makes every request look equally urgent, which is exactly the
+   * WhatsApp failure Qatra exists to fix. What a committee actually needs to
+   * know is: what is waiting on me, what have we already put our name to, and
+   * what has been sitting here so long that somebody should telephone the
+   * family. Sorting cannot say that; headings can.
+   */
+  const now = Date.now();
+  const groups = [
+    {
+      key: "review",
+      label: t.groupNeedsReview,
+      tone: "#E5484D",
+      items: requests.filter((r) => !r.verifiedByName && !isStale(r.createdAt, now)),
+    },
+    {
+      key: "stale",
+      label: t.groupOpenLongTime,
+      tone: "#F5871F",
+      items: requests.filter((r) => isStale(r.createdAt, now)),
+    },
+    {
+      key: "ours",
+      label: t.groupVerifiedByUs,
+      tone: "#12B76A",
+      items: requests.filter((r) => r.verifiedByName && !isStale(r.createdAt, now)),
+    },
+  ].filter((g) => g.items.length > 0);
+
+  /**
+   * Verification is confirmed, never one-tapped.
+   *
+   * It publishes the committee's name to strangers and cannot be undone
+   * without someone noticing, so a mis-tap on a phone in a corridor is a real
+   * cost. (A stray click is exactly how this screen's own author once removed
+   * a verification on the live project.) The sheet also names who is vouching,
+   * which is the part a volunteer should see before, not after.
+   */
+  const [confirming, setConfirming] = useState<BloodRequest | null>(null);
 
   const handleVerify = async (requestId: string) => {
     if (!active) return;
@@ -227,17 +278,46 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
         <span className="text-[13px] font-bold" style={{ color: "#3F2E77", textAlign: "start" }}>{active.name}</span>
       </div>
 
+      {loading && (
+        <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
+          {[0, 1].map((i) => <RequestCardSkeleton key={`sk-${i}`} />)}
+        </div>
+      )}
+
+      {/* An empty wilaya is a quiet day, not a broken screen. Name the wilaya
+          so it is obvious which one is quiet. */}
+      {!loading && requests.length === 0 && (
+        <div className="bg-white border rounded-[20px] p-6 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+          <span className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center" style={{ background: "#EAF6EF" }}>
+            <Check className="w-7 h-7" style={{ color: "#12B76A" }} strokeWidth={3} />
+          </span>
+          <div className="mt-4 text-[15.5px] font-extrabold" style={{ color: "#0B2432" }}>{t.consoleEmptyTitle}</div>
+          <div className="mt-1.5 text-[13px] leading-relaxed" style={{ color: "#8496A0" }}>
+            {t.consoleEmptyBody.replace("{wilaya}", wilayaLabel(active.wilaya, lang))}
+          </div>
+        </div>
+      )}
+
+      {!loading && groups.map((group) => (
+      <div key={group.key} className="mb-5">
+        <div className="flex items-center gap-2 mb-2.5" style={{ textAlign: "start" }}>
+          <span className="w-1.5 h-[15px] rounded-full shrink-0" style={{ background: group.tone }} />
+          <span className="text-[12.5px] font-extrabold uppercase tracking-[0.4px]" style={{ color: "#0B2432" }}>
+            {group.label}
+          </span>
+          <span
+            className="text-[11px] font-extrabold rounded-full min-w-[19px] h-[19px] px-1.5 flex items-center justify-center"
+            style={{ background: "#F1F5F6", color: "#5A6B75" }}
+          >
+            {group.items.length}
+          </span>
+        </div>
       <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
-        {loading && [0, 1].map((i) => <RequestCardSkeleton key={`sk-${i}`} />)}
-
-        {!loading && requests.length === 0 && (
-          <div className="text-center text-[13.5px] py-10" style={{ color: "#8496A0" }}>{t.noRequestsWilaya}</div>
-        )}
-
-        {!loading && requests.map((r) => {
+        {group.items.map((r) => {
           const badge = urgencyStyle[r.urgency];
           const isVerified = Boolean(r.verifiedByName);
           const busy = busyId === r.id;
+          const stale = isStale(r.createdAt);
           return (
             <div
               key={r.id}
@@ -254,10 +334,20 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
                     <Droplet className="w-6 h-6" fill="white" stroke="none" />
                   </span>
                   <div className="min-w-0">
-                    <div className="text-[15.5px] font-bold truncate" style={{ color: "#0B2432" }}>{r.hospital}</div>
+                    {/* The person, then the place. An association deciding
+                        whether a plea is real is looking at a patient, and
+                        "CHU Lamine Debaghine" is not one. Falls back to the
+                        hospital for a volunteer, whose RLS filters the name
+                        away, and for legacy hospital-authored rows. */}
+                    <div className="text-[15.5px] font-bold truncate" style={{ color: "#0B2432" }}>
+                      {r.patientName?.trim() || r.hospital}
+                    </div>
+                    {r.patientName?.trim() && (
+                      <div className="text-[12.5px] truncate mt-0.5" style={{ color: "#6B7C88" }}>{r.hospital}</div>
+                    )}
                     <div className="flex items-center gap-1 mt-0.5 text-[12.5px]" style={{ color: "#8496A0" }}>
                       <Clock className="w-[13px] h-[13px]" />
-                      {formatRelativeTime(r.createdAt, lang)}
+                      {stale ? t.openDays.replace("{days}", String(daysOpen(r.createdAt))) : formatRelativeTime(r.createdAt, lang)}
                     </div>
                   </div>
                 </div>
@@ -283,13 +373,32 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
                 </div>
               )}
 
+              {/*
+                A month-old request is not a request to vouch for faster; it is
+                one to telephone about. Nothing in the product closes a request
+                automatically, so a wilaya slowly fills with month-old pleas
+                still marked Critical — the exact WhatsApp failure Qatra
+                exists to fix. Vouching for one would launder that staleness
+                into the committee's own credibility.
+              */}
+              {stale && !isVerified && (
+                <div className="mt-3 rounded-2xl px-3.5 py-3" style={{ background: "#FFF3E0", border: "1px solid rgba(245,135,31,0.3)" }}>
+                  <div className="flex items-start gap-2.5">
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#F5871F" }} />
+                    <span className="text-[12.5px] leading-relaxed" style={{ color: "#7A4A10", textAlign: "start" }}>
+                      {t.staleWarnBody}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {canVerify ? (
                 <button
                   // The nav carries a "Verify" label too, so tests need a way to
                   // reach this action that cannot accidentally match the sidebar
                   // or the bottom bar.
                   data-testid="verify-request"
-                  onClick={() => (isVerified ? handleUnverify(r.id) : handleVerify(r.id))}
+                  onClick={() => (isVerified ? handleUnverify(r.id) : setConfirming(r))}
                   disabled={busy}
                   className="cursor-pointer disabled:opacity-60 mt-3.5 w-full h-[46px] rounded-2xl text-[14px] font-extrabold flex items-center justify-center gap-2 border-none"
                   style={
@@ -321,6 +430,26 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
           );
         })}
       </div>
+      </div>
+      ))}
+
+      {/* Confirmation, not a second guess: it restates exactly what is about
+          to be published and in whose name. */}
+      {confirming && (
+        <VouchConfirm
+          request={confirming}
+          wilaya={wilayaLabel(active.wilaya, lang)}
+          memberName={memberName}
+          associationName={active.name}
+          busy={busyId === confirming.id}
+          onCancel={() => setConfirming(null)}
+          onConfirm={async () => {
+            const id = confirming.id;
+            setConfirming(null);
+            await handleVerify(id);
+          }}
+        />
+      )}
     </>
   );
 }
