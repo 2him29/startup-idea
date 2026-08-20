@@ -17,7 +17,14 @@ export interface DonorSearchResult {
   fullName: string;
   bloodType: string;
   wilaya: string | null;
-  /** Null unless the donor opted into contact sharing — see `sharesPhone`. */
+  /**
+   * The number, MASKED: "05 •• •• •• 56". Null unless the donor opted into
+   * contact sharing — see `sharesPhone`.
+   *
+   * Search deliberately never returns a whole number. Consent makes one reveal
+   * lawful; it does not make handing fifty numbers to someone who will ring
+   * two necessary. Call revealDonorContact() for the real one.
+   */
   phone: string | null;
   isEligible: boolean;
   daysUntilEligible: number;
@@ -101,4 +108,22 @@ export async function recordDonation(params: { requestId?: string }): Promise<vo
       .eq("id", params.requestId);
     if (requestError) throw requestError;
   }
+}
+
+/**
+ * Open one donor's number, and put that on the record.
+ *
+ * Returns the whole number, or null when the donor has not consented under the
+ * current version of the wording — null rather than an error because "this
+ * donor keeps their number private" is a rule worth stating, not a failure.
+ *
+ * The write is the point as much as the read: reveal_donor_contact() logs who
+ * asked, for which donor, on behalf of which association, and when. That log
+ * is what lets a donor be told who has their number, which is a data-subject
+ * right under Loi 18-07 / 25-11 rather than a courtesy.
+ */
+export async function revealDonorContact(donorId: string): Promise<string | null> {
+  const { data, error } = await getSupabase().rpc("reveal_donor_contact", { p_donor_id: donorId });
+  if (error) throw error;
+  return (data as string | null) ?? null;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, Phone, PhoneOff, ShieldQuestion, Clock, Droplet } from "lucide-react";
-import { searchDonors, useMyMemberships, wilayaLabel, type DonorSearchResult } from "@weare/core";
+import { ArrowLeft, Eye, Phone, PhoneOff, ShieldAlert, ShieldCheck, ShieldQuestion, Clock, Droplet } from "lucide-react";
+import { revealDonorContact, searchDonors, useMyMemberships, wilayaLabel, type DonorSearchResult } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { RequestCardSkeleton } from "./Skeletons";
@@ -40,6 +40,38 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
   const [donors, setDonors] = useState<DonorSearchResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Numbers opened during this visit, by donor id.
+   *
+   * Deliberately not persisted and deliberately not pre-fetched: the point of
+   * the reveal is that it is an act with a record, so it should not survive a
+   * reload as if it had never been asked for. Re-opening the screen means
+   * asking again, and asking again is logged again — which is the honest
+   * accounting of how many times a number was actually taken.
+   */
+  const [revealed, setRevealed] = useState<Record<string, string>>({});
+  const [revealing, setRevealing] = useState<string | null>(null);
+
+  const handleReveal = async (donorId: string) => {
+    setRevealing(donorId);
+    setError(null);
+    try {
+      const phone = await revealDonorContact(donorId);
+      // Null means the donor withdrew consent between the search and the tap.
+      // Refreshing the list is the honest response: the card should stop
+      // offering a number that is no longer ours to give.
+      if (phone) {
+        setRevealed((prev) => ({ ...prev, [donorId]: phone }));
+      } else {
+        setDonors((prev) => prev.map((d) => (d.id === donorId ? { ...d, sharesPhone: false, phone: null } : d)));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t.genericError);
+    } finally {
+      setRevealing(null);
+    }
+  };
 
   useEffect(() => {
     if (!active) {
@@ -132,6 +164,27 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
         </div>
       )}
 
+      {/*
+        Stated once, at the top, before any names are read.
+
+        Not a consent dialogue and not a warning — the association is entitled
+        to be here. It is the standing rule for the screen: blood types and
+        phone numbers are health data, opening one is recorded, so open what
+        you will use. Putting it above the list rather than beside each card
+        means it reads as the terms of the room rather than an accusation
+        attached to a particular donor.
+      */}
+      <div
+        className="flex items-start gap-3 rounded-2xl p-4 mb-3"
+        style={{ background: "#FFF3E0", border: "1px solid rgba(245,135,31,0.3)" }}
+      >
+        <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#F5871F" }} />
+        <div style={{ textAlign: "start" }}>
+          <div className="text-[13px] font-extrabold" style={{ color: "#7A4A10" }}>{t.healthDataBannerTitle}</div>
+          <div className="text-[12px] mt-1 leading-relaxed" style={{ color: "#8A6534" }}>{t.healthDataBannerBody}</div>
+        </div>
+      </div>
+
       <div className="flex gap-2 mb-3 flex-wrap">
         {[null, ...bloodTypes].map((b) => {
           const isActive = bloodType === b;
@@ -221,14 +274,46 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
             </div>
 
             {donor.sharesPhone && donor.phone ? (
-              <a
-                href={`tel:${donor.phone}`}
-                className="mt-3.5 w-full h-[46px] rounded-2xl flex items-center justify-center gap-2 text-[14px] font-extrabold no-underline"
-                style={{ background: "linear-gradient(135deg,#0E8BA8,#23A6C4)", color: "#fff" }}
-              >
-                <Phone className="w-[17px] h-[17px]" />
-                {t.callLabel} · <span style={{ direction: "ltr" }}>{donor.phone}</span>
-              </a>
+              revealed[donor.id] ? (
+                <>
+                  <a
+                    href={`tel:${revealed[donor.id]}`}
+                    className="mt-3.5 w-full h-[46px] rounded-2xl flex items-center justify-center gap-2 text-[14px] font-extrabold no-underline"
+                    style={{ background: "linear-gradient(135deg,#0E8BA8,#23A6C4)", color: "#fff" }}
+                  >
+                    <Phone className="w-[17px] h-[17px]" />
+                    {t.callLabel} · <span style={{ direction: "ltr" }}>{revealed[donor.id]}</span>
+                  </a>
+                  {/* Said after the fact, not as a warning before it. The
+                      point is that the record exists, not that taking a
+                      number is suspect — ringing donors is the job. */}
+                  <div className="mt-2 flex items-center justify-center gap-1.5 text-[11.5px]" style={{ color: "#8496A0" }}>
+                    <ShieldCheck className="w-[13px] h-[13px]" />
+                    {t.revealedJustNow}
+                  </div>
+                </>
+              ) : (
+                /*
+                 * Masked until asked for.
+                 *
+                 * The number is not secret — this donor consented to being
+                 * phoned — but a screen that hands out fifty numbers to
+                 * someone who will ring two is processing more health data
+                 * than the purpose needs. One tap per number keeps the volume
+                 * honest, and gives the log something meaningful to record.
+                 */
+                <button
+                  onClick={() => handleReveal(donor.id)}
+                  disabled={revealing === donor.id}
+                  data-testid="reveal-number"
+                  className="cursor-pointer disabled:opacity-60 mt-3.5 w-full h-[46px] rounded-2xl flex items-center justify-center gap-2 text-[14px] font-extrabold border-[1.5px] bg-white"
+                  style={{ borderColor: "rgba(14,139,168,0.35)", color: "#0E8BA8" }}
+                >
+                  <Eye className="w-[17px] h-[17px]" />
+                  {revealing === donor.id ? t.revealing : t.revealNumber}
+                  <span className="font-semibold" style={{ direction: "ltr", color: "#8496A0" }}>{donor.phone}</span>
+                </button>
+              )
             ) : (
               <div
                 className="mt-3.5 flex items-start gap-2.5 rounded-2xl px-3.5 py-3"

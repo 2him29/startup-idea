@@ -243,9 +243,41 @@ test.describe("patient/association model", () => {
     await page.getByTestId("donor-row").first().waitFor({ state: "visible", timeout: 30_000 });
 
     // The seed deliberately creates both states, so both must be on screen:
-    // one donor opted in (callable) and one did not (withheld, with a reason).
-    await expect(page.getByRole("link", { name: /Call/ }).first()).toBeVisible();
+    // one donor opted in (a number to open) and one did not (withheld, with a
+    // reason rather than a gap).
+    await expect(page.getByTestId("reveal-number").first()).toBeVisible();
     await expect(page.getByText("Number not shared").first()).toBeVisible();
+
+    // Consent does not hand the number over on sight. A screen that printed
+    // fifty numbers for someone who will ring two would process more health
+    // data than the purpose needs, so the search shows a masked one.
+    await expect(page.getByText(/\u2022\u2022 \u2022\u2022 \u2022\u2022/).first()).toBeVisible();
+  });
+
+  test("opening a number takes one deliberate tap, and says it was logged", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+
+    await openCommittee(page, "donors");
+    const reveal = page.getByTestId("reveal-number").first();
+    await reveal.waitFor({ state: "visible", timeout: 30_000 });
+
+    await reveal.click();
+
+    // The whole number, and the record of who took it. The notice is the
+    // product of an actual insert into donor_contact_reveals — the promise in
+    // the banner above is not decorative.
+    await expect(page.getByRole("link", { name: /Call/ }).first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(t("en").revealedJustNow).first()).toBeVisible();
+  });
+
+  test("the health-data rule is stated before any number is read", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+
+    await openCommittee(page, "donors");
+    await expect(page.getByText(t("en").healthDataBannerTitle)).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(t("en").healthDataBannerBody)).toBeVisible();
   });
 
   test("cooling-off donors are hidden until asked for", async ({ page }) => {

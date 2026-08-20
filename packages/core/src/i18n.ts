@@ -91,6 +91,8 @@ export interface Strings {
   vouchingAs: string;
   consoleEmptyTitle: string; consoleEmptyBody: string;
   openDays: string;
+  healthDataBannerTitle: string; healthDataBannerBody: string;
+  revealNumber: string; revealedJustNow: string; revealing: string;
   assocConsoleTitle: string; assocConsoleSub: string; verifyAction: string; unverifyAction: string;
   verifyAdminsOnly: string;
   verifiedToast: string; unverifiedToast: string; noRequestsWilaya: string;
@@ -230,6 +232,9 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Share on WhatsApp", postedSeeMine: "See my request", postedStartAgain: "Start again",
     assocConsoleTitle: "Association console", assocConsoleSub: "Open requests in {wilaya}",
     verifyAction: "Verify", unverifyAction: "Remove verification",
+    healthDataBannerTitle: "Health data — reveal only what you'll use",
+    healthDataBannerBody: "Each number you open is written to your committee's log with your name and the time. Loi 18-07 / 25-11.",
+    revealNumber: "Reveal number", revealedJustNow: "Opened by you just now · logged", revealing: "Opening…",
     groupNeedsReview: "Needs review", groupVerifiedByUs: "Verified by us", groupOpenLongTime: "Open a long time",
     notInDirectory: "Not in the hospital directory",
     vouchedBy: "Attested by {name}",
@@ -410,6 +415,9 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Partager sur WhatsApp", postedSeeMine: "Voir ma demande", postedStartAgain: "Recommencer",
     assocConsoleTitle: "Console association", assocConsoleSub: "Demandes ouvertes à {wilaya}",
     verifyAction: "Vérifier", unverifyAction: "Retirer la vérification",
+    healthDataBannerTitle: "Données de santé — n'ouvrez que ce que vous utiliserez",
+    healthDataBannerBody: "Chaque numéro que vous ouvrez est inscrit au journal de votre comité avec votre nom et l'heure. Loi 18-07 / 25-11.",
+    revealNumber: "Afficher le numéro", revealedJustNow: "Ouvert par vous à l'instant · enregistré", revealing: "Ouverture…",
     groupNeedsReview: "À examiner", groupVerifiedByUs: "Vérifiées par nous", groupOpenLongTime: "Ouvertes depuis longtemps",
     notInDirectory: "Absent de l'annuaire des hôpitaux",
     vouchedBy: "Attestée par {name}",
@@ -590,6 +598,9 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "المشاركة عبر واتساب", postedSeeMine: "عرض طلبي", postedStartAgain: "البدء من جديد",
     assocConsoleTitle: "لوحة الجمعية", assocConsoleSub: "الطلبات المفتوحة في {wilaya}",
     verifyAction: "توثيق", unverifyAction: "إزالة التوثيق",
+    healthDataBannerTitle: "بيانات صحية — لا تفتح إلا ما ستستخدمه",
+    healthDataBannerBody: "يُسجّل كل رقم تفتحه في سجل لجنتك مع اسمك والوقت. القانون 18-07 / 25-11.",
+    revealNumber: "إظهار الرقم", revealedJustNow: "فتحته الآن · مُسجّل", revealing: "جارٍ الفتح…",
     groupNeedsReview: "بحاجة إلى مراجعة", groupVerifiedByUs: "وثّقناها", groupOpenLongTime: "مفتوحة منذ مدة طويلة",
     notInDirectory: "غير موجود في دليل المستشفيات",
     vouchedBy: "وثّقها {name}",

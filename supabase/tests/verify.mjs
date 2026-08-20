@@ -353,11 +353,66 @@ async function checkDonorSearch() {
     }));
 
   section("donor search: phone numbers follow consent");
-  await check("a donor who opted in has their number returned", () =>
+  await check("a consenting donor's number comes back MASKED, not whole", () =>
     asUser(coordinator, async () => {
       const r = await client.query("select phone, shares_phone from search_donors('Blida') where id=$1", [sharing]);
       if (r.rows[0].shares_phone !== true) throw new Error("shares_phone should be true");
       if (!r.rows[0].phone) throw new Error("phone withheld from a consenting donor");
+      // The search screen must not hand out fifty numbers to someone who will
+      // ring two. Consent makes the reveal lawful; it does not make a bulk
+      // list of numbers necessary.
+      if (!r.rows[0].phone.includes("\u2022")) throw new Error(`search returned an unmasked number: ${r.rows[0].phone}`);
+    }));
+
+  section("donor contact: every reveal is written down");
+  /*
+   * The reveal and the assertion share one asUser block on purpose: asUser
+   * wraps each check in begin/rollback so RLS probes leave no state, which
+   * also discards the log row the function writes. Reading it back inside the
+   * same transaction is what proves the insert happened at all.
+   */
+  await check("reveal returns the whole number AND logs who took it", () =>
+    asUser(coordinator, async () => {
+      const got = await client.query("select reveal_donor_contact($1) as phone", [sharing]);
+      if (!got.rows[0].phone || got.rows[0].phone.includes("\u2022")) {
+        throw new Error(`reveal did not return a whole number: ${got.rows[0].phone}`);
+      }
+      const log = await client.query(
+        "select revealed_by, association_id from donor_contact_reveals where donor_id=$1",
+        [sharing]
+      );
+      if (log.rowCount !== 1) throw new Error("the reveal was not logged");
+      if (log.rows[0].revealed_by !== coordinator) throw new Error("logged against the wrong member");
+      if (log.rows[0].association_id !== assoc) throw new Error("logged against the wrong association");
+    }));
+  await check("a donor who never consented cannot be revealed", () =>
+    asUser(coordinator, async () => {
+      const r = await client.query("select reveal_donor_contact($1) as phone", [private_]);
+      if (r.rows[0].phone !== null) throw new Error("revealed a number without consent");
+    }));
+  await check("a donor in another wilaya cannot be revealed", () =>
+    asUser(coordinator, () => expectDenied("select reveal_donor_contact($1)", [elsewhere])));
+  await check("a donor cannot reveal another donor", () =>
+    asUser(private_, () => expectDenied("select reveal_donor_contact($1)", [sharing])));
+
+  // A row that outlives the rollback, so the read policies can be exercised.
+  await client.query(
+    "insert into donor_contact_reveals (donor_id, revealed_by, association_id) values ($1,$2,$3)",
+    [sharing, coordinator, assoc]
+  );
+  await check("the donor can read their own reveal log", () =>
+    asUser(sharing, () => expectRows("select 1 from donor_contact_reveals where donor_id=$1", [sharing], 1)));
+  await check("an unrelated donor cannot read it", () =>
+    asUser(private_, () => expectRows("select 1 from donor_contact_reveals where donor_id=$1", [sharing], 0)));
+  /*
+   * The log is evidence about processing that happened. An association able to
+   * erase its own reads could erase the fact that it read, which is precisely
+   * what a data subject would be asking about.
+   */
+  await check("nobody can delete a reveal record", () =>
+    asUser(coordinator, async () => {
+      const r = await client.query("delete from donor_contact_reveals where donor_id=$1", [sharing]);
+      if (r.rowCount !== 0) throw new Error("a reveal record was deleted");
     }));
   await check("a donor who did not opt in is listed WITHOUT their number", () =>
     asUser(coordinator, async () => {
