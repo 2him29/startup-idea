@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Droplet, Users, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame, Share2, Building2 } from "lucide-react";
 import { RESERVE, RESERVE_STATUS, isPatientModelEnabled, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, shareToWhatsApp, type Profile } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
+import { LiveStats } from "./LiveStats";
 import { LangSwitcher } from "./LangSwitcher";
 import { NotificationsBell } from "./NotificationsBell";
 import { useI18n } from "../i18n/LangContext";
@@ -134,6 +135,11 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
               <ChevronRight className="w-5 h-5 md:w-6 md:h-6 shrink-0" style={{ color: "#0E8BA8", transform: chevronFlip }} />
             </button>
           </div>
+
+          {/* Between the choice and the demo shortcuts: after someone has seen
+              what the app is for, and before anything that admits to being a
+              demonstration. */}
+          <LiveStats />
 
           <div className="w-full md:w-full md:max-w-4xl mt-6 md:mt-8">
             <div className="flex items-center gap-3 text-[12px] md:text-[13px] font-semibold" style={{ color: "#9AA9B2" }}>

@@ -105,6 +105,7 @@ export interface Strings {
   pushTitle: string; pushWhat: string;
   pushEnable: string; pushEnabling: string; pushDisable: string; pushOn: string;
   pushBlocked: string; pushUnsupported: string;
+  statsOpenNow: string; statsAcrossWilayas: string; statsVouched: string; statsLive: string;
   assocConsoleTitle: string; assocConsoleSub: string; verifyAction: string; unverifyAction: string;
   verifyAdminsOnly: string;
   verifiedToast: string; unverifiedToast: string; noRequestsWilaya: string;
@@ -243,6 +244,8 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Share on WhatsApp", postedSeeMine: "See my request", postedStartAgain: "Start again",
     assocConsoleTitle: "Association console", assocConsoleSub: "Open requests in {wilaya}",
     verifyAction: "Verify", unverifyAction: "Remove verification",
+    statsLive: "Live right now",
+    statsOpenNow: "open requests", statsAcrossWilayas: "wilayas", statsVouched: "vouched by a committee",
     pushTitle: "Notify me about requests",
     pushWhat: "Only requests in your wilaya that your blood type can help with, and news about requests you posted. Nothing else.",
     pushEnable: "Turn on notifications", pushEnabling: "Turning on…", pushDisable: "Turn off on this device",
@@ -444,6 +447,8 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Partager sur WhatsApp", postedSeeMine: "Voir ma demande", postedStartAgain: "Recommencer",
     assocConsoleTitle: "Console association", assocConsoleSub: "Demandes ouvertes à {wilaya}",
     verifyAction: "Vérifier", unverifyAction: "Retirer la vérification",
+    statsLive: "En direct",
+    statsOpenNow: "demandes ouvertes", statsAcrossWilayas: "wilayas", statsVouched: "attestées par un comité",
     pushTitle: "M'avertir des demandes",
     pushWhat: "Uniquement les demandes de votre wilaya que votre groupe sanguin peut aider, et les nouvelles de vos propres demandes. Rien d'autre.",
     pushEnable: "Activer les notifications", pushEnabling: "Activation…", pushDisable: "Désactiver sur cet appareil",
@@ -645,6 +650,8 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "المشاركة عبر واتساب", postedSeeMine: "عرض طلبي", postedStartAgain: "البدء من جديد",
     assocConsoleTitle: "لوحة الجمعية", assocConsoleSub: "الطلبات المفتوحة في {wilaya}",
     verifyAction: "توثيق", unverifyAction: "إزالة التوثيق",
+    statsLive: "مباشر الآن",
+    statsOpenNow: "طلبات مفتوحة", statsAcrossWilayas: "ولايات", statsVouched: "موثّقة من لجنة",
     pushTitle: "أبلِغني بالطلبات",
     pushWhat: "فقط طلبات ولايتك التي تناسب فصيلة دمك، وأخبار الطلبات التي نشرتها. لا شيء آخر.",
     pushEnable: "تفعيل الإشعارات", pushEnabling: "جارٍ التفعيل…", pushDisable: "إيقاف على هذا الجهاز",

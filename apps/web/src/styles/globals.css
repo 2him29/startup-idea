@@ -217,6 +217,13 @@ html[lang="ar"] body {
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* The live dot on the splash: a slow breath, not a blink. Anything faster
+   reads as an alarm on a screen whose subject is already urgent enough. */
+@keyframes waPulse {
+  0%, 100% { transform: scale(1); opacity: .7; }
+  50%      { transform: scale(2.2); opacity: 0; }
+}
+
 /* Whole-screen entrance played on every route change (keyed wrapper in App.tsx). */
 @keyframes waScreen {
   from { transform: translateY(14px); opacity: 0; }
