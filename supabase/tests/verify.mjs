@@ -289,6 +289,120 @@ async function checkRls() {
       if (r.rowCount !== 0) throw new Error("a response was deleted");
     }));
 
+  section("push: an endpoint is a credential, not a preference");
+  const sub = async (uid, ep) =>
+    client.query(
+      "insert into push_subscriptions (user_id, endpoint, p256dh, auth) values ($1,$2,'k','a')",
+      [uid, ep]
+    );
+
+  await check("a user can register their own browser", () =>
+    asUser(ids.donor, async () => {
+      await sub(ids.donor, "https://push.example/donor-1");
+      await expectRows("select 1 from push_subscriptions where user_id=$1", [ids.donor], 1);
+    }));
+  await check("nobody can register a subscription for someone else", () =>
+    asUser(ids.donor, () => expectDenied(
+      "insert into push_subscriptions (user_id, endpoint, p256dh, auth) values ($1,'https://push.example/x','k','a')",
+      [ids.outsider])));
+
+  await sub(ids.donor, "https://push.example/donor-persist");
+
+  /*
+   * The endpoint plus its keys is a capability: anyone holding them can push
+   * to that browser. So this is not merely private, it is a credential — and
+   * the only thing that ever reads across users is the service role.
+   */
+  await check("another user cannot read it", () =>
+    asUser(ids.outsider, () => expectRows("select 1 from push_subscriptions where user_id=$1", [ids.donor], 0)));
+  await check("an association cannot read it either", () =>
+    asUser(ids.member, () => expectRows("select 1 from push_subscriptions where user_id=$1", [ids.donor], 0)));
+  await check("turning notifications off really removes the address", () =>
+    asUser(ids.donor, async () => {
+      const r = await client.query("delete from push_subscriptions where user_id=$1", [ids.donor]);
+      if (r.rowCount === 0) throw new Error("the owner could not delete their own subscription");
+    }));
+  await check("...but not someone else's", () =>
+    asUser(ids.outsider, async () => {
+      const r = await client.query("delete from push_subscriptions where user_id=$1", [ids.donor]);
+      if (r.rowCount !== 0) throw new Error("deleted another user's subscription");
+    }));
+
+  await check("no client role may call the targeting functions at all", async () => {
+    for (const who of [ids.donor, ids.member, ids.admin, ids.outsider]) {
+      await asUser(who, () => expectDenied("select * from push_targets_for_request($1)", [request]));
+    }
+  });
+
+  /*
+   * The matching rule, exercised as the service role would see it. Rather than
+   * trusting the SQL case-expression by eye, this drives a real donor through
+   * the four conditions one at a time.
+   */
+  /*
+   * The matching rule, exercised as the service role would see it.
+   *
+   * On its own user, not ids.donor: this block moves a donor between wilayas,
+   * blood types and cooldown states, and doing that to a fixture other checks
+   * depend on made two unrelated tests fail in confusing ways.
+   */
+  await check("targets are compatible, local, eligible, and not the author", async () => {
+    const pushDonor = (await client.query(
+      "insert into auth.users (email) values ('push-donor@qatra.test') returning id"
+    )).rows[0].id;
+    await client.query(
+      "insert into profiles (id, role, full_name, wilaya, phone_verified) values ($1,'donor','push donor','Blida',true)",
+      [pushDonor]
+    );
+    await client.query("insert into donor_profiles (id, blood_type) values ($1,'O-')", [pushDonor]);
+    await sub(pushDonor, "https://push.example/match-1");
+
+    const targeted = async () => {
+      const r = await client.query(
+        "select 1 from push_targets_for_request($1) where user_id=$2", [request, pushDonor]);
+      return r.rowCount === 1;
+    };
+
+    // The seeded request is O+ in Blida, and O- can give to O+.
+    if (!(await targeted())) throw new Error("a compatible local donor was not targeted");
+
+    // AB+ cannot give to O+.
+    await client.query("update donor_profiles set blood_type='AB+' where id=$1", [pushDonor]);
+    if (await targeted()) throw new Error("an incompatible donor was targeted");
+
+    // Compatible again, but inside the 90-day cooldown: nothing they can act on.
+    await client.query(
+      "update donor_profiles set blood_type='O-', last_donation_at = now() - interval '10 days' where id=$1",
+      [pushDonor]);
+    if (await targeted()) throw new Error("a donor in cooldown was targeted");
+
+    // Eligible again, but two provinces away.
+    await client.query("update donor_profiles set last_donation_at = null where id=$1", [pushDonor]);
+    await client.query("update profiles set wilaya='Oran' where id=$1", [pushDonor]);
+    if (await targeted()) throw new Error("a donor in another wilaya was targeted");
+    await client.query("update profiles set wilaya='Blida' where id=$1", [pushDonor]);
+
+    // Dead endpoints drop out rather than slowing every later send.
+    await client.query("update push_subscriptions set failure_count = 5 where user_id=$1", [pushDonor]);
+    if (await targeted()) throw new Error("a failing endpoint was still targeted");
+    await client.query("update push_subscriptions set failure_count = 0 where user_id=$1", [pushDonor]);
+
+    /*
+     * Someone who never completed donor registration has no donor_profiles row
+     * at all — blood_type is NOT NULL, so "unknown type" is an absent row
+     * rather than a null. The join excludes them, which is the intended
+     * silence: we cannot say they match.
+     */
+    await client.query("delete from donor_profiles where id=$1", [pushDonor]);
+    if (await targeted()) throw new Error("targeted a donor whose type we do not know");
+  });
+
+  await check("the family is reachable about their own request", async () => {
+    await sub(ids.family, "https://push.example/family-1");
+    const r = await client.query("select 1 from push_targets_for_family($1) where user_id=$2", [request, ids.family]);
+    if (r.rowCount !== 1) throw new Error("the requesting family was not reachable");
+  });
+
   section("plausibility: what a committee may read in order to vouch");
   /*
    * profiles is readable by its owner alone, and stays that way. This function
