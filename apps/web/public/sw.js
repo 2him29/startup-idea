@@ -51,7 +51,23 @@ self.addEventListener("push", (event) => {
     data: { url: data.url || "./", requestId: data.requestId || null },
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  /*
+   * Tell any open tab as well as showing the notification.
+   *
+   * A donor with the app open should see the new request appear in the list
+   * rather than being told about something that is not on screen. It also
+   * makes the delivery observable from a test, which is otherwise impossible:
+   * nothing in the page can see a notification the worker displayed.
+   */
+  const announce = self.clients
+    .matchAll({ type: "window", includeUncontrolled: true })
+    .then((clients) => {
+      for (const client of clients) {
+        client.postMessage({ type: "qatra:push", title, body: options.body, requestId: options.data.requestId });
+      }
+    });
+
+  event.waitUntil(Promise.all([self.registration.showNotification(title, options), announce]));
 });
 
 self.addEventListener("notificationclick", (event) => {
