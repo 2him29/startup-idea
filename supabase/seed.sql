@@ -1,6 +1,10 @@
 -- Qatra staging seed — the manual prerequisites the patient/association model
 -- needs before anything works end to end.
 --
+-- Patient names are ordinary Algerian names rather than "Seed Patient — A".
+-- This data is what a demo shows on screen, and a list of fixtures labelled as
+-- fixtures undersells a product that is otherwise real.
+--
 -- Idempotent: safe to run repeatedly. Re-running will not duplicate the
 -- association, the membership, the admin, or the sample requests.
 --
@@ -109,20 +113,20 @@ begin
 
   -- Two patients with open requests in Blida: one for the association to
   -- verify, one left unverified so the donor list shows both states.
-  select id into patient_a from patients where full_name = 'Seed Patient — Amel K.';
+  select id into patient_a from patients where full_name = 'Amel Kaci';
   if patient_a is null then
     insert into patients (full_name, blood_type, wilaya, hospital_name, created_by, contact_phone)
-    values ('Seed Patient — Amel K.', 'O-', 'Blida', 'CHU Frantz Fanon – Blida', family_id, '+213555000222')
+    values ('Amel Kaci', 'O-', 'Blida', 'CHU Frantz Fanon – Blida', family_id, '+213555000222')
     returning id into patient_a;
 
     insert into blood_requests (patient_record_id, patient_id, blood_type, units, urgency, wilaya, hospital_name, distance_km)
     values (patient_a, 'SEED-0001', 'O-', 3, 'Critical', 'Blida', 'CHU Frantz Fanon – Blida', 47);
   end if;
 
-  select id into patient_b from patients where full_name = 'Seed Patient — Karim B.';
+  select id into patient_b from patients where full_name = 'Karim Belhadj';
   if patient_b is null then
     insert into patients (full_name, blood_type, wilaya, hospital_name, created_by, contact_phone)
-    values ('Seed Patient — Karim B.', 'A+', 'Blida', 'Clinique El Amel', family_id, '+213555000333')
+    values ('Karim Belhadj', 'A+', 'Blida', 'Clinique El Amel', family_id, '+213555000333')
     returning id into patient_b;
 
     insert into blood_requests (patient_record_id, patient_id, blood_type, units, urgency, wilaya, hospital_name, distance_km)
@@ -157,10 +161,10 @@ begin
   --
   -- 45 days puts it clearly past the boundary rather than on it, so the
   -- fixture does not start failing the day someone tunes the threshold.
-  select id into patient_c from patients where full_name = 'Seed Patient — Nadia S.';
+  select id into patient_c from patients where full_name = 'Nadia Slimani';
   if patient_c is null then
     insert into patients (full_name, blood_type, wilaya, hospital_name, created_by, contact_phone)
-    values ('Seed Patient — Nadia S.', 'B+', 'Blida', 'EPH Boufarik', family_id, '+213555000444')
+    values ('Nadia Slimani', 'B+', 'Blida', 'EPH Boufarik', family_id, '+213555000444')
     returning id into patient_c;
 
     insert into blood_requests (patient_record_id, patient_id, blood_type, units, urgency, wilaya, hospital_name, distance_km, created_at)
