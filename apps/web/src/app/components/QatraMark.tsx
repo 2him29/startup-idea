@@ -19,12 +19,29 @@ export function QatraMark({ size, radius, className = "", style }: QatraMarkProp
   );
 }
 
-/** The قطرة wordmark -- brand names don't translate, so this stays fixed regardless of active language. */
+/**
+ * The قطرة wordmark -- brand names don't translate, so this stays fixed
+ * regardless of active language.
+ *
+ * lineHeight is 1.15, not 1. Arabic glyphs descend well below the baseline —
+ * the tail of ق in particular — and a line box the exact height of the font
+ * leaves that tail nowhere to go, so it collides with whatever sits underneath.
+ * On the splash that was the QATRA lockup, and the two read as one smudged
+ * block.
+ */
 export function QatraWordmark({ size, className = "" }: { size: number; className?: string }) {
   return (
     <span
       className={className}
-      style={{ fontFamily: "'Cairo', sans-serif", fontWeight: 800, fontSize: size, color: "#0B2432", direction: "rtl", lineHeight: 1 }}
+      style={{
+        fontFamily: "'Cairo', sans-serif",
+        fontWeight: 800,
+        fontSize: size,
+        color: "#0B2432",
+        direction: "rtl",
+        lineHeight: 1.15,
+        display: "inline-block",
+      }}
     >
       قطرة
     </span>

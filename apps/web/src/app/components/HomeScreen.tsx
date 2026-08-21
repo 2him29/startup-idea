@@ -96,7 +96,9 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             style={{ animation: "waPop .5s ease both" }}
           />
           <QatraWordmark size={50} className="mt-5 md:mt-6" />
-          <div className="mt-0.5 text-[13px] font-extrabold tracking-[4px] uppercase" style={{ color: "#E5484D" }}>Qatra</div>
+          {/* Enough air for the tail of ق above it. At mt-0.5 the two lines
+              touched and read as one block. */}
+          <div className="mt-2 text-[13px] font-extrabold tracking-[4px] uppercase" style={{ color: "#E5484D" }}>Qatra</div>
           <p className="mt-[10px] md:mt-3 text-base md:text-xl leading-relaxed max-w-[270px] md:max-w-md" style={{ color: "#5A6B75" }}>
             {patientModel ? t.taglinePatient : t.tagline}
           </p>
