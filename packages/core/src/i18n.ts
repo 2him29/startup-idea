@@ -101,6 +101,9 @@ export interface Strings {
   youAreGoing: string; donorsComing: string; noOneComingYet: string;
   matchExact: string; matchCompatible: string; matchIncompatible: string; matchUnknown: string;
   matchTitleYes: string; matchTitleNo: string; matchTitleUnknown: string;
+  pushTitle: string; pushWhat: string;
+  pushEnable: string; pushEnabling: string; pushDisable: string; pushOn: string;
+  pushBlocked: string; pushUnsupported: string;
   assocConsoleTitle: string; assocConsoleSub: string; verifyAction: string; unverifyAction: string;
   verifyAdminsOnly: string;
   verifiedToast: string; unverifiedToast: string; noRequestsWilaya: string;
@@ -239,6 +242,12 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Share on WhatsApp", postedSeeMine: "See my request", postedStartAgain: "Start again",
     assocConsoleTitle: "Association console", assocConsoleSub: "Open requests in {wilaya}",
     verifyAction: "Verify", unverifyAction: "Remove verification",
+    pushTitle: "Notify me about requests",
+    pushWhat: "Only requests in your wilaya that your blood type can help with, and news about requests you posted. Nothing else.",
+    pushEnable: "Turn on notifications", pushEnabling: "Turning on…", pushDisable: "Turn off on this device",
+    pushOn: "On for this device. A donor with two devices turns each one on separately.",
+    pushBlocked: "This browser is blocking notifications. We can't ask again — you'd need to allow them in your browser's site settings.",
+    pushUnsupported: "This browser can't receive notifications. They work in Chrome on Android and in Qatra installed to your home screen.",
     matchTitleYes: "You can give to this patient", matchTitleNo: "You cannot give to this patient", matchTitleUnknown: "We don't know your blood type",
     matchExact: "{donor} is exactly what they need.",
     matchCompatible: "{donor} can be given to someone with {recipient}.",
@@ -433,6 +442,12 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Partager sur WhatsApp", postedSeeMine: "Voir ma demande", postedStartAgain: "Recommencer",
     assocConsoleTitle: "Console association", assocConsoleSub: "Demandes ouvertes à {wilaya}",
     verifyAction: "Vérifier", unverifyAction: "Retirer la vérification",
+    pushTitle: "M'avertir des demandes",
+    pushWhat: "Uniquement les demandes de votre wilaya que votre groupe sanguin peut aider, et les nouvelles de vos propres demandes. Rien d'autre.",
+    pushEnable: "Activer les notifications", pushEnabling: "Activation…", pushDisable: "Désactiver sur cet appareil",
+    pushOn: "Activé sur cet appareil. Avec deux appareils, activez chacun séparément.",
+    pushBlocked: "Ce navigateur bloque les notifications. Nous ne pouvons pas redemander — autorisez-les dans les paramètres du site.",
+    pushUnsupported: "Ce navigateur ne peut pas recevoir de notifications. Elles fonctionnent dans Chrome sur Android et avec Qatra installé sur l'écran d'accueil.",
     matchTitleYes: "Vous pouvez donner à ce patient", matchTitleNo: "Vous ne pouvez pas donner à ce patient", matchTitleUnknown: "Nous ignorons votre groupe sanguin",
     matchExact: "{donor} est exactement ce qu'il leur faut.",
     matchCompatible: "{donor} peut être donné à une personne de groupe {recipient}.",
@@ -627,6 +642,12 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "المشاركة عبر واتساب", postedSeeMine: "عرض طلبي", postedStartAgain: "البدء من جديد",
     assocConsoleTitle: "لوحة الجمعية", assocConsoleSub: "الطلبات المفتوحة في {wilaya}",
     verifyAction: "توثيق", unverifyAction: "إزالة التوثيق",
+    pushTitle: "أبلِغني بالطلبات",
+    pushWhat: "فقط طلبات ولايتك التي تناسب فصيلة دمك، وأخبار الطلبات التي نشرتها. لا شيء آخر.",
+    pushEnable: "تفعيل الإشعارات", pushEnabling: "جارٍ التفعيل…", pushDisable: "إيقاف على هذا الجهاز",
+    pushOn: "مُفعّل على هذا الجهاز. إن كان لديك جهازان، فعّل كلاً منهما على حدة.",
+    pushBlocked: "هذا المتصفّح يحجب الإشعارات. لا يمكننا الطلب مجدداً — اسمح بها من إعدادات الموقع.",
+    pushUnsupported: "هذا المتصفّح لا يستقبل الإشعارات. تعمل في كروم على أندرويد ومع تثبيت قطرة على الشاشة الرئيسية.",
     matchTitleYes: "يمكنك التبرع لهذا المريض", matchTitleNo: "لا يمكنك التبرع لهذا المريض", matchTitleUnknown: "لا نعرف فصيلة دمك",
     matchExact: "{donor} هي بالضبط ما يحتاجونه.",
     matchCompatible: "يمكن إعطاء {donor} لشخص فصيلته {recipient}.",

@@ -1,6 +1,6 @@
 
   import { createRoot } from "react-dom/client";
-  import { configureSupabase, configureFeatures, configureOtpProvider, demoOtpProvider } from "@weare/core";
+  import { configureSupabase, configureFeatures, configureOtpProvider, configurePush, demoOtpProvider } from "@weare/core";
   import { LangProvider } from "./app/i18n/LangContext.tsx";
   import { ToastProvider } from "./app/components/Toast.tsx";
   import App from "./app/App.tsx";
@@ -29,6 +29,17 @@
   if (import.meta.env.VITE_DEMO_OTP === "true") {
     configureOtpProvider(demoOtpProvider);
   }
+
+  /*
+   * Web push. Only the PUBLIC half of the VAPID pair belongs here — every
+   * VITE_* variable is inlined into the client bundle, so putting the private
+   * key in .env would publish it to anyone who opens devtools. The private key
+   * lives in the edge function's secrets and nowhere else.
+   *
+   * Absent key means push simply reports itself unsupported and the settings
+   * toggle explains that, rather than offering a button that cannot work.
+   */
+  configurePush(import.meta.env.VITE_VAPID_PUBLIC_KEY);
 
   createRoot(document.getElementById("root")!).render(
     <LangProvider>

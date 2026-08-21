@@ -3,6 +3,7 @@ import { ArrowLeft, Check, ChevronDown, ChevronRight, ShieldCheck } from "lucide
 import { LANGS, WILAYAS, hasCurrentConsent, recordConsent, withdrawConsent, type Lang, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
+import { PushSettings } from "./PushSettings";
 import { getBoolPref, setBoolPref, getDefaultWilaya, setDefaultWilaya, isRamadanNow } from "../prefs";
 
 interface SettingsScreenProps {
@@ -147,6 +148,10 @@ export function SettingsScreen({ onBack, onNavigate }: SettingsScreenProps) {
         </button>
         <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{t.settingsLabel}</div>
       </div>
+
+      {/* First, above language: it is the only setting here that changes
+          whether the app can reach you when it matters. */}
+      <PushSettings />
 
       <SectionTitle>{t.languageLabel}</SectionTitle>
       <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
