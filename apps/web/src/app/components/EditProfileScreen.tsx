@@ -7,6 +7,7 @@ import {
   upsertDonorProfile,
   WILAYAS,
   type Profile,
+  errorMessage,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
@@ -80,7 +81,7 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
       await onSaved();
       setSaved(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.genericError);
+      setError(errorMessage(err, t.genericError));
     } finally {
       setSaving(false);
     }

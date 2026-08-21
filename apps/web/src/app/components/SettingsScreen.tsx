@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, ChevronDown, ChevronRight, ShieldCheck } from "lucide-react";
-import { LANGS, WILAYAS, hasCurrentConsent, recordConsent, withdrawConsent, type Lang } from "@weare/core";
+import { LANGS, WILAYAS, hasCurrentConsent, recordConsent, withdrawConsent, type Lang, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
 import { getBoolPref, setBoolPref, getDefaultWilaya, setDefaultWilaya, isRamadanNow } from "../prefs";
@@ -98,7 +98,7 @@ function ContactSharingRow() {
       setOn(next);
       toast("success", next ? t.contactConsentOn : t.contactConsentOff);
     } catch (err) {
-      toast("error", err instanceof Error ? err.message : t.genericError);
+      toast("error", errorMessage(err, t.genericError));
     } finally {
       setBusy(false);
     }

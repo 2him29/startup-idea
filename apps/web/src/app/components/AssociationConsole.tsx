@@ -14,6 +14,7 @@ import {
   wilayaLabel,
   formatRelativeTime,
   type BloodRequest,
+  errorMessage,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
@@ -117,7 +118,7 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
       await refresh();
       toast("success", t.verifiedToast);
     } catch (err) {
-      toast("error", err instanceof Error ? err.message : t.genericError);
+      toast("error", errorMessage(err, t.genericError));
     } finally {
       setBusyId(null);
     }
@@ -130,7 +131,7 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
       await refresh();
       toast("info", t.unverifiedToast);
     } catch (err) {
-      toast("error", err instanceof Error ? err.message : t.genericError);
+      toast("error", errorMessage(err, t.genericError));
     } finally {
       setBusyId(null);
     }

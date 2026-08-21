@@ -213,6 +213,82 @@ async function checkRls() {
   await check("volunteer cannot read the patient row behind a request", () =>
     asUser(ids.volunteer, () => expectRows("select 1 from patients where id=$1", [patient], 0)));
 
+  section("responses: the loop actually closes");
+  await check("a donor can say they are coming", () =>
+    asUser(ids.donor, async () => {
+      const r = await client.query(
+        "insert into request_responses (request_id, donor_id) values ($1,$2) returning status", [request, ids.donor]);
+      if (r.rows[0].status !== "confirmed") throw new Error("unexpected default status");
+    }));
+  /*
+   * donor_id used to reference donor_profiles, so only users who had completed
+   * donor registration could respond at all — 9 of 14 profiles on the live
+   * project had no such row. Responding is a promise to turn up, not a medical
+   * assertion, so a signed-in person is enough.
+   */
+  await check("...without needing a donor_profiles row", () =>
+    asUser(ids.outsider, async () => {
+      const r = await client.query(
+        "insert into request_responses (request_id, donor_id) values ($1,$2) returning id", [request, ids.outsider]);
+      if (r.rowCount !== 1) throw new Error("a user without a donor profile could not respond");
+    }));
+  await check("nobody can respond on someone else's behalf", () =>
+    asUser(ids.donor, () => expectDenied(
+      "insert into request_responses (request_id, donor_id) values ($1,$2)", [request, ids.outsider])));
+  await check("responding twice is refused", () =>
+    asUser(ids.donor, async () => {
+      await client.query("insert into request_responses (request_id, donor_id) values ($1,$2)", [request, ids.donor]);
+      await expectDenied("insert into request_responses (request_id, donor_id) values ($1,$2)", [request, ids.donor]);
+    }));
+
+  // A row that outlives the rollback, so the read policies can be exercised.
+  await client.query(
+    "insert into request_responses (request_id, donor_id) values ($1,$2)", [request, ids.donor]);
+
+  await check("the donor sees their own response", () =>
+    asUser(ids.donor, () => expectRows("select 1 from request_responses where request_id=$1", [request], 1)));
+  await check("the requesting family sees who is coming", () =>
+    asUser(ids.family, () => expectRows("select 1 from request_responses where request_id=$1", [request], 1)));
+  await check("the verifying association sees it", () =>
+    asUser(ids.member, () => expectRows("select 1 from request_responses where request_id=$1", [request], 1)));
+  /*
+   * The policy this replaces was `using (true)`. A response names a person and
+   * the patient they are turning up for; an unrelated signed-in user has no
+   * reason to know either.
+   */
+  await check("an unrelated user sees nothing", () =>
+    asUser(ids.outsider, () => expectRows("select 1 from request_responses where request_id=$1", [request], 0)));
+  await check("...but can still see the count", () =>
+    asUser(ids.outsider, async () => {
+      const r = await client.query("select confirmed from request_response_counts where request_id=$1", [request]);
+      if (r.rows[0]?.confirmed !== 1) throw new Error(`count not visible: ${JSON.stringify(r.rows)}`);
+    }));
+
+  await check("a donor can withdraw", () =>
+    asUser(ids.donor, async () => {
+      const r = await client.query(
+        "update request_responses set status='cancelled' where request_id=$1 and donor_id=$2", [request, ids.donor]);
+      if (r.rowCount !== 1) throw new Error("the donor could not cancel");
+    }));
+  await check("a withdrawn response stops counting", () =>
+    asUser(ids.donor, async () => {
+      await client.query("update request_responses set status='cancelled' where donor_id=$1", [ids.donor]);
+      const r = await client.query("select confirmed from request_response_counts where request_id=$1", [request]);
+      if ((r.rows[0]?.confirmed ?? 0) !== 0) throw new Error("a cancelled response was still counted");
+    }));
+  await check("nobody can cancel someone else's response", () =>
+    asUser(ids.outsider, async () => {
+      const r = await client.query(
+        "update request_responses set status='cancelled' where donor_id=$1", [ids.donor]);
+      if (r.rowCount !== 0) throw new Error("cancelled another donor's response");
+    }));
+  /* Withdrawing is a state change the family should see, not an erasure. */
+  await check("responses cannot be deleted", () =>
+    asUser(ids.donor, async () => {
+      const r = await client.query("delete from request_responses where donor_id=$1", [ids.donor]);
+      if (r.rowCount !== 0) throw new Error("a response was deleted");
+    }));
+
   section("plausibility: what a committee may read in order to vouch");
   /*
    * profiles is readable by its owner alone, and stays that way. This function

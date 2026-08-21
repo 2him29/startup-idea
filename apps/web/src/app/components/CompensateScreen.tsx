@@ -5,6 +5,7 @@ import {
   openDirections,
   useHospitals,
   type Compensation,
+  errorMessage,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
@@ -58,7 +59,7 @@ export function CompensateScreen({ onBack, onComplete }: CompensateScreenProps) 
       });
       setDone(compensation);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.genericError);
+      setError(errorMessage(err, t.genericError));
     } finally {
       setLoading(false);
     }

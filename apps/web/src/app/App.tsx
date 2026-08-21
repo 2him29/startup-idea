@@ -216,7 +216,13 @@ export default function App() {
         return (
           <RequestDetail
             onBack={() => setCurrentScreen("matching")}
-            onRespond={() => setCurrentScreen("match-confirm")}
+            /*
+             * Writes before it celebrates. The screen used to navigate
+             * straight to a green tick while nothing was recorded, so the
+             * family never learned anyone was coming. If the insert fails the
+             * detail screen keeps the user and shows why.
+             */
+            onResponded={() => setCurrentScreen("match-confirm")}
             request={selectedRequest}
           />
         );

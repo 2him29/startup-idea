@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, FileText, MapPin, Phone, ShieldAlert, User } from "lucide-react";
-import { fetchRequestPlausibility, type RequestPlausibility } from "@weare/core";
+import { fetchRequestPlausibility, type RequestPlausibility, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 /**
@@ -34,7 +34,7 @@ export function PlausibilityPanel({ requestId }: { requestId: string }) {
         if (!cancelled) setData(d);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : t.genericError);
+        if (!cancelled) setError(errorMessage(err, t.genericError));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

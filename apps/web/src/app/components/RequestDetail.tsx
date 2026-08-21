@@ -1,18 +1,53 @@
-import { ArrowLeft, Phone, Clock, MapPin, AlertTriangle, Share2 } from "lucide-react";
-import { urgencyLabel, formatShareMessage, shareToWhatsApp, type BloodRequest, formatRelativeTime } from "@weare/core";
+import { useState } from "react";
+import { ArrowLeft, Phone, Clock, MapPin, AlertTriangle, Share2, Check, Users, X } from "lucide-react";
+import { urgencyLabel, formatShareMessage, shareToWhatsApp, useResponses, type BloodRequest, formatRelativeTime, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { VerifiedBadge } from "./VerifiedBadge";
 
 interface RequestDetailProps {
   onBack: () => void;
-  onRespond: () => void;
+  /** Called once the response is actually recorded, not when the button is pressed. */
+  onResponded: () => void;
   request: BloodRequest;
 }
 
-export function RequestDetail({ onBack, onRespond, request }: RequestDetailProps) {
+export function RequestDetail({ onBack, onResponded, request }: RequestDetailProps) {
   const { t, lang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
+
+  const { goingTo, counts, respond, withdraw } = useResponses([request.id]);
+  const going = goingTo.has(request.id);
+  const coming = counts[request.id] ?? 0;
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleRespond = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await respond(request.id);
+      onResponded();
+    } catch (err) {
+      // Stay here and say why. Navigating to a confirmation after a failed
+      // write is how this screen used to lie.
+      setError(errorMessage(err, t.genericError));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleWithdraw = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await withdraw(request.id);
+    } catch (err) {
+      setError(errorMessage(err, t.genericError));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
@@ -118,14 +153,55 @@ export function RequestDetail({ onBack, onRespond, request }: RequestDetailProps
         >
           <Share2 className="w-[21px] h-[21px]" style={{ color: "#0B2432" }} />
         </button>
-        <button
-          onClick={onRespond}
-          className="cursor-pointer flex-1 h-[54px] rounded-2xl text-white text-base font-extrabold shadow-[0_16px_28px_-14px_rgba(229,72,77,0.8)]"
-          style={{ background: "linear-gradient(135deg,#E5484D,#F4677E)" }}
-        >
-          {t.respondRequest}
-        </button>
+        {going ? (
+          <button
+            onClick={handleWithdraw}
+            disabled={busy}
+            data-testid="withdraw-response"
+            className="cursor-pointer disabled:opacity-60 flex-1 h-[54px] rounded-2xl text-[15px] font-extrabold border-[1.5px] bg-white flex items-center justify-center gap-2"
+            style={{ borderColor: "rgba(11,36,50,0.12)", color: "#5A6B75" }}
+          >
+            <X className="w-[18px] h-[18px]" />
+            {t.withdrawResponse}
+          </button>
+        ) : (
+          <button
+            onClick={handleRespond}
+            disabled={busy}
+            data-testid="respond-request"
+            className="cursor-pointer disabled:opacity-60 flex-1 h-[54px] rounded-2xl text-white text-base font-extrabold shadow-[0_16px_28px_-14px_rgba(229,72,77,0.8)]"
+            style={{ background: "linear-gradient(135deg,#E5484D,#F4677E)" }}
+          >
+            {busy ? t.respondingNow : t.respondRequest}
+          </button>
+        )}
       </div>
+
+      {error && (
+        <div className="mt-3 rounded-2xl px-4 py-3 text-[13px]" style={{ background: "#FFECEC", color: "#8A3438", border: "1px solid #FBD3D3", textAlign: "start" }}>
+          {error}
+        </div>
+      )}
+
+      {/* Said after the buttons, because it is context for the decision rather
+          than the decision itself. A family reads this as reassurance; a donor
+          reads it as "am I still needed" — which is why a request with enough
+          people coming should not be answered by a twentieth. */}
+      {(going || coming > 0) && (
+        <div
+          className="mt-3.5 flex items-start gap-2.5 rounded-2xl px-3.5 py-3"
+          style={{ background: going ? "#EAF6EF" : "#F7FAFB", border: `1px solid ${going ? "rgba(18,183,106,0.25)" : "rgba(11,36,50,0.06)"}` }}
+        >
+          {going
+            ? <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#12B76A" }} strokeWidth={3} />
+            : <Users className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#5A6B75" }} />}
+          <span className="text-[12.5px] leading-relaxed" style={{ color: going ? "#0E7A4B" : "#5A6B75", textAlign: "start" }}>
+            {going ? t.youAreGoing : ""}
+            {going && coming > 1 ? " " : ""}
+            {coming > 0 ? t.donorsComing.replace("{count}", String(coming)) : ""}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

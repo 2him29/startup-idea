@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Minus, Plus } from "lucide-react";
-import { createBloodRequest, urgencyStyle, urgencyLabel, type Urgency } from "@weare/core";
+import { createBloodRequest, urgencyStyle, urgencyLabel, type Urgency, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
 
@@ -35,7 +35,7 @@ export function NewRequestSheet({ onClose, onPublished }: NewRequestSheetProps) 
       toast("success", t.requestPublished);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.genericError);
+      setError(errorMessage(err, t.genericError));
       setPublishing(false);
     }
   };

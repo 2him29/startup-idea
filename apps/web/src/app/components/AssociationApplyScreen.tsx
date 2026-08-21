@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, ChevronDown, Info } from "lucide-react";
-import { applyForAssociation, WILAYAS, type AssociationType } from "@weare/core";
+import { applyForAssociation, WILAYAS, type AssociationType, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
 
@@ -46,7 +46,7 @@ export function AssociationApplyScreen({ onBack, onApplied }: AssociationApplySc
       toast("success", t.assocAppliedToast);
       onApplied();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.genericError);
+      setError(errorMessage(err, t.genericError));
       setBusy(false);
     }
   };

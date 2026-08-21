@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { ArrowLeft, MapPin, Droplet } from "lucide-react";
+import { ArrowLeft, Check, MapPin, Droplet, Users } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, wilayaLabel, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
+import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, useResponses, wilayaLabel, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { getDefaultWilaya } from "../prefs";
@@ -38,6 +38,9 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
   const { t, lang, dir } = useI18n();
   const accent = userType === "hospital" ? "#0E8BA8" : "#E5484D";
   const { requests: allRequests, loading } = useBloodRequests();
+  // Keyed off every request on screen, so the counts and the donor's own
+  // commitments arrive in one pass rather than per card.
+  const { goingTo, counts } = useResponses(allRequests.map((r) => r.id));
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
   const wilayasPresent = Array.from(new Set(allRequests.map((r) => r.wilaya).filter((w): w is string => !!w)));
@@ -230,6 +233,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
           return (
             <button
               key={r.id}
+              data-testid="request-card"
               onClick={() => onOpenDetail(r)}
               className="cursor-pointer text-left w-full border rounded-[20px] p-4 bg-white shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
               style={{ borderColor: "rgba(11,36,50,0.06)", animation: "waRise .4s ease both", textAlign: "start" }}
@@ -253,6 +257,21 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                         <VerifiedBadge associationName={r.verifiedByName} variant="compact" />
                       </div>
                     )}
+                    {/* Two different facts, and the donor's own commitment wins
+                        the space: "you're going" answers "have I dealt with
+                        this", which is what someone scanning a list is asking.
+                        The count answers "am I still needed". */}
+                    {goingTo.has(r.id) ? (
+                      <div className="mt-1.5 flex items-center gap-1 text-[12px] font-bold" style={{ color: "#0E7A4B" }}>
+                        <Check className="w-[13px] h-[13px]" strokeWidth={3} />
+                        {t.youAreGoing}
+                      </div>
+                    ) : (counts[r.id] ?? 0) > 0 ? (
+                      <div className="mt-1.5 flex items-center gap-1 text-[12px]" style={{ color: "#6B7C88" }}>
+                        <Users className="w-[13px] h-[13px]" />
+                        {t.donorsComing.replace("{count}", String(counts[r.id]))}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <span className="text-[11.5px] font-extrabold px-[11px] py-1.5 rounded-full" style={{ background: badge.bg, color: badge.fg }}>

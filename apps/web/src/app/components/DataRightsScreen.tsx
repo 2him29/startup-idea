@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Download, FileEdit, Trash2 } from "lucide-react";
-import { submitDataSubjectRequest, fetchMyDataSubjectRequests, formatRelativeTime, type DsrKind, type DataSubjectRequest } from "@weare/core";
+import { submitDataSubjectRequest, fetchMyDataSubjectRequests, formatRelativeTime, type DsrKind, type DataSubjectRequest, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
 
@@ -61,7 +61,7 @@ export function DataRightsScreen({ onBack }: DataRightsScreenProps) {
       setDetails("");
       toast("success", t.dsrSubmittedToast);
     } catch (err) {
-      toast("error", err instanceof Error ? err.message : t.genericError);
+      toast("error", errorMessage(err, t.genericError));
     } finally {
       setBusy(false);
     }

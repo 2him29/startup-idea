@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Eye, Phone, PhoneOff, ShieldAlert, ShieldCheck, ShieldQuestion, Clock, Droplet } from "lucide-react";
-import { revealDonorContact, searchDonors, useMyMemberships, wilayaLabel, type DonorSearchResult } from "@weare/core";
+import { revealDonorContact, searchDonors, useMyMemberships, wilayaLabel, type DonorSearchResult, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { RequestCardSkeleton } from "./Skeletons";
@@ -67,7 +67,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
         setDonors((prev) => prev.map((d) => (d.id === donorId ? { ...d, sharesPhone: false, phone: null } : d)));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.genericError);
+      setError(errorMessage(err, t.genericError));
     } finally {
       setRevealing(null);
     }
@@ -91,7 +91,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
         if (!cancelled) setDonors(rows);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : t.donorSearchDenied);
+        if (!cancelled) setError(errorMessage(err, t.donorSearchDenied));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

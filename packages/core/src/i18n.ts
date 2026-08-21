@@ -97,6 +97,8 @@ export interface Strings {
   phoneVerifiedLabel: string; phoneUnverifiedLabel: string;
   fileRefLabel: string; noFileRef: string; inDirectoryLabel: string;
   familyContactNote: string;
+  respondingNow: string; withdrawResponse: string;
+  youAreGoing: string; donorsComing: string; noOneComingYet: string;
   assocConsoleTitle: string; assocConsoleSub: string; verifyAction: string; unverifyAction: string;
   verifyAdminsOnly: string;
   verifiedToast: string; unverifiedToast: string; noRequestsWilaya: string;
@@ -236,6 +238,9 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Share on WhatsApp", postedSeeMine: "See my request", postedStartAgain: "Start again",
     assocConsoleTitle: "Association console", assocConsoleSub: "Open requests in {wilaya}",
     verifyAction: "Verify", unverifyAction: "Remove verification",
+    respondingNow: "Confirming…", withdrawResponse: "I can no longer go",
+    youAreGoing: "You told them you're coming.",
+    donorsComing: "{count} coming so far.", noOneComingYet: "Nobody has answered yet.",
     whoPostedThis: "Who posted this", postedByName: "Posted by {name}",
     phoneVerifiedLabel: "Phone verified", phoneUnverifiedLabel: "Phone not verified",
     fileRefLabel: "File № {ref}", noFileRef: "No file number given", inDirectoryLabel: "In the hospital directory",
@@ -423,6 +428,9 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Partager sur WhatsApp", postedSeeMine: "Voir ma demande", postedStartAgain: "Recommencer",
     assocConsoleTitle: "Console association", assocConsoleSub: "Demandes ouvertes à {wilaya}",
     verifyAction: "Vérifier", unverifyAction: "Retirer la vérification",
+    respondingNow: "Confirmation…", withdrawResponse: "Je ne peux plus y aller",
+    youAreGoing: "Vous leur avez dit que vous venez.",
+    donorsComing: "{count} personne(s) en route.", noOneComingYet: "Personne n'a encore répondu.",
     whoPostedThis: "Qui a publié la demande", postedByName: "Publiée par {name}",
     phoneVerifiedLabel: "Numéro vérifié", phoneUnverifiedLabel: "Numéro non vérifié",
     fileRefLabel: "Dossier n° {ref}", noFileRef: "Aucun numéro de dossier fourni", inDirectoryLabel: "Dans l'annuaire des hôpitaux",
@@ -610,6 +618,9 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "المشاركة عبر واتساب", postedSeeMine: "عرض طلبي", postedStartAgain: "البدء من جديد",
     assocConsoleTitle: "لوحة الجمعية", assocConsoleSub: "الطلبات المفتوحة في {wilaya}",
     verifyAction: "توثيق", unverifyAction: "إزالة التوثيق",
+    respondingNow: "جارٍ التأكيد…", withdrawResponse: "لم أعد أستطيع الذهاب",
+    youAreGoing: "أخبرتهم أنك قادم.",
+    donorsComing: "{count} في الطريق.", noOneComingYet: "لم يردّ أحد بعد.",
     whoPostedThis: "من نشر الطلب", postedByName: "نشره {name}",
     phoneVerifiedLabel: "رقم موثّق", phoneUnverifiedLabel: "رقم غير موثّق",
     fileRefLabel: "ملف رقم {ref}", noFileRef: "لم يُذكر رقم الملف", inDirectoryLabel: "موجود في دليل المستشفيات",

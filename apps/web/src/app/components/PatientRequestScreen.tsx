@@ -9,6 +9,7 @@ import {
   WILAYAS,
   wilayaLabel,
   type Urgency,
+  errorMessage,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
@@ -161,7 +162,7 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
       // and a toast saying it over the top of it is the app talking twice.
       onPosted(draft());
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.genericError);
+      setError(errorMessage(err, t.genericError));
       setPosting(false);
     }
   };

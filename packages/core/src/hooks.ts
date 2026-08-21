@@ -8,6 +8,7 @@ import { fetchBloodDrives, fallbackDrives, type BloodDrive } from "./drives";
 import { ELIGIBILITY_INTERVAL_DAYS } from "./donors";
 import { fetchMyMemberships, type AssociationMembership } from "./associations";
 import { fetchRequestsForWilaya, countWilayaRequests } from "./api";
+import { fetchMyResponses, fetchResponseCounts, respondToRequest, cancelResponse, type MyResponse } from "./responses";
 import { isPhoneVerified } from "./otp";
 
 /**
@@ -418,4 +419,69 @@ export function useCommitteeInbox() {
     loading: loadingMemberships || loading,
     refresh,
   };
+}
+
+/**
+ * Which requests this donor has answered, and how many others are coming.
+ *
+ * One hook because the two are always wanted together: a card has to say both
+ * "you're going" and "3 coming", and asking twice from two places would make
+ * them disagree the moment one refreshes and the other does not.
+ *
+ * Reloads on auth change for the same reason every auth-scoped read here does
+ * — the alternative is answering for whoever was signed in at mount and never
+ * asking again. See useMyMemberships.
+ */
+export function useResponses(requestIds: string[]) {
+  const [mine, setMine] = useState<MyResponse[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+
+  // Stable across renders so the effect does not re-run on every new array
+  // instance the parent happens to build.
+  const idKey = requestIds.slice().sort().join(",");
+
+  const load = useCallback(async () => {
+    const ids = idKey ? idKey.split(",") : [];
+    const [responses, responseCounts] = await Promise.all([
+      fetchMyResponses().catch((err) => {
+        console.error("Failed to load your responses", err);
+        return [] as MyResponse[];
+      }),
+      fetchResponseCounts(ids).catch((err) => {
+        console.error("Failed to count responses", err);
+        return {} as Record<string, number>;
+      }),
+    ]);
+    setMine(responses);
+    setCounts(responseCounts);
+    setLoading(false);
+  }, [idKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+    load().catch(() => {});
+    const { data: subscription } = getSupabase().auth.onAuthStateChange(() => {
+      if (!cancelled) load().catch(() => {});
+    });
+    return () => {
+      cancelled = true;
+      subscription.subscription.unsubscribe();
+    };
+  }, [load]);
+
+  /** Requests this donor is currently committed to, cancelled ones excluded. */
+  const goingTo = new Set(mine.filter((r) => r.status !== "cancelled").map((r) => r.requestId));
+
+  const respond = async (requestId: string) => {
+    await respondToRequest(requestId);
+    await load();
+  };
+
+  const withdraw = async (requestId: string) => {
+    await cancelResponse(requestId);
+    await load();
+  };
+
+  return { goingTo, counts, loading, respond, withdraw, refresh: load };
 }

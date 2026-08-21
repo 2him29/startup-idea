@@ -242,6 +242,53 @@ test.describe("patient/association model", () => {
     await expect(page.getByText("Request verified")).toHaveCount(0);
   });
 
+  /**
+   * The loop closing.
+   *
+   * Respond wrote nothing at all until 20260821120000 — a green tick, and a
+   * family who never learned anyone was coming. This drives the whole cycle,
+   * including withdrawal, because a donor who can commit but not un-commit
+   * leaves the family counting on someone who is not turning up.
+   */
+  test("a donor can commit to a request, and take it back", async ({ page }) => {
+    await gotoFresh(page);
+
+    /*
+     * A fresh account, for two reasons.
+     *
+     * Both browser projects share the demo donor against one staging database,
+     * so a test that toggles that account's single response row races the other
+     * project and loses. And a brand-new account has no donor_profiles row —
+     * which used to make responding impossible, since donor_id referenced that
+     * table. This is the case the FK change exists for.
+     */
+    const email = `e2e.respond.${Date.now()}@qatra.test`;
+    await page.getByRole("button", { name: "I'm a Donor" }).click();
+    await page.getByPlaceholder("Yacine B.").fill("E2E Responder");
+    await page.getByPlaceholder("you@email.com").fill(email);
+    await page.getByPlaceholder("••••••••").fill("WeAreDemo123!");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page.getByText("Verify your phone", { exact: true })).toBeVisible({ timeout: 30_000 });
+    await page.getByRole("button", { name: "Skip for now" }).click();
+    await expect(page.getByText(t("en").quickActions)).toBeVisible();
+
+    await clickNavById(page, "matching");
+    await expect(page.getByText(t("en").urgentRequests).first()).toBeVisible({ timeout: 20_000 });
+    await page.getByTestId("request-card").first().click();
+
+    await page.getByTestId("respond-request").click();
+    // Navigation happens only after the row is written, so arriving here is
+    // itself the assertion that it was.
+    await expect(page.getByText(t("en").matchedTitle)).toBeVisible({ timeout: 20_000 });
+
+    await clickNavById(page, "matching");
+    await expect(page.getByText(t("en").youAreGoing).first()).toBeVisible({ timeout: 20_000 });
+
+    await page.getByTestId("request-card").first().click();
+    await page.getByTestId("withdraw-response").click();
+    await expect(page.getByTestId("respond-request")).toBeVisible({ timeout: 20_000 });
+  });
+
   test("donor sees the verified badge on the find screen", async ({ page }) => {
     await gotoFresh(page);
     await demoLogin(page, "donor");

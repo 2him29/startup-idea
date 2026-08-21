@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Check, HeartPulse, Lock, ShieldCheck } from "lucide-react";
-import { recordConsent, CONSENT_VERSIONS } from "@weare/core";
+import { recordConsent, CONSENT_VERSIONS, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 interface ConsentScreenProps {
@@ -49,7 +49,7 @@ export function ConsentScreen({ onBack, onConsented }: ConsentScreenProps) {
       await recordConsent("health_data");
       onConsented();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.genericError);
+      setError(errorMessage(err, t.genericError));
       setBusy(false);
     }
   };

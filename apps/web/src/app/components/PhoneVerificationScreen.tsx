@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, FileText, Info, ShieldCheck, Smartphone } from "lucide-react";
-import { sendVerificationCode, confirmVerificationCode, normalizeAlgerianPhone } from "@weare/core";
+import { sendVerificationCode, confirmVerificationCode, normalizeAlgerianPhone, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { useToast } from "./Toast";
 import { FlowSteps } from "./FlowSteps";
@@ -74,7 +74,7 @@ export function PhoneVerificationScreen({ onBack, onVerified, onSkip, draftSumma
       setStep("code");
       setResendIn(30);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.genericError);
+      setError(errorMessage(err, t.genericError));
     } finally {
       setBusy(false);
     }
@@ -89,7 +89,7 @@ export function PhoneVerificationScreen({ onBack, onVerified, onSkip, draftSumma
       toast("success", t.phoneVerifiedToast);
       onVerified();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.genericError);
+      setError(errorMessage(err, t.genericError));
     } finally {
       setBusy(false);
     }
