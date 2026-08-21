@@ -260,7 +260,7 @@ async function checkRls() {
     asUser(ids.outsider, () => expectRows("select 1 from request_responses where request_id=$1", [request], 0)));
   await check("...but can still see the count", () =>
     asUser(ids.outsider, async () => {
-      const r = await client.query("select confirmed from request_response_counts where request_id=$1", [request]);
+      const r = await client.query("select confirmed from response_counts(array[$1]::uuid[])", [request]);
       if (r.rows[0]?.confirmed !== 1) throw new Error(`count not visible: ${JSON.stringify(r.rows)}`);
     }));
 
@@ -273,7 +273,7 @@ async function checkRls() {
   await check("a withdrawn response stops counting", () =>
     asUser(ids.donor, async () => {
       await client.query("update request_responses set status='cancelled' where donor_id=$1", [ids.donor]);
-      const r = await client.query("select confirmed from request_response_counts where request_id=$1", [request]);
+      const r = await client.query("select confirmed from response_counts(array[$1]::uuid[])", [request]);
       if ((r.rows[0]?.confirmed ?? 0) !== 0) throw new Error("a cancelled response was still counted");
     }));
   await check("nobody can cancel someone else's response", () =>
@@ -779,6 +779,85 @@ async function checkDonorSearch() {
  * database didn't have — PostgREST rejects such a query wholesale, and the
  * app's fallback then quietly serves mock data instead.
  */
+async function checkGrants() {
+  section("api surface: the permission layer, not just the guard inside");
+
+  /*
+   * Every one of these refuses the wrong caller from inside anyway. This
+   * checks the outer layer — that an anonymous request never reaches the
+   * function body at all.
+   *
+   * The distinction is not academic: `revoke ... from public` leaves
+   * Supabase's separate grants to anon and authenticated in place, so
+   * functions that looked locked were merely well-guarded. Asserting the grant
+   * itself is what catches that.
+   */
+  const anonMustNotExecute = [
+    "search_donors",
+    "reveal_donor_contact",
+    "request_plausibility",
+    "verify_association",
+    "can_verify_in_wilaya",
+    "is_association_in_wilaya",
+    "is_association_admin",
+    "is_platform_admin",
+    "is_phone_verified",
+    "association_has_members",
+    "push_targets_for_request",
+    "push_targets_for_family",
+    "claim_notifications",
+    "bump_push_failure",
+    "queue_new_request_notification",
+    "queue_response_notification",
+    "response_counts",
+  ];
+
+  for (const fn of anonMustNotExecute) {
+    await check(`anon cannot execute ${fn}()`, async () => {
+      const r = await client.query(
+        `select count(*)::int n from pg_proc p
+         where p.proname = $1
+           and p.pronamespace = 'public'::regnamespace
+           and has_function_privilege('anon', p.oid, 'EXECUTE')`,
+        [fn]
+      );
+      if (r.rows[0].n !== 0) throw new Error(`anon still holds EXECUTE on ${fn}`);
+    });
+  }
+
+  /* The predicates behind RLS must stay callable by signed-in users: a policy
+     expression runs as the querying role, so revoking these would break every
+     policy that references one. */
+  for (const fn of ["can_verify_in_wilaya", "is_platform_admin", "is_phone_verified"]) {
+    await check(`authenticated keeps EXECUTE on ${fn}() for RLS`, async () => {
+      const r = await client.query(
+        `select count(*)::int n from pg_proc p
+         where p.proname = $1
+           and p.pronamespace = 'public'::regnamespace
+           and has_function_privilege('authenticated', p.oid, 'EXECUTE')`,
+        [fn]
+      );
+      if (r.rows[0].n === 0) throw new Error(`${fn} is no longer callable by authenticated; RLS will fail`);
+    });
+  }
+
+  /* A SECURITY DEFINER view hides that property at the call site. The counts
+     are a function now, which declares it. */
+  await check("no SECURITY DEFINER views remain in public", async () => {
+    const r = await client.query(
+      `select c.relname from pg_class c
+       join pg_namespace n on n.oid = c.relnamespace
+       where c.relkind = 'v' and n.nspname = 'public'
+         and not coalesce((select option_value = 'true'
+                           from pg_options_to_table(c.reloptions)
+                           where option_name = 'security_invoker'), false)`
+    );
+    if (r.rowCount !== 0) {
+      throw new Error(`definer views: ${r.rows.map((x) => x.relname).join(", ")}`);
+    }
+  });
+}
+
 async function checkClientContract() {
   section("client/schema contract");
 
@@ -940,6 +1019,7 @@ async function main() {
   await applyMigrations();
   await checkRls();
   await checkDonorSearch();
+  await checkGrants();
   await checkClientContract();
   await checkSeed();
 

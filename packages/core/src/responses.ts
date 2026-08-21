@@ -119,10 +119,10 @@ export async function fetchResponseCounts(requestIds: string[]): Promise<Record<
   const ids = requestIds.filter((id) => UUID.test(id));
   if (ids.length === 0) return {};
 
-  const { data, error } = await getSupabase()
-    .from("request_response_counts")
-    .select("request_id, confirmed")
-    .in("request_id", ids);
+  // An RPC, not a view: a SECURITY DEFINER view hides the property at the call
+  // site, which both Postgres and Supabase's linter treat as an error-level
+  // smell. The function states it in its own definition. See 20260821160000.
+  const { data, error } = await getSupabase().rpc("response_counts", { p_request_ids: ids });
   if (error) throw error;
 
   const counts: Record<string, number> = {};
