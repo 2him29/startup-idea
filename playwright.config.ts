@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
 /**
@@ -69,3 +71,38 @@ export default defineConfig({
     timeout: 120_000,
   },
 });
+
+/**
+ * Refuse to run against the live project.
+ *
+ * The suite writes: it signs up accounts, posts requests, verifies them and
+ * records responses. It reads apps/web/.env to decide which model it is
+ * testing, and reuseExistingServer means it will happily drive whatever dev
+ * server is already on :5173 — which is whatever that file pointed at when the
+ * server started, not necessarily now.
+ *
+ * That combination put test data into the live project twice in one afternoon,
+ * both times unnoticed until a query came back with names that did not belong
+ * to staging. A guard is cheaper than the next investigation.
+ *
+ * Set QATRA_ALLOW_LIVE_E2E=1 to override, if there is ever a reason to.
+ */
+const LIVE_PROJECT_REF = "wyxrzanirypztxdujsaa";
+
+if (!process.env.QATRA_ALLOW_LIVE_E2E) {
+  let envFile = "";
+  try {
+    envFile = readFileSync(path.resolve(process.cwd(), "apps", "web", ".env"), "utf8");
+  } catch {
+    // No .env: the app falls back to mock data and writes nowhere.
+  }
+  if (envFile.includes(LIVE_PROJECT_REF)) {
+    throw new Error(
+      [
+        `apps/web/.env points at the LIVE project (${LIVE_PROJECT_REF}), and this suite writes.`,
+        "Point VITE_SUPABASE_URL at staging before running tests, or set QATRA_ALLOW_LIVE_E2E=1 if you truly mean it.",
+        "If a dev server is already running, restart it too — it holds the env it started with.",
+      ].join("\n")
+    );
+  }
+}

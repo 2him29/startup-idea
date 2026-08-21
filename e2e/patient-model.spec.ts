@@ -289,6 +289,29 @@ test.describe("patient/association model", () => {
     await expect(page.getByTestId("respond-request")).toBeVisible({ timeout: 20_000 });
   });
 
+  /**
+   * The compatibility claim has to be about this donor and this patient.
+   *
+   * It used to be a hardcoded string — "Your A+ type is a direct match" with
+   * the A+ baked into the translation — shown on every request to every
+   * reader. Wrong for seven donors in eight, in the one place where being
+   * wrong is a medical error rather than a bad experience.
+   */
+  test("the request detail states a real compatibility verdict", async ({ page }) => {
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+
+    await clickNavById(page, "matching");
+    await expect(page.getByText(t("en").urgentRequests).first()).toBeVisible({ timeout: 20_000 });
+    await page.getByTestId("request-card").first().click();
+
+    // Exactly one of the three verdicts, never the old sentence.
+    const verdicts = [t("en").matchTitleYes, t("en").matchTitleNo, t("en").matchTitleUnknown];
+    const shown = await Promise.all(verdicts.map((v) => page.getByText(v).count()));
+    expect(shown.filter((n) => n > 0).length).toBe(1);
+    await expect(page.getByText("Your A+ type is a direct match.")).toHaveCount(0);
+  });
+
   test("donor sees the verified badge on the find screen", async ({ page }) => {
     await gotoFresh(page);
     await demoLogin(page, "donor");

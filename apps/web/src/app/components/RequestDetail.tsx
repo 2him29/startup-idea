@@ -1,6 +1,16 @@
 import { useState } from "react";
-import { ArrowLeft, Phone, Clock, MapPin, AlertTriangle, Share2, Check, Users, X } from "lucide-react";
-import { urgencyLabel, formatShareMessage, shareToWhatsApp, useResponses, type BloodRequest, formatRelativeTime, errorMessage} from "@weare/core";
+import { ArrowLeft, Phone, Clock, MapPin, AlertTriangle, Info, Share2, Check, Users, X } from "lucide-react";
+import {
+  urgencyLabel,
+  formatShareMessage,
+  shareToWhatsApp,
+  useResponses,
+  useDonorProfile,
+  matchKind,
+  formatRelativeTime,
+  errorMessage,
+  type BloodRequest,
+} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { VerifiedBadge } from "./VerifiedBadge";
@@ -17,6 +27,18 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
 
   const { goingTo, counts, respond, withdraw } = useResponses([request.id]);
+
+  /*
+   * Whether this donor can actually give to this patient.
+   *
+   * This replaced a hardcoded string. The screen used to tell every reader
+   * "Your A+ type is a direct match" — the A+ was baked into the translation
+   * itself, so an O- donor looking at a B+ request was told the same thing.
+   * In a blood app that is the worst available thing to be wrong about, and it
+   * was wrong for seven donors in eight.
+   */
+  const { donorProfile } = useDonorProfile();
+  const match = matchKind(donorProfile?.bloodType, request.bloodType);
   const going = goingTo.has(request.id);
   const coming = counts[request.id] ?? 0;
   const [busy, setBusy] = useState(false);
@@ -113,16 +135,40 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
             </span>
             <div className="flex-1">
               <div className="text-[13.5px] font-semibold" style={{ color: "#0B2432" }}>{request.distance} {t.away}</div>
-              <div className="text-xs" style={{ color: "#8496A0" }}>{t.driveParking}</div>
             </div>
           </div>
+          {/*
+            The compatibility answer, computed rather than asserted.
+
+            "incompatible" is not a dead end: sharing a request is a real
+            contribution, and someone who cannot give should be told what they
+            can do rather than simply turned away. "unknown" asks for the
+            missing fact instead of guessing.
+          */}
           <div className="flex items-start gap-3">
-            <span className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: "#FFF3E0" }}>
-              <AlertTriangle className="w-[17px] h-[17px]" style={{ color: "#F5871F" }} />
+            <span
+              className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0"
+              style={{ background: match === "incompatible" ? "#F1F5F6" : match === "unknown" ? "#FFF3E0" : "#EAF6EF" }}
+            >
+              {match === "incompatible" ? (
+                <Info className="w-[17px] h-[17px]" style={{ color: "#8496A0" }} />
+              ) : match === "unknown" ? (
+                <AlertTriangle className="w-[17px] h-[17px]" style={{ color: "#F5871F" }} />
+              ) : (
+                <Check className="w-[17px] h-[17px]" style={{ color: "#12B76A" }} strokeWidth={3} />
+              )}
             </span>
             <div className="flex-1">
-              <div className="text-[13.5px] font-semibold" style={{ color: "#0B2432" }}>{t.emergencyPatient}</div>
-              <div className="text-xs" style={{ color: "#8496A0" }}>{t.directMatch}</div>
+              <div className="text-[13.5px] font-semibold" style={{ color: "#0B2432" }}>
+                {match === "incompatible" ? t.matchTitleNo : match === "unknown" ? t.matchTitleUnknown : t.matchTitleYes}
+              </div>
+              <div className="text-xs" style={{ color: "#8496A0" }}>
+                {match === "unknown"
+                  ? t.matchUnknown
+                  : (match === "exact" ? t.matchExact : match === "compatible" ? t.matchCompatible : t.matchIncompatible)
+                      .replace("{donor}", donorProfile?.bloodType ?? "")
+                      .replace("{recipient}", request.bloodType)}
+              </div>
             </div>
           </div>
         </div>

@@ -8,11 +8,21 @@ interface BottomNavigationProps {
   userType: "donor" | "hospital" | null;
 }
 
-// The two flow endings belong here — "request-posted" and "match-confirm" —
-// for the same reason: they are the end of a journey, not modals. Losing the
-// bar there strands someone on a success screen with no way back into the app
-// except whichever buttons it happens to offer.
-const visibleOn = ["home", "matching", "profile", "hospital", "compensate", "post-request", "request-posted", "match-confirm", "association", "donor-search", "committee"];
+/**
+ * Screens that deliberately have no bottom bar, rather than a list of the ones
+ * that do.
+ *
+ * It was an allowlist, and that shape produced the same bug three times: a new
+ * screen was added, nobody thought to register it, and the navigation silently
+ * vanished there — found each time by a test failing for an unrelated-looking
+ * reason. Defaulting to "show the bar" means forgetting costs nothing, and the
+ * exceptions below are few and deliberate.
+ *
+ * These four are all mid-journey interruptions: the user is being asked for
+ * one specific thing, and offering five ways to leave invites abandoning it.
+ * (Signed-out screens need no entry at all — the early return covers them.)
+ */
+const hideNavOn = ["auth", "donor-registration", "verify-phone", "consent"];
 
 export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomNavigationProps) {
   // Every hook runs before the early return below: React requires the same
@@ -22,7 +32,7 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
   const patientModel = isPatientModelEnabled();
   const { isMember, waiting } = useCommitteeInbox();
 
-  if (!userType || !visibleOn.includes(activeScreen)) return null;
+  if (!userType || hideNavOn.includes(activeScreen)) return null;
   // Under the patient model the hospital account type no longer has a nav of
   // its own — hospitals are a text field on a request, not a role — so every
   // signed-in user gets the donor-side navigation.

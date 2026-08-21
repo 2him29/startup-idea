@@ -13,7 +13,8 @@
     "test:ui": "playwright test --ui",
     "verify:db": "node supabase/tests/verify.mjs",
     "test:flow": "esbuild packages/core/src/index.ts --bundle --format=esm --platform=node --outfile=supabase/tests/.core.mjs --log-level=error && node supabase/tests/walkthrough.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:unit": "node --test \"packages/core/src/**/*.test.ts\""
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

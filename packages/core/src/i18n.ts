@@ -30,7 +30,7 @@ export interface Strings {
   urgentRequests: string; sortedDistance: string; nearby: string; liveMap: string;
   requestDetails: string; requestedBy: string; bloodType: string; unitsNeeded: string;
   distance: string; details: string; posted: string; responseWindow: string;
-  away: string; driveParking: string; emergencyPatient: string; directMatch: string; respondRequest: string;
+  away: string; respondRequest: string;
   matchedTitle: string; matchedBody: string;
   location: string; confirmation: string; getDirections: string; backHome: string;
   becomeDonor: string; twoMinutes: string; registerBlurb: string;
@@ -99,6 +99,8 @@ export interface Strings {
   familyContactNote: string;
   respondingNow: string; withdrawResponse: string;
   youAreGoing: string; donorsComing: string; noOneComingYet: string;
+  matchExact: string; matchCompatible: string; matchIncompatible: string; matchUnknown: string;
+  matchTitleYes: string; matchTitleNo: string; matchTitleUnknown: string;
   assocConsoleTitle: string; assocConsoleSub: string; verifyAction: string; unverifyAction: string;
   verifyAdminsOnly: string;
   verifiedToast: string; unverifiedToast: string; noRequestsWilaya: string;
@@ -158,10 +160,9 @@ export const I18N: Record<Lang, Strings> = {
     schedule: "Blood drives near you", scheduleSub: "See upcoming donation events",
     urgentRequests: "Urgent requests", sortedDistance: "Sorted by distance", nearby: "nearby", liveMap: "Live map",
     requestDetails: "Request details", requestedBy: "Requested by", bloodType: "Blood type", unitsNeeded: "Units needed",
-    distance: "Distance", details: "Details", posted: "Posted", responseWindow: "Response window: 4 hours",
-    away: "away", driveParking: "~8 min drive · free parking", emergencyPatient: "Emergency surgery patient",
-    directMatch: "Your A+ type is a direct match.", respondRequest: "Respond to request",
-    matchedTitle: "You're matched!", matchedBody: "The hospital has been notified. Head over to donate — you could save up to 3 lives today.",
+    distance: "Distance", details: "Details", posted: "Posted", responseWindow: "Open until the family closes it",
+    away: "away", respondRequest: "Respond to request",
+    matchedTitle: "You're matched!", matchedBody: "The family can see that you're coming. Head over to donate — you could save up to 3 lives today.",
     location: "Location", confirmation: "Confirmation", getDirections: "Get directions", backHome: "Back to home",
     becomeDonor: "Become a donor", twoMinutes: "Takes about 2 minutes",
     registerBlurb: "Your details help us match you with patients in need. Everything stays confidential.",
@@ -238,6 +239,11 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Share on WhatsApp", postedSeeMine: "See my request", postedStartAgain: "Start again",
     assocConsoleTitle: "Association console", assocConsoleSub: "Open requests in {wilaya}",
     verifyAction: "Verify", unverifyAction: "Remove verification",
+    matchTitleYes: "You can give to this patient", matchTitleNo: "You cannot give to this patient", matchTitleUnknown: "We don't know your blood type",
+    matchExact: "{donor} is exactly what they need.",
+    matchCompatible: "{donor} can be given to someone with {recipient}.",
+    matchIncompatible: "{donor} cannot be given to someone with {recipient}. You can still share this request.",
+    matchUnknown: "Add your blood type to your profile and we'll tell you whether you match.",
     respondingNow: "Confirming…", withdrawResponse: "I can no longer go",
     youAreGoing: "You told them you're coming.",
     donorsComing: "{count} coming so far.", noOneComingYet: "Nobody has answered yet.",
@@ -348,10 +354,9 @@ export const I18N: Record<Lang, Strings> = {
     schedule: "Collectes près de vous", scheduleSub: "Voir les événements de don à venir",
     urgentRequests: "Demandes urgentes", sortedDistance: "Par distance", nearby: "à proximité", liveMap: "Carte live",
     requestDetails: "Détails de la demande", requestedBy: "Demandé par", bloodType: "Groupe", unitsNeeded: "Unités",
-    distance: "Distance", details: "Détails", posted: "Publié", responseWindow: "Fenêtre : 4 heures",
-    away: "de distance", driveParking: "~8 min · parking gratuit", emergencyPatient: "Patient en chirurgie urgente",
-    directMatch: "Votre groupe A+ correspond.", respondRequest: "Répondre à la demande",
-    matchedTitle: "Vous êtes jumelé !", matchedBody: "L'hôpital a été notifié. Rendez-vous pour donner — vous pouvez sauver 3 vies aujourd'hui.",
+    distance: "Distance", details: "Détails", posted: "Publié", responseWindow: "Ouverte jusqu'à ce que la famille la ferme",
+    away: "de distance", respondRequest: "Répondre à la demande",
+    matchedTitle: "Vous êtes jumelé !", matchedBody: "La famille voit que vous venez. Rendez-vous pour donner — vous pouvez sauver 3 vies aujourd'hui.",
     location: "Lieu", confirmation: "Confirmation", getDirections: "Itinéraire", backHome: "Accueil",
     becomeDonor: "Devenir donneur", twoMinutes: "Environ 2 minutes",
     registerBlurb: "Vos informations nous aident à vous jumeler avec des patients. Tout reste confidentiel.",
@@ -428,6 +433,11 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "Partager sur WhatsApp", postedSeeMine: "Voir ma demande", postedStartAgain: "Recommencer",
     assocConsoleTitle: "Console association", assocConsoleSub: "Demandes ouvertes à {wilaya}",
     verifyAction: "Vérifier", unverifyAction: "Retirer la vérification",
+    matchTitleYes: "Vous pouvez donner à ce patient", matchTitleNo: "Vous ne pouvez pas donner à ce patient", matchTitleUnknown: "Nous ignorons votre groupe sanguin",
+    matchExact: "{donor} est exactement ce qu'il leur faut.",
+    matchCompatible: "{donor} peut être donné à une personne de groupe {recipient}.",
+    matchIncompatible: "{donor} ne peut pas être donné à une personne de groupe {recipient}. Vous pouvez tout de même partager cette demande.",
+    matchUnknown: "Ajoutez votre groupe sanguin à votre profil et nous vous dirons si vous correspondez.",
     respondingNow: "Confirmation…", withdrawResponse: "Je ne peux plus y aller",
     youAreGoing: "Vous leur avez dit que vous venez.",
     donorsComing: "{count} personne(s) en route.", noOneComingYet: "Personne n'a encore répondu.",
@@ -538,10 +548,9 @@ export const I18N: Record<Lang, Strings> = {
     schedule: "حملات قريبة منك", scheduleSub: "شاهد فعاليات التبرع القادمة",
     urgentRequests: "طلبات عاجلة", sortedDistance: "حسب المسافة", nearby: "بالقرب", liveMap: "خريطة مباشرة",
     requestDetails: "تفاصيل الطلب", requestedBy: "الطالب", bloodType: "الفصيلة", unitsNeeded: "الوحدات",
-    distance: "المسافة", details: "التفاصيل", posted: "نُشر", responseWindow: "مدة الاستجابة: 4 ساعات",
-    away: "بعيداً", driveParking: "~8 دقائق · موقف مجاني", emergencyPatient: "مريض جراحة طارئة",
-    directMatch: "فصيلتك A+ مطابقة تماماً.", respondRequest: "الاستجابة للطلب",
-    matchedTitle: "تم التوفيق!", matchedBody: "تم إخطار المستشفى. توجّه للتبرع — قد تنقذ 3 أرواح اليوم.",
+    distance: "المسافة", details: "التفاصيل", posted: "نُشر", responseWindow: "مفتوح حتى تغلقه العائلة",
+    away: "بعيداً", respondRequest: "الاستجابة للطلب",
+    matchedTitle: "تم التوفيق!", matchedBody: "ترى العائلة أنك قادم. توجّه للتبرع — قد تنقذ 3 أرواح اليوم.",
     location: "المكان", confirmation: "التأكيد", getDirections: "الاتجاهات", backHome: "الرئيسية",
     becomeDonor: "كن متبرعاً", twoMinutes: "حوالي دقيقتين",
     registerBlurb: "تساعدنا بياناتك في توفيقك مع المرضى المحتاجين. كل شيء يبقى سرياً.",
@@ -618,6 +627,11 @@ export const I18N: Record<Lang, Strings> = {
     postedShareWhatsApp: "المشاركة عبر واتساب", postedSeeMine: "عرض طلبي", postedStartAgain: "البدء من جديد",
     assocConsoleTitle: "لوحة الجمعية", assocConsoleSub: "الطلبات المفتوحة في {wilaya}",
     verifyAction: "توثيق", unverifyAction: "إزالة التوثيق",
+    matchTitleYes: "يمكنك التبرع لهذا المريض", matchTitleNo: "لا يمكنك التبرع لهذا المريض", matchTitleUnknown: "لا نعرف فصيلة دمك",
+    matchExact: "{donor} هي بالضبط ما يحتاجونه.",
+    matchCompatible: "يمكن إعطاء {donor} لشخص فصيلته {recipient}.",
+    matchIncompatible: "لا يمكن إعطاء {donor} لشخص فصيلته {recipient}. ومع ذلك يمكنك مشاركة الطلب.",
+    matchUnknown: "أضف فصيلة دمك إلى ملفك وسنخبرك إن كنت مطابقاً.",
     respondingNow: "جارٍ التأكيد…", withdrawResponse: "لم أعد أستطيع الذهاب",
     youAreGoing: "أخبرتهم أنك قادم.",
     donorsComing: "{count} في الطريق.", noOneComingYet: "لم يردّ أحد بعد.",
