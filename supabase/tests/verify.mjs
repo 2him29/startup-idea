@@ -403,6 +403,92 @@ async function checkRls() {
     if (r.rowCount !== 1) throw new Error("the requesting family was not reachable");
   });
 
+  section("outbox: notifications are queued, not fired inside a transaction");
+  await check("posting a request queues one notification", async () => {
+    const before = (await client.query(
+      "select count(*)::int n from notification_outbox where kind='new_request'")).rows[0].n;
+    await client.query(
+      "insert into blood_requests (patient_record_id,patient_id,blood_type,units,urgency,wilaya) values ($1,'OUTBOX-1','A+',1,'High','Blida')",
+      [patient]
+    );
+    const after = (await client.query(
+      "select count(*)::int n from notification_outbox where kind='new_request'")).rows[0].n;
+    if (after !== before + 1) throw new Error(`expected one new row, got ${after - before}`);
+  });
+
+  await check("a confirmed response queues one for the family", async () => {
+    const before = (await client.query(
+      "select count(*)::int n from notification_outbox where kind='donor_responded'")).rows[0].n;
+    await client.query(
+      "insert into request_responses (request_id, donor_id, status) values ($1,$2,'confirmed')",
+      [request, ids.outsider]
+    );
+    const after = (await client.query(
+      "select count(*)::int n from notification_outbox where kind='donor_responded'")).rows[0].n;
+    if (after !== before + 1) throw new Error("the family would not have been told");
+  });
+
+  /*
+   * Withdrawal is deliberately silent. The family sees the count drop in the
+   * app; a push saying "someone changed their mind" reads as an accusation and
+   * is the kind of notification that gets an app muted.
+   */
+  await check("withdrawing does not notify anyone", async () => {
+    const before = (await client.query("select count(*)::int n from notification_outbox")).rows[0].n;
+    await client.query(
+      "update request_responses set status='cancelled' where request_id=$1 and donor_id=$2",
+      [request, ids.outsider]
+    );
+    const after = (await client.query("select count(*)::int n from notification_outbox")).rows[0].n;
+    if (after !== before) throw new Error("a withdrawal produced a notification");
+  });
+
+  await check("no client role can read the outbox", async () => {
+    for (const who of [ids.donor, ids.member, ids.admin, ids.family]) {
+      await asUser(who, () => expectRows("select 1 from notification_outbox", [], 0));
+    }
+  });
+
+  await check("claiming is service-role only", () =>
+    asUser(ids.member, () => expectDenied("select * from claim_notifications(5)")));
+
+  /*
+   * Two workers must not send the same notification. SKIP LOCKED is what stops
+   * a donor's phone buzzing twice for one request.
+   */
+  await check("a claimed row is not handed to a second worker", async () => {
+    const first = await client.query("select id from claim_notifications(50)");
+    if (first.rowCount === 0) throw new Error("nothing to claim; the fixture is wrong");
+    // A second worker a moment later, which is the case SKIP LOCKED alone does
+    // not cover: the first claim has committed and released its locks.
+    const second = await client.query("select id from claim_notifications(50)");
+    const overlap = second.rows.filter((r) => first.rows.some((f) => f.id === r.id));
+    if (overlap.length !== 0) throw new Error(`${overlap.length} rows were claimed twice`);
+  });
+
+  await check("an abandoned claim becomes retryable once its lease expires", async () => {
+    const row = (await client.query(
+      "insert into notification_outbox (kind, request_id) values ('new_request',$1) returning id", [request]
+    )).rows[0].id;
+    await client.query("select * from claim_notifications(50)");
+    // A worker that died mid-send: claimed, never marked sent.
+    await client.query("update notification_outbox set claimed_at = now() - interval '10 minutes' where id=$1", [row]);
+    const again = await client.query("select 1 from claim_notifications(50) where id=$1", [row]);
+    if (again.rowCount !== 1) throw new Error("a stranded row was never retried");
+  });
+
+  await check("claiming counts the attempt, so a poison row cannot loop forever", async () => {
+    const row = (await client.query(
+      "insert into notification_outbox (kind, request_id) values ('new_request',$1) returning id", [request]
+    )).rows[0].id;
+    for (let i = 0; i < 6; i++) await client.query("select * from claim_notifications(50)");
+    const r = await client.query("select attempts from notification_outbox where id=$1", [row]);
+    if (r.rows[0].attempts > 5) throw new Error(`attempts kept climbing: ${r.rows[0].attempts}`);
+    const stillClaimed = await client.query(
+      "select 1 from claim_notifications(50) where id=$1", [row]);
+    if (stillClaimed.rowCount !== 0) throw new Error("an exhausted row was claimed again");
+  });
+
   section("plausibility: what a committee may read in order to vouch");
   /*
    * profiles is readable by its owner alone, and stays that way. This function

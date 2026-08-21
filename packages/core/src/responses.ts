@@ -1,4 +1,5 @@
 import { getSupabase } from "./supabaseClient";
+import { drainNotifications } from "./push";
 
 export type ResponseStatus = "confirmed" | "completed" | "cancelled";
 
@@ -52,6 +53,9 @@ export async function respondToRequest(requestId: string): Promise<void> {
     return;
   }
   if (error) throw error;
+
+  // The family should hear now, not on the next scheduled run.
+  void drainNotifications();
 }
 
 /**

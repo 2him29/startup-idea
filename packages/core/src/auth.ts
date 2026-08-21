@@ -179,3 +179,23 @@ export async function updateOwnedHospital(params: { name: string; wilaya: string
     .eq("owner_id", sessionData.session.user.id);
   if (error) throw error;
 }
+
+/**
+ * Mirror the chosen UI language onto the profile.
+ *
+ * Only the client knows which language is in use, and only the server can
+ * compose a push notification — so one of them has to tell the other. Without
+ * this the worker guesses, and guesses French at an Arabic speaker in an app
+ * whose majority language is Arabic.
+ *
+ * Best-effort by design: a signed-out visitor has nowhere to store it, and a
+ * failure here must never interrupt someone switching language. The reader
+ * treats a missing value as French, which is what the app already falls back
+ * to on these devices.
+ */
+export async function rememberLanguage(language: "en" | "fr" | "ar"): Promise<void> {
+  const supabase = getSupabase();
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) return;
+  await supabase.from("profiles").update({ language }).eq("id", data.session.user.id);
+}

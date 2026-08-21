@@ -182,3 +182,31 @@ export async function disablePush(): Promise<void> {
     await subscription.unsubscribe();
   }
 }
+
+/**
+ * Nudge the worker to drain the outbox now.
+ *
+ * Notifications are queued by database triggers and sent by an edge function.
+ * In production that function runs on a schedule; calling it here as well
+ * makes the gap between "a request was posted" and "a phone buzzes" a second
+ * rather than up to a minute — which is the difference between a demo that
+ * lands and one that needs explaining.
+ *
+ * Deliberately fire-and-forget. The queue is durable: if this call fails, is
+ * blocked, or the tab closes mid-flight, the scheduled run still sends it. So
+ * a failure here is a delay, never a loss, and must not surface as an error on
+ * a screen the user is trying to leave.
+ *
+ * Safe to expose: the function takes no input, returns only counts, and sends
+ * exactly what the triggers already decided should be sent.
+ */
+export async function drainNotifications(): Promise<void> {
+  try {
+    const supabase = getSupabase();
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) return;
+    await supabase.functions.invoke("send-push");
+  } catch {
+    // Delayed, not lost. See above.
+  }
+}

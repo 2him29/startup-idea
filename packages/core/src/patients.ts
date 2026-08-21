@@ -1,4 +1,5 @@
 import { getSupabase } from "./supabaseClient";
+import { drainNotifications } from "./push";
 import type { Urgency } from "./requests";
 
 /**
@@ -131,6 +132,9 @@ export async function createPatientRequest(input: PatientRequestInput): Promise<
     .select("id")
     .single();
   if (requestError) throw requestError;
+
+  // Donors nearby should hear now, not on the next scheduled run.
+  void drainNotifications();
 
   return { patientId, requestId: (request as { id: string }).id };
 }

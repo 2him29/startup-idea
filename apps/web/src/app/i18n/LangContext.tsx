@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { rememberLanguage } from "@weare/core";
 import { I18N, dir, fontStack, type Lang } from "@weare/core";
 
 const STORAGE_KEY = "qatra-lang";
@@ -27,7 +28,20 @@ export function LangProvider({ children }: { children: ReactNode }) {
   const setLang = (next: Lang) => {
     setLangState(next);
     window.localStorage.setItem(STORAGE_KEY, next);
+    /*
+     * Tell the server too, so a push notification arrives in this language.
+     * localStorage is invisible to the worker composing the message, and
+     * best-effort because switching language must not fail on a bad
+     * connection.
+     */
+    void rememberLanguage(next).catch(() => {});
   };
+
+  // Also on first load: someone who picked Arabic before this existed, or who
+  // signs in on a new device, has a profile that still says nothing.
+  useEffect(() => {
+    void rememberLanguage(lang).catch(() => {});
+  }, [lang]);
 
   useEffect(() => {
     document.documentElement.dir = dir(lang);
