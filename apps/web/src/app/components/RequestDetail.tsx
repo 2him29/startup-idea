@@ -199,7 +199,40 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
         >
           <Share2 className="w-[21px] h-[21px]" style={{ color: "#0B2432" }} />
         </button>
-        {going ? (
+        {/*
+          Someone who cannot give is offered the thing they can do.
+
+          The screen states plainly that their type will not work, and then
+          used to put a full-width red "Respond to request" underneath it —
+          telling a person they cannot help and inviting them to help in the
+          same breath. Worse, a response from an incompatible donor would count
+          toward "donors coming" and let a family believe help was on its way
+          that could never arrive.
+
+          "unknown" is deliberately excluded: a donor who has not recorded a
+          blood type may well know their own, so they keep the ordinary action.
+        */}
+        {match === "incompatible" ? (
+          <button
+            onClick={() =>
+              shareToWhatsApp(
+                formatShareMessage(t, {
+                  hospital: request.hospital,
+                  bloodType: request.bloodType,
+                  distance: request.distance,
+                  units: request.units,
+                  verifiedByName: request.verifiedByName,
+                })
+              )
+            }
+            data-testid="share-instead"
+            className="cursor-pointer flex-1 h-[54px] rounded-2xl text-white text-[15px] font-extrabold flex items-center justify-center gap-2.5 border-none shadow-[0_16px_28px_-14px_rgba(18,183,106,0.8)]"
+            style={{ background: "linear-gradient(135deg,#12B76A,#0E9F5B)" }}
+          >
+            <Share2 className="w-[19px] h-[19px]" />
+            {t.shareInstead}
+          </button>
+        ) : going ? (
           <button
             onClick={handleWithdraw}
             disabled={busy}

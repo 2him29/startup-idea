@@ -5,9 +5,6 @@
 const KEYS = {
   ramadan: "qatra-pref-ramadan",
   defaultWilaya: "qatra-pref-wilaya",
-  notifUrgent: "qatra-pref-notif-urgent",
-  notifRamadan: "qatra-pref-notif-ramadan",
-  notifNearby: "qatra-pref-notif-nearby",
 } as const;
 
 type BoolKey = Exclude<keyof typeof KEYS, "defaultWilaya">;

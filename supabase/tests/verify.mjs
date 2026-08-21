@@ -865,7 +865,12 @@ async function checkSeed() {
     // pinning the number meant every new seed row failed this check for the
     // wrong reason.
     const counts = async () => {
-      const p = await client.query("select count(*)::int n from patients where full_name like 'Seed Patient%'");
+      // Named after the people the seed creates, not a "Seed Patient" prefix:
+      // the fixtures carry ordinary Algerian names now, because that data is
+      // what a demo puts on screen.
+      const p = await client.query(
+        "select count(*)::int n from patients where full_name in ('Amel Kaci','Karim Belhadj','Nadia Slimani')"
+      );
       const q = await client.query("select count(*)::int n from blood_requests where patient_id like 'SEED-%'");
       return { patients: p.rows[0].n, requests: q.rows[0].n };
     };

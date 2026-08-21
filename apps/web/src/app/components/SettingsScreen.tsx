@@ -28,7 +28,7 @@ function PrefToggleRow({
   divider,
 }: {
   label: string;
-  prefKey: "ramadan" | "notifUrgent" | "notifRamadan" | "notifNearby";
+  prefKey: "ramadan";
   defaultOn: boolean;
   divider?: boolean;
 }) {
@@ -166,13 +166,6 @@ export function SettingsScreen({ onBack, onNavigate }: SettingsScreenProps) {
             {lang === l && <Check className="w-[18px] h-[18px]" style={{ color: "#E5484D" }} strokeWidth={3} />}
           </button>
         ))}
-      </div>
-
-      <SectionTitle>{t.notifications}</SectionTitle>
-      <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-        <PrefToggleRow label={t.notifUrgent} prefKey="notifUrgent" defaultOn divider />
-        <PrefToggleRow label={t.notifRamadan} prefKey="notifRamadan" defaultOn divider />
-        <PrefToggleRow label={t.notifNearby} prefKey="notifNearby" defaultOn={false} />
       </div>
 
       <SectionTitle>{t.preferencesLabel}</SectionTitle>

@@ -36,7 +36,7 @@ export interface Strings {
   becomeDonor: string; twoMinutes: string; registerBlurb: string;
   personalInfo: string; fullName: string; age: string; weight: string; eligibilitySection: string; eligibilityConsent: string; agreeTerms: string; completeReg: string;
   profile: string; nextEligible: string; ready: string;
-  notifications: string; notifUrgent: string; notifRamadan: string; notifNearby: string;
+  notifications: string;
   history: string; signOut: string; editProfile: string; settingsLabel: string;
   compensateHint: string; compensateBlurb: string;
   patientName: string; patientNamePh: string; patientFile: string; hospitalLabel: string;
@@ -99,6 +99,7 @@ export interface Strings {
   familyContactNote: string;
   respondingNow: string; withdrawResponse: string;
   youAreGoing: string; donorsComing: string; noOneComingYet: string;
+  shareInstead: string;
   matchExact: string; matchCompatible: string; matchIncompatible: string; matchUnknown: string;
   matchTitleYes: string; matchTitleNo: string; matchTitleUnknown: string;
   pushTitle: string; pushWhat: string;
@@ -172,7 +173,7 @@ export const I18N: Record<Lang, Strings> = {
     personalInfo: "Personal information", fullName: "Full name", age: "Age", weight: "Weight (kg)",
     eligibilitySection: "Eligibility", eligibilityConsent: "I'm in good health, weigh 50kg+, and I'm 18–65 years old.", agreeTerms: "I agree to the terms and privacy policy.", completeReg: "Complete registration",
     profile: "Profile", nextEligible: "Next eligible donation", ready: "Ready",
-    notifications: "Notifications", notifUrgent: "Urgent blood requests", notifRamadan: "Ramadan campaigns", notifNearby: "Nearby drives",
+    notifications: "Notifications",
     history: "Donation history", signOut: "Sign out", editProfile: "Edit profile", settingsLabel: "Settings",
     compensateHint: "Family replacement", compensateBlurb: "When regional stock is low, a patient's transfusion can be released once someone donates in their name — any blood type counts.",
     patientName: "Patient name", patientNamePh: "e.g. Amel K.", patientFile: "Patient file №", hospitalLabel: "Hospital",
@@ -248,6 +249,7 @@ export const I18N: Record<Lang, Strings> = {
     pushOn: "On for this device. A donor with two devices turns each one on separately.",
     pushBlocked: "This browser is blocking notifications. We can't ask again — you'd need to allow them in your browser's site settings.",
     pushUnsupported: "This browser can't receive notifications. They work in Chrome on Android and in Qatra installed to your home screen.",
+    shareInstead: "Share with someone who can",
     matchTitleYes: "You can give to this patient", matchTitleNo: "You cannot give to this patient", matchTitleUnknown: "We don't know your blood type",
     matchExact: "{donor} is exactly what they need.",
     matchCompatible: "{donor} can be given to someone with {recipient}.",
@@ -372,7 +374,7 @@ export const I18N: Record<Lang, Strings> = {
     personalInfo: "Informations", fullName: "Nom complet", age: "Âge", weight: "Poids (kg)",
     eligibilitySection: "Éligibilité", eligibilityConsent: "Je suis en bonne santé, 50kg+, entre 18 et 65 ans.", agreeTerms: "J'accepte les conditions et la politique de confidentialité.", completeReg: "Terminer l'inscription",
     profile: "Profil", nextEligible: "Prochain don possible", ready: "Prêt",
-    notifications: "Notifications", notifUrgent: "Demandes urgentes", notifRamadan: "Campagnes Ramadan", notifNearby: "Collectes proches",
+    notifications: "Notifications",
     history: "Historique des dons", signOut: "Se déconnecter", editProfile: "Modifier le profil", settingsLabel: "Paramètres",
     compensateHint: "Don compensatoire", compensateBlurb: "Quand le stock régional est bas, la transfusion d'un patient est libérée dès qu'une personne donne en son nom — tout groupe compte.",
     patientName: "Nom du patient", patientNamePh: "ex. Amel K.", patientFile: "Dossier patient №", hospitalLabel: "Hôpital",
@@ -448,6 +450,7 @@ export const I18N: Record<Lang, Strings> = {
     pushOn: "Activé sur cet appareil. Avec deux appareils, activez chacun séparément.",
     pushBlocked: "Ce navigateur bloque les notifications. Nous ne pouvons pas redemander — autorisez-les dans les paramètres du site.",
     pushUnsupported: "Ce navigateur ne peut pas recevoir de notifications. Elles fonctionnent dans Chrome sur Android et avec Qatra installé sur l'écran d'accueil.",
+    shareInstead: "Partager avec quelqu'un qui peut",
     matchTitleYes: "Vous pouvez donner à ce patient", matchTitleNo: "Vous ne pouvez pas donner à ce patient", matchTitleUnknown: "Nous ignorons votre groupe sanguin",
     matchExact: "{donor} est exactement ce qu'il leur faut.",
     matchCompatible: "{donor} peut être donné à une personne de groupe {recipient}.",
@@ -572,7 +575,7 @@ export const I18N: Record<Lang, Strings> = {
     personalInfo: "المعلومات الشخصية", fullName: "الاسم الكامل", age: "العمر", weight: "الوزن (كغ)",
     eligibilitySection: "الأهلية", eligibilityConsent: "أنا بصحة جيدة، وزني 50 كغ+، وعمري بين 18 و65 عاماً.", agreeTerms: "أوافق على الشروط وسياسة الخصوصية.", completeReg: "إكمال التسجيل",
     profile: "الملف", nextEligible: "التبرع القادم المتاح", ready: "جاهز",
-    notifications: "الإشعارات", notifUrgent: "طلبات الدم العاجلة", notifRamadan: "حملات رمضان", notifNearby: "حملات قريبة",
+    notifications: "الإشعارات",
     history: "سجل التبرعات", signOut: "تسجيل الخروج", editProfile: "تعديل الملف", settingsLabel: "الإعدادات",
     compensateHint: "التبرع التعويضي", compensateBlurb: "عند انخفاض المخزون الجهوي، يُفرَج عن نقل دم المريض بمجرد أن يتبرع شخص باسمه — أي فصيلة تُحتسب.",
     patientName: "اسم المريض", patientNamePh: "مثال: أمل ك.", patientFile: "رقم ملف المريض", hospitalLabel: "المستشفى",
@@ -648,6 +651,7 @@ export const I18N: Record<Lang, Strings> = {
     pushOn: "مُفعّل على هذا الجهاز. إن كان لديك جهازان، فعّل كلاً منهما على حدة.",
     pushBlocked: "هذا المتصفّح يحجب الإشعارات. لا يمكننا الطلب مجدداً — اسمح بها من إعدادات الموقع.",
     pushUnsupported: "هذا المتصفّح لا يستقبل الإشعارات. تعمل في كروم على أندرويد ومع تثبيت قطرة على الشاشة الرئيسية.",
+    shareInstead: "شارِك مع من يستطيع",
     matchTitleYes: "يمكنك التبرع لهذا المريض", matchTitleNo: "لا يمكنك التبرع لهذا المريض", matchTitleUnknown: "لا نعرف فصيلة دمك",
     matchExact: "{donor} هي بالضبط ما يحتاجونه.",
     matchCompatible: "يمكن إعطاء {donor} لشخص فصيلته {recipient}.",
