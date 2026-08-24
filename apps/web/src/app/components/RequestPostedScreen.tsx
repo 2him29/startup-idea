@@ -126,7 +126,7 @@ export function RequestPostedScreen({ draft, onSeeRequest, onStartAgain }: Reque
             formatShareMessage(t, {
               hospital: draft.hospitalName.trim() || where,
               bloodType: draft.bloodType,
-              distance: where,
+              wilaya: where,
               units: draft.units,
             })
           )

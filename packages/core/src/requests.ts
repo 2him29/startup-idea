@@ -10,7 +10,6 @@ export interface BloodRequest {
   bloodType: string;
   units: number;
   urgency: Urgency;
-  distance: string;
   /** Raw ISO timestamp. Formatted at render time so it can follow the UI language. */
   createdAt: string;
   hospitalLat: number | null;
@@ -45,12 +44,12 @@ export const urgencyStyle: Record<Urgency, { bg: string; fg: string }> = {
 
 /** Static fallback so the UI has sensible content before the first fetch resolves. */
 export const bloodRequests: BloodRequest[] = [
-  { id: "1", hospital: "Hôpital Salim Zemirli – El Harrach", patientId: "P-2024-001", bloodType: "A+", units: 2, urgency: "Critical", distance: "12.9 km", createdAt: new Date(Date.now() - 30 * 60000).toISOString(), hospitalLat: 36.7169, hospitalLng: 3.1846, wilaya: "Alger", patientRecordId: null, verifiedByName: "Croissant-Rouge Algérien — Alger", verifiedAt: "2026-08-17T09:00:00Z" },
-  { id: "2", hospital: "EHS Maouche Mohand Amokrane – El Biar", patientId: "P-2024-002", bloodType: "O-", units: 3, urgency: "High", distance: "4.57 km", createdAt: new Date(Date.now() - 60 * 60000).toISOString(), hospitalLat: 36.7378, hospitalLng: 3.0392, wilaya: "Alger", patientRecordId: null, verifiedByName: null, verifiedAt: null },
-  { id: "3", hospital: "CHU Lamine Debaghine – Bab El Oued", patientId: "P-2024-003", bloodType: "B+", units: 1, urgency: "Medium", distance: "2.97 km", createdAt: new Date(Date.now() - 180 * 60000).toISOString(), hospitalLat: 36.759, hospitalLng: 3.0335, wilaya: "Alger", patientRecordId: null, verifiedByName: null, verifiedAt: null },
-  { id: "4", hospital: "Hôpital Nafissa Hamoud (ex-Parnet)", patientId: "P-2024-004", bloodType: "AB+", units: 2, urgency: "Low", distance: "5.53 km", createdAt: new Date(Date.now() - 300 * 60000).toISOString(), hospitalLat: 36.728, hospitalLng: 3.078, wilaya: "Alger", patientRecordId: null, verifiedByName: null, verifiedAt: null },
-  { id: "5", hospital: "CHU Oran – Dr Benzerdjeb", patientId: "P-2024-005", bloodType: "O+", units: 2, urgency: "High", distance: "408 km", createdAt: new Date(Date.now() - 120 * 60000).toISOString(), hospitalLat: 35.6971, hospitalLng: -0.6337, wilaya: "Oran", patientRecordId: null, verifiedByName: null, verifiedAt: null },
-  { id: "6", hospital: "CHU Frantz Fanon – Blida", patientId: "P-2024-006", bloodType: "A-", units: 1, urgency: "Critical", distance: "47 km", createdAt: new Date(Date.now() - 45 * 60000).toISOString(), hospitalLat: 36.4203, hospitalLng: 2.8277, wilaya: "Blida", patientRecordId: null, verifiedByName: "Croissant-Rouge Algérien — Blida", verifiedAt: "2026-08-17T08:15:00Z" },
+  { id: "1", hospital: "Hôpital Salim Zemirli – El Harrach", patientId: "P-2024-001", bloodType: "A+", units: 2, urgency: "Critical", createdAt: new Date(Date.now() - 30 * 60000).toISOString(), hospitalLat: 36.7169, hospitalLng: 3.1846, wilaya: "Alger", patientRecordId: null, verifiedByName: "Croissant-Rouge Algérien — Alger", verifiedAt: "2026-08-17T09:00:00Z" },
+  { id: "2", hospital: "EHS Maouche Mohand Amokrane – El Biar", patientId: "P-2024-002", bloodType: "O-", units: 3, urgency: "High", createdAt: new Date(Date.now() - 60 * 60000).toISOString(), hospitalLat: 36.7378, hospitalLng: 3.0392, wilaya: "Alger", patientRecordId: null, verifiedByName: null, verifiedAt: null },
+  { id: "3", hospital: "CHU Lamine Debaghine – Bab El Oued", patientId: "P-2024-003", bloodType: "B+", units: 1, urgency: "Medium", createdAt: new Date(Date.now() - 180 * 60000).toISOString(), hospitalLat: 36.759, hospitalLng: 3.0335, wilaya: "Alger", patientRecordId: null, verifiedByName: null, verifiedAt: null },
+  { id: "4", hospital: "Hôpital Nafissa Hamoud (ex-Parnet)", patientId: "P-2024-004", bloodType: "AB+", units: 2, urgency: "Low", createdAt: new Date(Date.now() - 300 * 60000).toISOString(), hospitalLat: 36.728, hospitalLng: 3.078, wilaya: "Alger", patientRecordId: null, verifiedByName: null, verifiedAt: null },
+  { id: "5", hospital: "CHU Oran – Dr Benzerdjeb", patientId: "P-2024-005", bloodType: "O+", units: 2, urgency: "High", createdAt: new Date(Date.now() - 120 * 60000).toISOString(), hospitalLat: 35.6971, hospitalLng: -0.6337, wilaya: "Oran", patientRecordId: null, verifiedByName: null, verifiedAt: null },
+  { id: "6", hospital: "CHU Frantz Fanon – Blida", patientId: "P-2024-006", bloodType: "A-", units: 1, urgency: "Critical", createdAt: new Date(Date.now() - 45 * 60000).toISOString(), hospitalLat: 36.4203, hospitalLng: 2.8277, wilaya: "Blida", patientRecordId: null, verifiedByName: "Croissant-Rouge Algérien — Blida", verifiedAt: "2026-08-17T08:15:00Z" },
 ];
 
 /**

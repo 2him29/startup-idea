@@ -12,7 +12,6 @@ interface BloodRequestRow {
   blood_type: string;
   units: number;
   urgency: Urgency;
-  distance_km: number | null;
   created_at: string;
   hospitals: { name: string; latitude: number | null; longitude: number | null; wilaya: string | null } | null;
   patient_record_id?: string | null;
@@ -38,7 +37,6 @@ function toBloodRequest(row: BloodRequestRow): BloodRequest {
     bloodType: row.blood_type,
     units: row.units,
     urgency: row.urgency,
-    distance: row.distance_km != null ? `${row.distance_km} km` : "—",
     createdAt: row.created_at,
     hospitalLat: row.hospitals?.latitude ?? null,
     hospitalLng: row.hospitals?.longitude ?? null,
@@ -52,13 +50,23 @@ function toBloodRequest(row: BloodRequestRow): BloodRequest {
   };
 }
 
+/**
+ * `distance_km` is deliberately not selected.
+ *
+ * The column exists and holds numbers, but nothing ever computed them: they
+ * were typed into a seed file in July, so a donor in Oran was shown "12 km"
+ * for a request in Alger, and the WhatsApp share carried that number out of
+ * the app to people who had no way to know it was invented. Wilaya is on the
+ * row already and is true. Naming distance_km in a select again would put the
+ * fiction straight back onto every card.
+ */
 const LEGACY_COLUMNS = `
-  id, patient_id, blood_type, units, urgency, distance_km, created_at,
+  id, patient_id, blood_type, units, urgency, created_at,
   hospitals(name, latitude, longitude, wilaya)
 `;
 
 const PATIENT_MODEL_COLUMNS = `
-  id, patient_id, patient_record_id, blood_type, units, urgency, distance_km, created_at,
+  id, patient_id, patient_record_id, blood_type, units, urgency, created_at,
   wilaya, hospital_name, verified_at,
   hospitals(name, latitude, longitude, wilaya),
   verifier:associations!blood_requests_verified_by_fkey(name)

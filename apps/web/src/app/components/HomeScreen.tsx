@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Droplet, Users, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame, Share2, Building2 } from "lucide-react";
-import { RESERVE, RESERVE_STATUS, isPatientModelEnabled, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, shareToWhatsApp, type Profile } from "@weare/core";
+import { RESERVE, RESERVE_STATUS, isPatientModelEnabled, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, wilayaLabel, shareToWhatsApp, type Profile } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LiveStats } from "./LiveStats";
 import { LangSwitcher } from "./LangSwitcher";
@@ -298,7 +298,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
                 <span className="block text-[11px] font-extrabold tracking-[1px]" style={{ color: "#F4677E" }}>{t.sosLabel}</span>
                 <span className="block text-[15px] font-bold mt-px">{t.sosTitle.replace("{bloodType}", urgentRequest.bloodType)}</span>
                 <span className="block text-xs opacity-85 mt-px truncate">
-                  {urgentRequest.hospital} · {urgentRequest.distance} · {urgentRequest.units} {t.units}
+                  {urgentRequest.hospital} · {wilayaLabel(urgentRequest.wilaya, lang)} · {urgentRequest.units} {t.units}
                 </span>
               </span>
               <button
@@ -308,7 +308,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
                     formatShareMessage(t, {
                       hospital: urgentRequest.hospital,
                       bloodType: urgentRequest.bloodType,
-                      distance: urgentRequest.distance,
+                      wilaya: wilayaLabel(urgentRequest.wilaya, lang),
                       units: urgentRequest.units,
                       verifiedByName: urgentRequest.verifiedByName,
                     })

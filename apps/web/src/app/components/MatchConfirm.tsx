@@ -1,5 +1,5 @@
 import { Check, Navigation } from "lucide-react";
-import { openDirections, type BloodRequest } from "@weare/core";
+import { openDirections, wilayaLabel, type BloodRequest } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 interface MatchConfirmProps {
@@ -8,7 +8,7 @@ interface MatchConfirmProps {
 }
 
 export function MatchConfirm({ onBackHome, request }: MatchConfirmProps) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   return (
     <div className="min-h-[730px] flex flex-col items-center justify-center text-center px-[30px] py-[30px]">
@@ -32,13 +32,8 @@ export function MatchConfirm({ onBackHome, request }: MatchConfirmProps) {
         </div>
         <div className="h-px" style={{ background: "rgba(11,36,50,0.06)" }} />
         <div className="flex justify-between py-[9px]">
-          <span className="text-[13.5px]" style={{ color: "#8496A0" }}>{t.distance}</span>
-          <span className="text-[13.5px] font-bold" style={{ color: "#0B2432" }}>{request.distance}</span>
-        </div>
-        <div className="h-px" style={{ background: "rgba(11,36,50,0.06)" }} />
-        <div className="flex justify-between py-[9px]">
-          <span className="text-[13.5px]" style={{ color: "#8496A0" }}>{t.confirmation}</span>
-          <span className="text-[13.5px] font-bold" style={{ color: "#12B76A" }}>#WA-4821</span>
+          <span className="text-[13.5px]" style={{ color: "#8496A0" }}>{t.wilaya}</span>
+          <span className="text-[13.5px] font-bold" style={{ color: "#0B2432" }}>{wilayaLabel(request.wilaya, lang)}</span>
         </div>
       </div>
 

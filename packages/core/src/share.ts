@@ -28,12 +28,12 @@ export function openDirections(dest: { lat?: number | null; lng?: number | null;
  */
 export function formatShareMessage(
   t: Strings,
-  params: { hospital: string; bloodType: string; distance: string; units: number; verifiedByName?: string | null }
+  params: { hospital: string; bloodType: string; wilaya: string; units: number; verifiedByName?: string | null }
 ): string {
   const base = t.shareMessage
     .replace("{bloodType}", params.bloodType)
     .replace("{hospital}", params.hospital)
-    .replace("{distance}", params.distance)
+    .replace("{wilaya}", params.wilaya)
     .replace("{units}", String(params.units));
 
   if (!params.verifiedByName) return base;

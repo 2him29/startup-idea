@@ -194,7 +194,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                         >
                           {urgencyLabel(r.urgency, t)}
                         </span>
-                        <span className="text-[11px]" style={{ color: "#6B7C88" }}>{r.distance}</span>
+                        <span className="text-[11px]" style={{ color: "#6B7C88" }}>{wilayaLabel(r.wilaya, lang)}</span>
                       </div>
                       {/* Same badge as the list below. A pin and a card are two
                           views of one request, so trust that shows in one and
@@ -250,7 +250,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                     <div className="text-[15.5px] font-bold" style={{ color: "#0B2432" }}>{r.hospital}</div>
                     <div className="flex items-center gap-1 mt-0.5 text-[12.5px]" style={{ color: "#8496A0" }}>
                       <MapPin className="w-[13px] h-[13px]" />
-                      {r.distance} · {formatRelativeTime(r.createdAt, lang)}
+                      {wilayaLabel(r.wilaya, lang)} · {formatRelativeTime(r.createdAt, lang)}
                     </div>
                     {r.verifiedByName && (
                       <div className="mt-1.5">

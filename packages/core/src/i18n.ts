@@ -29,10 +29,10 @@ export interface Strings {
   compensateTitle: string; compensateSub: string; schedule: string; scheduleSub: string;
   urgentRequests: string; sortedDistance: string; nearby: string; liveMap: string;
   requestDetails: string; requestedBy: string; bloodType: string; unitsNeeded: string;
-  distance: string; details: string; posted: string; responseWindow: string;
-  away: string; respondRequest: string;
+  wilaya: string; details: string; posted: string; responseWindow: string;
+  respondRequest: string;
   matchedTitle: string; matchedBody: string;
-  location: string; confirmation: string; getDirections: string; backHome: string;
+  location: string; getDirections: string; backHome: string;
   becomeDonor: string; twoMinutes: string; registerBlurb: string;
   personalInfo: string; fullName: string; age: string; weight: string; eligibilitySection: string; eligibilityConsent: string; agreeTerms: string; completeReg: string;
   profile: string; nextEligible: string; ready: string;
@@ -165,10 +165,10 @@ export const I18N: Record<Lang, Strings> = {
     schedule: "Blood drives near you", scheduleSub: "See upcoming donation events",
     urgentRequests: "Urgent requests", sortedDistance: "Sorted by distance", nearby: "nearby", liveMap: "Live map",
     requestDetails: "Request details", requestedBy: "Requested by", bloodType: "Blood type", unitsNeeded: "Units needed",
-    distance: "Distance", details: "Details", posted: "Posted", responseWindow: "Open until the family closes it",
-    away: "away", respondRequest: "Respond to request",
+    wilaya: "Wilaya", details: "Details", posted: "Posted", responseWindow: "Open until the family closes it",
+    respondRequest: "Respond to request",
     matchedTitle: "You're matched!", matchedBody: "The family can see that you're coming. Head over to donate — you could save up to 3 lives today.",
-    location: "Location", confirmation: "Confirmation", getDirections: "Get directions", backHome: "Back to home",
+    location: "Location", getDirections: "Get directions", backHome: "Back to home",
     becomeDonor: "Become a donor", twoMinutes: "Takes about 2 minutes",
     registerBlurb: "Your details help us match you with patients in need. Everything stays confidential.",
     personalInfo: "Personal information", fullName: "Full name", age: "Age", weight: "Weight (kg)",
@@ -194,7 +194,7 @@ export const I18N: Record<Lang, Strings> = {
     patientRowLabel: "Patient", fileRowLabel: "File №", referenceLabel: "Reference",
     pledging: "Pledging…", genericError: "Something went wrong",
     saveChanges: "Save changes", changesSaved: "Changes saved", languageLabel: "Language",
-    shareMessage: "Urgent: {bloodType} blood needed at {hospital} ({distance} away, {units} units). Every donor counts — please share.",
+    shareMessage: "Urgent: {bloodType} blood needed at {hospital}, {wilaya} ({units} units). Every donor counts — please share.",
     shareLabel: "Share",
     drivesTitle: "Blood drives", drivesSub: "Community donation events near you",
     urgencyHeader: "Urgency", printLabel: "Print", exportLabel: "Export CSV",
@@ -368,10 +368,10 @@ export const I18N: Record<Lang, Strings> = {
     schedule: "Collectes près de vous", scheduleSub: "Voir les événements de don à venir",
     urgentRequests: "Demandes urgentes", sortedDistance: "Par distance", nearby: "à proximité", liveMap: "Carte live",
     requestDetails: "Détails de la demande", requestedBy: "Demandé par", bloodType: "Groupe", unitsNeeded: "Unités",
-    distance: "Distance", details: "Détails", posted: "Publié", responseWindow: "Ouverte jusqu'à ce que la famille la ferme",
-    away: "de distance", respondRequest: "Répondre à la demande",
+    wilaya: "Wilaya", details: "Détails", posted: "Publié", responseWindow: "Ouverte jusqu'à ce que la famille la ferme",
+    respondRequest: "Répondre à la demande",
     matchedTitle: "Vous êtes jumelé !", matchedBody: "La famille voit que vous venez. Rendez-vous pour donner — vous pouvez sauver 3 vies aujourd'hui.",
-    location: "Lieu", confirmation: "Confirmation", getDirections: "Itinéraire", backHome: "Accueil",
+    location: "Lieu", getDirections: "Itinéraire", backHome: "Accueil",
     becomeDonor: "Devenir donneur", twoMinutes: "Environ 2 minutes",
     registerBlurb: "Vos informations nous aident à vous jumeler avec des patients. Tout reste confidentiel.",
     personalInfo: "Informations", fullName: "Nom complet", age: "Âge", weight: "Poids (kg)",
@@ -397,7 +397,7 @@ export const I18N: Record<Lang, Strings> = {
     patientRowLabel: "Patient", fileRowLabel: "Dossier №", referenceLabel: "Référence",
     pledging: "Envoi…", genericError: "Une erreur s'est produite",
     saveChanges: "Enregistrer", changesSaved: "Modifications enregistrées", languageLabel: "Langue",
-    shareMessage: "Urgent : don de sang {bloodType} nécessaire à {hospital} ({distance}, {units} unités). Chaque donneur compte — merci de partager.",
+    shareMessage: "Urgent : don de sang {bloodType} nécessaire à {hospital}, {wilaya} ({units} unités). Chaque donneur compte — merci de partager.",
     shareLabel: "Partager",
     drivesTitle: "Collectes de sang", drivesSub: "Événements de don organisés près de chez vous",
     urgencyHeader: "Urgence", printLabel: "Imprimer", exportLabel: "Exporter en CSV",
@@ -571,10 +571,10 @@ export const I18N: Record<Lang, Strings> = {
     schedule: "حملات قريبة منك", scheduleSub: "شاهد فعاليات التبرع القادمة",
     urgentRequests: "طلبات عاجلة", sortedDistance: "حسب المسافة", nearby: "بالقرب", liveMap: "خريطة مباشرة",
     requestDetails: "تفاصيل الطلب", requestedBy: "الطالب", bloodType: "الفصيلة", unitsNeeded: "الوحدات",
-    distance: "المسافة", details: "التفاصيل", posted: "نُشر", responseWindow: "مفتوح حتى تغلقه العائلة",
-    away: "بعيداً", respondRequest: "الاستجابة للطلب",
+    wilaya: "الولاية", details: "التفاصيل", posted: "نُشر", responseWindow: "مفتوح حتى تغلقه العائلة",
+    respondRequest: "الاستجابة للطلب",
     matchedTitle: "تم التوفيق!", matchedBody: "ترى العائلة أنك قادم. توجّه للتبرع — قد تنقذ 3 أرواح اليوم.",
-    location: "المكان", confirmation: "التأكيد", getDirections: "الاتجاهات", backHome: "الرئيسية",
+    location: "المكان", getDirections: "الاتجاهات", backHome: "الرئيسية",
     becomeDonor: "كن متبرعاً", twoMinutes: "حوالي دقيقتين",
     registerBlurb: "تساعدنا بياناتك في توفيقك مع المرضى المحتاجين. كل شيء يبقى سرياً.",
     personalInfo: "المعلومات الشخصية", fullName: "الاسم الكامل", age: "العمر", weight: "الوزن (كغ)",
@@ -600,7 +600,7 @@ export const I18N: Record<Lang, Strings> = {
     patientRowLabel: "المريض", fileRowLabel: "رقم الملف", referenceLabel: "المرجع",
     pledging: "جارٍ التعهد…", genericError: "حدث خطأ ما",
     saveChanges: "حفظ التغييرات", changesSaved: "تم حفظ التغييرات", languageLabel: "اللغة",
-    shareMessage: "عاجل: مطلوب دم من فصيلة {bloodType} في {hospital} (على بعد {distance}، {units} وحدات). كل متبرع يهم — الرجاء المشاركة.",
+    shareMessage: "عاجل: مطلوب دم من فصيلة {bloodType} في {hospital}، {wilaya} ({units} وحدات). كل متبرع يهم — الرجاء المشاركة.",
     shareLabel: "مشاركة",
     drivesTitle: "حملات التبرع", drivesSub: "فعاليات تبرع مجتمعية بالقرب منك",
     urgencyHeader: "الحالة", printLabel: "طباعة", exportLabel: "تصدير CSV",

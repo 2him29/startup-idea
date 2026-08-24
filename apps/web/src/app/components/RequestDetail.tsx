@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ArrowLeft, Phone, Clock, MapPin, AlertTriangle, Info, Share2, Check, Users, X } from "lucide-react";
+import { ArrowLeft, Phone, Clock, AlertTriangle, Info, Share2, Check, Users, X } from "lucide-react";
 import {
   urgencyLabel,
+  wilayaLabel,
   formatShareMessage,
   shareToWhatsApp,
   useResponses,
@@ -105,8 +106,8 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
             <div className="text-[11px] opacity-90">{t.unitsNeeded}</div>
           </div>
           <div className="flex-1 bg-white/[0.16] rounded-2xl p-3 text-center">
-            <div className="text-[22px] font-extrabold">{request.distance}</div>
-            <div className="text-[11px] opacity-90">{t.distance}</div>
+            <div className="text-[15px] font-extrabold leading-[1.3] pt-[5px]">{wilayaLabel(request.wilaya, lang)}</div>
+            <div className="text-[11px] opacity-90 mt-[3px]">{t.wilaya}</div>
           </div>
         </div>
       </div>
@@ -127,14 +128,6 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
             <div className="flex-1">
               <div className="text-[13.5px] font-semibold" style={{ color: "#0B2432" }}>{t.posted} {formatRelativeTime(request.createdAt, lang)}</div>
               <div className="text-xs" style={{ color: "#8496A0" }}>{t.responseWindow}</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: "#E4F6FB" }}>
-              <MapPin className="w-[17px] h-[17px]" style={{ color: "#0E8BA8" }} />
-            </span>
-            <div className="flex-1">
-              <div className="text-[13.5px] font-semibold" style={{ color: "#0B2432" }}>{request.distance} {t.away}</div>
             </div>
           </div>
           {/*
@@ -187,7 +180,7 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
               formatShareMessage(t, {
                 hospital: request.hospital,
                 bloodType: request.bloodType,
-                distance: request.distance,
+                wilaya: wilayaLabel(request.wilaya, lang),
                 units: request.units,
                 verifiedByName: request.verifiedByName,
               })
@@ -219,7 +212,7 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
                 formatShareMessage(t, {
                   hospital: request.hospital,
                   bloodType: request.bloodType,
-                  distance: request.distance,
+                  wilaya: wilayaLabel(request.wilaya, lang),
                   units: request.units,
                   verifiedByName: request.verifiedByName,
                 })
