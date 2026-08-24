@@ -465,20 +465,6 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             </button>
           </div>
 
-          <div className="mt-[22px] text-base font-extrabold" style={{ color: "#0B2432" }}>Recent matches</div>
-          <div className="mt-3 bg-white border rounded-2xl px-[15px] py-3.5 flex items-center gap-[13px]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-            <span
-              className="w-[38px] h-[38px] rounded-full text-white flex items-center justify-center font-extrabold text-sm"
-              style={{ background: "linear-gradient(135deg,#0E8BA8,#12B76A)" }}
-            >
-              SJ
-            </span>
-            <div className="flex-1">
-              <div className="text-sm font-bold" style={{ color: "#0B2432" }}>Sarah Johnson · A+</div>
-              <div className="text-xs" style={{ color: "#8496A0" }}>Confirmed · arriving 3:40 PM</div>
-            </div>
-            <span className="text-[11.5px] font-bold px-[9px] py-1 rounded-full" style={{ color: "#12B76A", background: "#E6F8EF" }}>Matched</span>
-          </div>
         </div>
       )}
     </div>
