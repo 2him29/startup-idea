@@ -98,7 +98,7 @@ export interface Strings {
   fileRefLabel: string; noFileRef: string; inDirectoryLabel: string;
   familyContactNote: string;
   respondingNow: string; withdrawResponse: string;
-  youAreGoing: string; donorsComing: string; noOneComingYet: string;
+  youAreGoing: string; unitsPledged: string; enoughPledged: string;
   shareInstead: string;
   matchExact: string; matchCompatible: string; matchIncompatible: string; matchUnknown: string;
   matchTitleYes: string; matchTitleNo: string; matchTitleUnknown: string;
@@ -260,7 +260,7 @@ export const I18N: Record<Lang, Strings> = {
     matchUnknown: "Add your blood type to your profile and we'll tell you whether you match.",
     respondingNow: "Confirming…", withdrawResponse: "I can no longer go",
     youAreGoing: "You told them you're coming.",
-    donorsComing: "{count} coming so far.", noOneComingYet: "Nobody has answered yet.",
+    unitsPledged: "{count} of {total} units pledged.", enoughPledged: "Enough donors have answered.",
     whoPostedThis: "Who posted this", postedByName: "Posted by {name}",
     phoneVerifiedLabel: "Phone verified", phoneUnverifiedLabel: "Phone not verified",
     fileRefLabel: "File № {ref}", noFileRef: "No file number given", inDirectoryLabel: "In the hospital directory",
@@ -463,7 +463,7 @@ export const I18N: Record<Lang, Strings> = {
     matchUnknown: "Ajoutez votre groupe sanguin à votre profil et nous vous dirons si vous correspondez.",
     respondingNow: "Confirmation…", withdrawResponse: "Je ne peux plus y aller",
     youAreGoing: "Vous leur avez dit que vous venez.",
-    donorsComing: "{count} personne(s) en route.", noOneComingYet: "Personne n'a encore répondu.",
+    unitsPledged: "{count} unité(s) promise(s) sur {total}.", enoughPledged: "Assez de donneurs ont répondu.",
     whoPostedThis: "Qui a publié la demande", postedByName: "Publiée par {name}",
     phoneVerifiedLabel: "Numéro vérifié", phoneUnverifiedLabel: "Numéro non vérifié",
     fileRefLabel: "Dossier n° {ref}", noFileRef: "Aucun numéro de dossier fourni", inDirectoryLabel: "Dans l'annuaire des hôpitaux",
@@ -666,7 +666,7 @@ export const I18N: Record<Lang, Strings> = {
     matchUnknown: "أضف فصيلة دمك إلى ملفك وسنخبرك إن كنت مطابقاً.",
     respondingNow: "جارٍ التأكيد…", withdrawResponse: "لم أعد أستطيع الذهاب",
     youAreGoing: "أخبرتهم أنك قادم.",
-    donorsComing: "{count} في الطريق.", noOneComingYet: "لم يردّ أحد بعد.",
+    unitsPledged: "{count} من أصل {total} وحدة موعودة.", enoughPledged: "استجاب عدد كافٍ من المتبرعين.",
     whoPostedThis: "من نشر الطلب", postedByName: "نشره {name}",
     phoneVerifiedLabel: "رقم موثّق", phoneUnverifiedLabel: "رقم غير موثّق",
     fileRefLabel: "ملف رقم {ref}", noFileRef: "لم يُذكر رقم الملف", inDirectoryLabel: "موجود في دليل المستشفيات",

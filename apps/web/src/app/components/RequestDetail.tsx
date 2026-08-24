@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Phone, Clock, AlertTriangle, Info, Share2, Check, Users, X } from "lucide-react";
+import { ArrowLeft, Phone, Clock, AlertTriangle, Info, Share2, Check, X } from "lucide-react";
 import {
   urgencyLabel,
   wilayaLabel,
@@ -15,6 +15,7 @@ import {
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { VerifiedBadge } from "./VerifiedBadge";
+import { PledgeBar } from "./PledgeBar";
 
 interface RequestDetailProps {
   onBack: () => void;
@@ -261,17 +262,20 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
           people coming should not be answered by a twentieth. */}
       {(going || coming > 0) && (
         <div
-          className="mt-3.5 flex items-start gap-2.5 rounded-2xl px-3.5 py-3"
+          className="mt-3.5 rounded-2xl px-3.5 py-3"
           style={{ background: going ? "#EAF6EF" : "#F7FAFB", border: `1px solid ${going ? "rgba(18,183,106,0.25)" : "rgba(11,36,50,0.06)"}` }}
         >
-          {going
-            ? <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#12B76A" }} strokeWidth={3} />
-            : <Users className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#5A6B75" }} />}
-          <span className="text-[12.5px] leading-relaxed" style={{ color: going ? "#0E7A4B" : "#5A6B75", textAlign: "start" }}>
-            {going ? t.youAreGoing : ""}
-            {going && coming > 1 ? " " : ""}
-            {coming > 0 ? t.donorsComing.replace("{count}", String(coming)) : ""}
-          </span>
+          {going && (
+            <div className="flex items-center gap-2.5 text-[12.5px] font-bold" style={{ color: "#0E7A4B", textAlign: "start" }}>
+              <Check className="w-4 h-4 shrink-0" style={{ color: "#12B76A" }} strokeWidth={3} />
+              {t.youAreGoing}
+            </div>
+          )}
+          {coming > 0 && (
+            <div className={going ? "mt-2.5" : ""}>
+              <PledgeBar pledged={coming} needed={request.units} />
+            </div>
+          )}
         </div>
       )}
     </div>

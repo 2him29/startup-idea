@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Check, MapPin, Droplet, Users } from "lucide-react";
+import { ArrowLeft, Check, MapPin, Droplet } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -9,6 +9,7 @@ import { BloodType } from "./BloodType";
 import { getDefaultWilaya } from "../prefs";
 import { RequestCardSkeleton } from "./Skeletons";
 import { VerifiedBadge } from "./VerifiedBadge";
+import { PledgeBar } from "./PledgeBar";
 
 interface MatchingScreenProps {
   onBack: () => void;
@@ -267,10 +268,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                         {t.youAreGoing}
                       </div>
                     ) : (counts[r.id] ?? 0) > 0 ? (
-                      <div className="mt-1.5 flex items-center gap-1 text-[12px]" style={{ color: "#6B7C88" }}>
-                        <Users className="w-[13px] h-[13px]" />
-                        {t.donorsComing.replace("{count}", String(counts[r.id]))}
-                      </div>
+                      <PledgeBar pledged={counts[r.id] ?? 0} needed={r.units} variant="compact" />
                     ) : null}
                   </div>
                 </div>
