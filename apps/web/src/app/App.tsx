@@ -15,6 +15,8 @@ import { ProfileScreen } from "./components/ProfileScreen";
 import { EditProfileScreen } from "./components/EditProfileScreen";
 import { SettingsScreen } from "./components/SettingsScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
+import { CommitteeInvites } from "./components/CommitteeInvites";
+import { InviteBanner } from "./components/InviteBanner";
 import { Sidebar } from "./components/Sidebar";
 import { PatientRequestScreen, type RequestDraft } from "./components/PatientRequestScreen";
 import { PhoneVerificationScreen } from "./components/PhoneVerificationScreen";
@@ -328,6 +330,8 @@ export default function App() {
         ) : (
           fallbackHome
         );
+      case "committee-invites":
+        return patientModel ? <CommitteeInvites onBack={handleBack} /> : fallbackHome;
       case "association":
         return patientModel ? (
           <AssociationConsole onBack={handleBack} onApply={() => setCurrentScreen("association-apply")} />
@@ -368,6 +372,9 @@ export default function App() {
           {t.offlineBanner}
         </div>
       )}
+      {/* Above the screen switch: an invite link can land on any screen, and
+          there is no router to give it one of its own. */}
+      <InviteBanner />
       {!isConsole && <Sidebar activeScreen={currentScreen} onNavigate={handleNavigate} userType={userType} />}
       <div className="max-w-md mx-auto h-full relative md:max-w-none md:mx-0 md:flex-1 md:h-screen md:overflow-y-auto">
         <ScreenTransition key={currentScreen}>

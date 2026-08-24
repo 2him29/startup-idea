@@ -14,6 +14,7 @@ export * from "./patients";
 export * from "./associations";
 export * from "./compatibility";
 export * from "./pledges";
+export * from "./invites";
 export * from "./push";
 export * from "./stats";
 export * from "./donors";

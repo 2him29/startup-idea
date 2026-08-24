@@ -1,4 +1,4 @@
-import { ArrowLeft, BadgeCheck, ChevronRight, Clock, Users } from "lucide-react";
+import { ArrowLeft, BadgeCheck, ChevronRight, Clock, Link2, Users } from "lucide-react";
 import { useCommitteeInbox, wilayaLabel } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { RequestCardSkeleton } from "./Skeletons";
@@ -124,6 +124,17 @@ export function CommitteeHub({ onBack, onNavigate, onApply }: CommitteeHubProps)
         t.committeeDonorsCard,
         t.committeeDonorsSub.replace("{wilaya}", wilayaLabel(association.wilaya, lang)),
         "donor-search"
+      )}
+
+      {/* Third tool, and the one that decides whether the other two ever have
+          anything to work with: a wilaya committee's real donor list is on
+          paper, and until now the app had no way to ask for it. */}
+      {card(
+        "invites",
+        Link2,
+        t.invitesCard,
+        t.invitesCardSub,
+        "committee-invites"
       )}
 
       {/*

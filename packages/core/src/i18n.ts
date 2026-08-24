@@ -145,6 +145,12 @@ export interface Strings {
   // --- Committee hub (Nav B) ---
   navCommittee: string; navCommitteeWaiting: string; committeeTitle: string; committeeVerifyCard: string; committeeVerifySub: string;
   committeeDonorsCard: string; committeeDonorsSub: string; committeeNoneToday: string;
+  invitesCard: string; invitesCardSub: string; invitesTitle: string; invitesIntro: string;
+  invitesCreate: string; invitesLabelPlaceholder: string; invitesNone: string; invitesJoined: string;
+  invitesCopy: string; invitesCopied: string; invitesRevoke: string; invitesAdminOnly: string;
+  invitesRevoked: string; invitesExpired: string; invitesFull: string;
+  inviteJoinTitle: string; inviteJoinBody: string; inviteInvalidTitle: string;
+  inviteInvalidBody: string; inviteAccepted: string;
   staleTitle: string; staleBody: string;
 }
 
@@ -337,6 +343,20 @@ export const I18N: Record<Lang, Strings> = {
     navCommittee: "Committee", navCommitteeWaiting: "Committee, {count} awaiting verification", committeeTitle: "Your committee",
     committeeVerifyCard: "Verify requests", committeeVerifySub: "{waiting} waiting",
     committeeDonorsCard: "Find donors", committeeDonorsSub: "Registered donors in {wilaya}",
+    invitesCard: "Invite your donors", invitesCardSub: "Bring the list you already have",
+    invitesTitle: "Invite links",
+    invitesIntro: "Share a link with donors your committee already knows. Each of them signs up and consents themselves — you never upload anyone's number.",
+    invitesCreate: "Create a link", invitesLabelPlaceholder: "Name it, e.g. August list",
+    invitesNone: "No links yet. Create one and share it however you already reach your donors.",
+    invitesJoined: "{count} joined", invitesCopy: "Copy link", invitesCopied: "Copied",
+    invitesRevoke: "Withdraw",
+    invitesAdminOnly: "Only a committee administrator can create invite links.",
+    invitesRevoked: "Withdrawn", invitesExpired: "Expired", invitesFull: "Limit reached",
+    inviteJoinTitle: "{association} invited you",
+    inviteJoinBody: "Create your account to join their donor list.",
+    inviteInvalidTitle: "This link is no longer active",
+    inviteInvalidBody: "It may have been withdrawn or reached its limit. Ask the committee for a new one.",
+    inviteAccepted: "You're on {association}'s donor list.",
     committeeNoneToday: "Nothing waiting — the list is clear",
     staleTitle: "{count} open more than a month",
     staleBody: "Nothing closes them automatically. Call the families and clear the list.",
@@ -540,6 +560,20 @@ export const I18N: Record<Lang, Strings> = {
     navCommittee: "Comité", navCommitteeWaiting: "Comité, {count} en attente de vérification", committeeTitle: "Votre comité",
     committeeVerifyCard: "Vérifier les demandes", committeeVerifySub: "{waiting} en attente",
     committeeDonorsCard: "Trouver des donneurs", committeeDonorsSub: "Donneurs inscrits à {wilaya}",
+    invitesCard: "Invitez vos donneurs", invitesCardSub: "Amenez la liste que vous avez déjà",
+    invitesTitle: "Liens d'invitation",
+    invitesIntro: "Partagez un lien avec les donneurs que votre comité connaît déjà. Chacun s'inscrit et consent lui-même — vous n'importez jamais le numéro de personne.",
+    invitesCreate: "Créer un lien", invitesLabelPlaceholder: "Nommez-le, ex. liste d'août",
+    invitesNone: "Aucun lien pour l'instant. Créez-en un et partagez-le comme vous joignez déjà vos donneurs.",
+    invitesJoined: "{count} inscrit(s)", invitesCopy: "Copier le lien", invitesCopied: "Copié",
+    invitesRevoke: "Retirer",
+    invitesAdminOnly: "Seul un administrateur du comité peut créer des liens d'invitation.",
+    invitesRevoked: "Retiré", invitesExpired: "Expiré", invitesFull: "Limite atteinte",
+    inviteJoinTitle: "{association} vous invite",
+    inviteJoinBody: "Créez votre compte pour rejoindre leur liste de donneurs.",
+    inviteInvalidTitle: "Ce lien n'est plus actif",
+    inviteInvalidBody: "Il a peut-être été retiré ou atteint sa limite. Demandez-en un nouveau au comité.",
+    inviteAccepted: "Vous êtes sur la liste de donneurs de {association}.",
     committeeNoneToday: "Rien en attente — la liste est à jour",
     staleTitle: "{count} ouvertes depuis plus d'un mois",
     staleBody: "Rien ne les ferme automatiquement. Appelez les familles et videz la liste.",
@@ -743,6 +777,20 @@ export const I18N: Record<Lang, Strings> = {
     navCommittee: "اللجنة", navCommitteeWaiting: "اللجنة، {count} بانتظار التحقق", committeeTitle: "لجنتك",
     committeeVerifyCard: "توثيق الطلبات", committeeVerifySub: "{waiting} في الانتظار",
     committeeDonorsCard: "البحث عن متبرعين", committeeDonorsSub: "المتبرعون المسجلون في {wilaya}",
+    invitesCard: "ادعُ متبرعيك", invitesCardSub: "أحضر القائمة التي لديك بالفعل",
+    invitesTitle: "روابط الدعوة",
+    invitesIntro: "شارك رابطًا مع المتبرعين الذين تعرفهم لجنتك. كل واحد منهم يسجّل ويوافق بنفسه — لا ترفع رقم أي شخص.",
+    invitesCreate: "إنشاء رابط", invitesLabelPlaceholder: "سمّه، مثلاً قائمة أوت",
+    invitesNone: "لا توجد روابط بعد. أنشئ واحدًا وشاركه بالطريقة التي تصل بها إلى متبرعيك.",
+    invitesJoined: "انضم {count}", invitesCopy: "نسخ الرابط", invitesCopied: "تم النسخ",
+    invitesRevoke: "سحب",
+    invitesAdminOnly: "يمكن لمسؤول اللجنة وحده إنشاء روابط الدعوة.",
+    invitesRevoked: "مسحوب", invitesExpired: "منتهٍ", invitesFull: "بلغ الحد",
+    inviteJoinTitle: "{association} تدعوك",
+    inviteJoinBody: "أنشئ حسابك للانضمام إلى قائمة متبرعيهم.",
+    inviteInvalidTitle: "هذا الرابط لم يعد فعّالاً",
+    inviteInvalidBody: "ربما تم سحبه أو بلغ حده. اطلب رابطًا جديدًا من اللجنة.",
+    inviteAccepted: "أنت الآن في قائمة متبرعي {association}.",
     committeeNoneToday: "لا شيء في الانتظار — القائمة خالية",
     staleTitle: "{count} مفتوحة منذ أكثر من شهر",
     staleBody: "لا شيء يغلقها تلقائياً. اتصل بالعائلات وأفرغ القائمة.",
