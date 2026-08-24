@@ -331,8 +331,8 @@ the same logic.
 
 \subsection{Security model}
 
-Authorisation lives in the database, not the interface. \textbf{56 row-level
-security policies} and \textbf{21 \texttt{SECURITY DEFINER} functions} decide
+Authorisation lives in the database, not the interface. \textbf{54 row-level
+security policies} and \textbf{23 \texttt{SECURITY DEFINER} functions} decide
 who may read and write what; the client can only ask.
 
 Three principles are worth stating because they were arrived at by correcting
@@ -384,14 +384,14 @@ whose type is unrecorded is asked rather than refused.
 \toprule
 \textbf{Suite} & \textbf{Count} & \textbf{What it covers} \\
 \midrule
-\texttt{verify:db} & 148 & RLS against real PostgreSQL, as several users \\
-\texttt{test:unit} & 7 & Blood compatibility, both directions \\
+\texttt{verify:db} & 188 & RLS against real PostgreSQL, as several users \\
+\texttt{test:unit} & 14 & Blood compatibility both directions; pledge arithmetic \\
 Playwright & 32 & End-to-end journeys, three languages, two viewports \\
 \midrule
-Migrations & 24 & Applied in filename order \\
-Screens & 23 & \\
-Components & 38 & \\
-Translated strings & 310 & Each in all three languages, enforced by the type system \\
+Migrations & 26 & Applied in filename order \\
+Screens & 24 & \\
+Components & 41 & \\
+Translated strings & 387 & Each in all three languages, enforced by the type system \\
 \bottomrule
 \end{tabularx}
 \end{center}
@@ -415,6 +415,7 @@ another fails the build.
 \good & Consent, contact-reveal logging, data-subject requests \\
 \good & Blood compatibility with tests \\
 \good & Trilingual EN / FR / AR with right-to-left \\
+\good & Committee invite links: a committee brings the donors it already has \\
 \good & Public demonstration deployment \\
 \midrule
 \open & Demonstration OTP is enabled: any number can be claimed \\

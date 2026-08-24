@@ -14,7 +14,9 @@ npm run build        # production build (delegates to @weare/web)
 npm test             # Playwright e2e (starts the dev server itself)
 npm run test:ui      # Playwright interactive runner
 npm run verify:db    # migrations + RLS against a real throwaway Postgres
-npm run typecheck    # tsc on packages/core
+npm run typecheck    # tsc over apps/web, packages/*, e2e (reads tsconfig.json)
+npm run test:unit    # node --test on packages/core: compatibility, pledges
+npm run test:flow    # patient/association walkthrough; needs an explicit target
 ```
 
 Run one Playwright test or file:
@@ -49,6 +51,8 @@ npm workspaces monorepo:
 
 **Data hooks seed with static fallback data, then swap in live rows** (`useBloodRequests`, `useHospitals`, `useBloodDrives`). Fetch errors are logged and swallowed, keeping the fallback. This makes the UI resilient but means **a broken query is invisible** — it renders plausible mock data instead of failing. If live data looks stale or fake, suspect the query, not the UI.
 
+`invites.ts` deliberately breaks that pattern: it surfaces its error instead of falling back, and goes through RPC rather than table selects. There is no sensible invented value for "the links your committee handed out" — a fabricated code is one a committee would read out to real people — and an RPC that does not exist yet fails alone rather than taking a whole query down with it. Pointed at a database missing the migration it says so, in those words.
+
 ## Non-obvious things that will cost you time
 
 **The `VITE_PATIENT_MODEL` flag gates SQL, not just UI.** The app is mid-migration from *hospitals post requests* to *patients post requests, associations verify them*. `api.ts` picks between `LEGACY_COLUMNS` and `PATIENT_MODEL_COLUMNS` based on the flag, because PostgREST rejects an entire query with a 400 if it names a column or embedded table that doesn't exist — and the fallback above then hides that as mock data. Never add a new column to a query without gating it, and never set the flag against an unmigrated database.
@@ -58,6 +62,10 @@ The e2e suite reads that flag from `apps/web/.env` itself, so the app and the te
 **The e2e suite refuses to run against the live project.** It writes — signups, requests, verifications, responses — and it reads `apps/web/.env` to decide what it is testing. Worse, `reuseExistingServer` means it drives whatever dev server is already on :5173, which holds the env it *started* with, not the current file. That combination put test data into live twice in one afternoon. `playwright.config.ts` now throws if `.env` names the live ref; override with `QATRA_ALLOW_LIVE_E2E=1`. **Changing `.env` is not enough — restart the dev server too.**
 
 **`revoke ... from public` does NOT lock a function down on Supabase.** Supabase grants EXECUTE to the `anon` and `authenticated` roles separately, so a function revoked only from `public` stays callable by both — it just fails on its own internal guard instead of at the door. Always `revoke all ... from public, anon` and then grant back explicitly. `verify:db` asserts the grants themselves (`has_function_privilege('anon', ...)`), because testing the guard proves only that the second layer works.
+
+**`create or replace function` throws the grants away.** Replacing a function resets its privileges to the default, and on Supabase that hands PUBLIC back EXECUTE — so a migration that merely re-defines an existing function silently undoes the lockdown above. Every `create or replace` of a gated function needs the revoke repeated underneath it.
+
+**RLS is not the outer door; the table grant is.** Supabase grants SELECT on public tables to `anon` and `authenticated`, so an anonymous read reaches the policy and fails *inside* it — `association_invites` refused with "permission denied for function is_association_member", a predicate written for signed-in callers. Refused either way, but one layer too deep. `revoke all on table ... from public, anon` turns it away at the door.
 
 **RLS predicates must keep `authenticated` EXECUTE.** A policy expression is evaluated as the querying role, so revoking EXECUTE on `can_verify_in_wilaya`, `is_platform_admin` and friends breaks every policy that calls them.
 
@@ -75,7 +83,7 @@ The e2e suite reads that flag from `apps/web/.env` itself, so the app and the te
 
 **`npm run verify:db` is Postgres, not Supabase.** It runs real Postgres binaries (no Docker — Docker Desktop is unreliable on these machines), applies every migration, and exercises RLS as several different users. But there is no PostgREST or GoTrue and the `auth` schema is stubbed, so it cannot cover the HTTP API, auth, or anything Playwright does. Passing `verify:db` is not the same as the feature working.
 
-**The build does not typecheck.** There is no `tsconfig.json`; Vite strips types with esbuild. `npm run build` passes with type errors in it. Run `npm run typecheck` separately. That script also carries explicit compiler flags for the same reason.
+**The build does not typecheck.** Vite strips types with esbuild, so `npm run build` passes with type errors in it — run `npm run typecheck` separately. It reads `tsconfig.json`, which exists for that alone: `noEmit` is set because Vite does the compiling. It covers `apps/web`, `packages/*` and `e2e`, not just core. It used to carry its settings as a long flag string and check core only, which is how a missing import in `MatchingScreen` reached a running app.
 
 **Playwright pins `locale: "en-US"`.** The app auto-detects device language on first launch and these machines are set to French — without the pin the UI comes up in French and English assertions fail for a reason unrelated to the code. Tests that exercise FR/AR switch language explicitly.
 
