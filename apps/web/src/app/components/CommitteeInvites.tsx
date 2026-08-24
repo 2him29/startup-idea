@@ -76,7 +76,27 @@ export function CommitteeInvites({ onBack }: CommitteeInvitesProps) {
   if (loadingMemberships || (association && loading)) {
     return shell(<div className="flex flex-col gap-3">{[0, 1].map((i) => <RequestCardSkeleton key={i} />)}</div>);
   }
-  if (!association) return shell(null);
+  // The Committee tab is only offered to members, but a stale session or a
+  // revoked membership can still land here. A header over an empty page reads
+  // as a screen that failed to load; say what is actually the matter. The hub
+  // carries the button to do something about it, so this does not repeat it.
+  if (!association) {
+    return shell(
+      <div
+        className="bg-white border rounded-[20px] p-6 text-center"
+        style={{ borderColor: "rgba(11,36,50,0.06)" }}
+      >
+        <span
+          className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center"
+          style={{ background: "#EEE9FB" }}
+        >
+          <Link2 className="w-7 h-7" style={{ color: "#6B4FC0" }} />
+        </span>
+        <div className="mt-4 text-lg font-extrabold" style={{ color: "#0B2432" }}>{t.assocApplyTitle}</div>
+        <div className="mt-1.5 text-[13.5px]" style={{ color: "#6B7C88" }}>{t.assocApplySub}</div>
+      </div>
+    );
+  }
 
   const handleCreate = async () => {
     setBusy(true);

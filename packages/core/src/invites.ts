@@ -190,13 +190,27 @@ export function useAssociationInvites(associationId: string | null) {
   return { invites, loading, error, refresh };
 }
 
+
 const PENDING_KEY = "qatra-invite";
 
+/**
+ * The three things a held invite can be, and nothing in between.
+ *
+ * An earlier version returned just `info` and `accepted` and let the banner
+ * infer the rest, which produced two wrong states. A signed-in donor was told
+ * to "create your account" for the moment between the description arriving and
+ * the redemption finishing — advice that is not merely premature but false for
+ * someone who already has one. And a code that resolved to nothing at all left
+ * the banner hidden while the code stayed in storage, waiting to be retried on
+ * every load for the life of the install.
+ */
 export interface PendingInvite {
-  /** Details of the invite being held, once described. */
-  info: InviteDescription | null;
+  /** The committee that invited you, while you still need an account. */
+  offer: InviteDescription | null;
   /** Set once the invite has actually been accepted. */
   accepted: { associationName: string; wilaya: string } | null;
+  /** Withdrawn, expired, used up, or never a real code. */
+  invalid: boolean;
   dismiss: () => void;
 }
 
@@ -212,14 +226,27 @@ export interface PendingInvite {
  * It watches auth state rather than only checking on mount, for the same
  * reason useMyMemberships had to: the first run happens on the splash screen
  * with nobody signed in, and a hook that asked once would answer "not signed
- * in" and never look again — which here would mean the invite silently did
+ * in" and never look again — which here would mean the invite silently doing
  * nothing for every donor who followed a link without already having an
  * account, in other words all of them.
  */
 export function usePendingInvite(): PendingInvite {
   const [code, setCode] = useState<string | null>(null);
-  const [info, setInfo] = useState<InviteDescription | null>(null);
+  const [offer, setOffer] = useState<InviteDescription | null>(null);
   const [accepted, setAccepted] = useState<{ associationName: string; wilaya: string } | null>(null);
+  const [invalid, setInvalid] = useState(false);
+  // null until asked. The offer is withheld until this is known to be false,
+  // so nobody is invited to create an account they are already signed in to.
+  const [signedOut, setSignedOut] = useState<boolean | null>(null);
+
+  const forget = useCallback(() => {
+    setCode(null);
+    try {
+      window.localStorage.removeItem(PENDING_KEY);
+    } catch {
+      /* nothing to clear */
+    }
+  }, []);
 
   useEffect(() => {
     const fromUrl = inviteCodeFromUrl();
@@ -246,15 +273,26 @@ export function usePendingInvite(): PendingInvite {
     let cancelled = false;
     describeInvite(code)
       .then((d) => {
-        if (!cancelled) setInfo(d);
+        if (cancelled) return;
+        if (!d) {
+          // No such code. Nothing will ever make this one work, so it is
+          // dropped now rather than retried on every future load.
+          setInvalid(true);
+          forget();
+          return;
+        }
+        setOffer(d);
+        if (!d.isValid) setInvalid(true);
       })
+      // A network failure is not a bad code: leave it in storage and let the
+      // next load try again.
       .catch((err) => {
         console.error("Failed to describe invite", err);
       });
     return () => {
       cancelled = true;
     };
-  }, [code]);
+  }, [code, forget]);
 
   useEffect(() => {
     if (!code) return;
@@ -262,19 +300,21 @@ export function usePendingInvite(): PendingInvite {
 
     const attempt = async () => {
       const { data } = await getSupabase().auth.getSession();
-      if (!data.session || cancelled) return;
+      if (cancelled) return;
+      setSignedOut(!data.session);
+      if (!data.session) return;
       try {
         const result = await redeemInvite(code);
         if (cancelled) return;
         setAccepted(result);
-        setCode(null);
-        window.localStorage.removeItem(PENDING_KEY);
+        forget();
       } catch (err) {
         // A withdrawn, expired or exhausted invite must not sit in storage
         // retrying on every auth event for the rest of the install's life.
         console.error("Failed to redeem invite", err);
-        if (!cancelled) setCode(null);
-        window.localStorage.removeItem(PENDING_KEY);
+        if (cancelled) return;
+        setInvalid(true);
+        forget();
       }
     };
 
@@ -286,18 +326,22 @@ export function usePendingInvite(): PendingInvite {
       cancelled = true;
       sub.subscription.unsubscribe();
     };
-  }, [code]);
+  }, [code, forget]);
 
   const dismiss = useCallback(() => {
-    setCode(null);
-    setInfo(null);
+    setOffer(null);
     setAccepted(null);
-    try {
-      window.localStorage.removeItem(PENDING_KEY);
-    } catch {
-      /* nothing to clear */
-    }
-  }, []);
+    setInvalid(false);
+    forget();
+  }, [forget]);
 
-  return { info: code ? info : null, accepted, dismiss };
+  return {
+    // Only offered to someone who actually needs an account. While the session
+    // is still unknown this stays null, which costs a moment of nothing rather
+    // than a moment of wrong advice.
+    offer: offer && offer.isValid && signedOut === true ? offer : null,
+    accepted,
+    invalid,
+    dismiss,
+  };
 }

@@ -18,27 +18,25 @@ import { useI18n } from "../i18n/LangContext";
  */
 export function InviteBanner() {
   const { t } = useI18n();
-  const { info, accepted, dismiss } = usePendingInvite();
+  const { offer, accepted, invalid, dismiss } = usePendingInvite();
 
-  if (!info && !accepted) return null;
+  if (!offer && !accepted && !invalid) return null;
 
+  // Accepted wins over invalid: a donor who got in before the link was
+  // withdrawn is in, and telling them otherwise would be wrong.
   const tone = accepted
     ? { bg: "#EAF6EF", border: "rgba(18,183,106,0.3)", fg: "#0E7A4B", Icon: BadgeCheck }
-    : info && !info.isValid
+    : invalid
       ? { bg: "#FFF3E0", border: "rgba(245,135,31,0.3)", fg: "#8A5A1F", Icon: AlertTriangle }
       : { bg: "#EEF4FF", border: "rgba(59,98,192,0.3)", fg: "#3A4A66", Icon: Link2 };
 
   const title = accepted
     ? t.inviteAccepted.replace("{association}", accepted.associationName)
-    : info && !info.isValid
+    : invalid
       ? t.inviteInvalidTitle
-      : t.inviteJoinTitle.replace("{association}", info?.associationName ?? "");
+      : t.inviteJoinTitle.replace("{association}", offer?.associationName ?? "");
 
-  const body = accepted
-    ? null
-    : info && !info.isValid
-      ? t.inviteInvalidBody
-      : t.inviteJoinBody;
+  const body = accepted ? null : invalid ? t.inviteInvalidBody : t.inviteJoinBody;
 
   const { Icon } = tone;
 
