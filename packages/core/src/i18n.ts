@@ -21,10 +21,10 @@ export function fontStack(lang: Lang): string {
 export interface Strings {
   tagline: string; imDonor: string; donorSub: string; imHospital: string; hospitalSub: string; trust: string; forDemos: string;
   email: string; password: string; orDemo: string; continueDemo: string;
-  welcome: string; eligible: string; eligibleNow: string; donations: string; livesSaved: string; streak: string;
+  welcome: string; eligible: string; eligibleNow: string; responsesGiven: string;
   ramadanTitle: string; ramadanSub: string;
   sosLabel: string; sosTitle: string; units: string; respond: string;
-  reserveTitle: string; updatedNow: string; view: string;
+  reserveTitle: string; sampleData: string; view: string;
   quickActions: string; findRequests: string; findRequestsSub: string;
   compensateTitle: string; compensateSub: string; schedule: string; scheduleSub: string;
   urgentRequests: string; sortedDistance: string; nearby: string; liveMap: string;
@@ -37,7 +37,7 @@ export interface Strings {
   personalInfo: string; fullName: string; age: string; weight: string; eligibilitySection: string; eligibilityConsent: string; agreeTerms: string; completeReg: string;
   profile: string; nextEligible: string; ready: string;
   notifications: string;
-  history: string; signOut: string; editProfile: string; settingsLabel: string;
+  history: string; historyEmpty: string; signOut: string; editProfile: string; settingsLabel: string;
   compensateHint: string; compensateBlurb: string;
   patientName: string; patientNamePh: string; patientFile: string; hospitalLabel: string;
   compensateNote: string; compensateCta: string;
@@ -162,11 +162,11 @@ export const I18N: Record<Lang, Strings> = {
     trust: "Aligned with national blood-donation guidelines", forDemos: "For demonstrations",
     email: "Email", password: "Password", orDemo: "or", continueDemo: "Continue with demo account",
     welcome: "Welcome back", eligible: "eligible", eligibleNow: "You're eligible to donate",
-    donations: "Donations", livesSaved: "Lives saved", streak: "Streak",
+    responsesGiven: "Requests answered",
     ramadanTitle: "Ramadan night donation", ramadanSub: "Centers open tonight until 3:00 — after Tarawih",
     sosLabel: "SOS · URGENT", sosTitle: "Critical {bloodType} request nearby", units: "units", respond: "Respond",
-    reserveTitle: "National reserve", updatedNow: "live", view: "View",
-    quickActions: "Quick actions", findRequests: "Find urgent requests", findRequestsSub: "3 near you right now",
+    reserveTitle: "National reserve", sampleData: "sample data", view: "View",
+    quickActions: "Quick actions", findRequests: "Find urgent requests", findRequestsSub: "{count} near you right now",
     compensateTitle: "Compensate for a patient", compensateSub: "Donate in a patient's name",
     schedule: "Blood drives near you", scheduleSub: "See upcoming donation events",
     urgentRequests: "Urgent requests", sortedDistance: "Sorted by distance", nearby: "nearby", liveMap: "Live map",
@@ -181,7 +181,7 @@ export const I18N: Record<Lang, Strings> = {
     eligibilitySection: "Eligibility", eligibilityConsent: "I'm in good health, weigh 50kg+, and I'm 18–65 years old.", agreeTerms: "I agree to the terms and privacy policy.", completeReg: "Complete registration",
     profile: "Profile", nextEligible: "Next eligible donation", ready: "Ready",
     notifications: "Notifications",
-    history: "Donation history", signOut: "Sign out", editProfile: "Edit profile", settingsLabel: "Settings",
+    history: "Donation history", historyEmpty: "No donation recorded yet.", signOut: "Sign out", editProfile: "Edit profile", settingsLabel: "Settings",
     compensateHint: "Family replacement", compensateBlurb: "When regional stock is low, a patient's transfusion can be released once someone donates in their name — any blood type counts.",
     patientName: "Patient name", patientNamePh: "e.g. Amel K.", patientFile: "Patient file №", hospitalLabel: "Hospital",
     compensateNote: "You don't need to match the patient's blood type — you're replacing a unit for the shared reserve.",
@@ -379,11 +379,11 @@ export const I18N: Record<Lang, Strings> = {
     trust: "Conforme aux directives nationales du don de sang", forDemos: "Pour les démonstrations",
     email: "E-mail", password: "Mot de passe", orDemo: "ou", continueDemo: "Continuer en mode démo",
     welcome: "Bon retour", eligible: "éligible", eligibleNow: "Vous pouvez donner",
-    donations: "Dons", livesSaved: "Vies sauvées", streak: "Série",
+    responsesGiven: "Demandes répondues",
     ramadanTitle: "Don de nuit — Ramadan", ramadanSub: "Centres ouverts ce soir jusqu'à 3h — après les Tarawih",
     sosLabel: "SOS · URGENT", sosTitle: "Demande {bloodType} critique à proximité", units: "unités", respond: "Répondre",
-    reserveTitle: "Réserve nationale", updatedNow: "en direct", view: "Voir",
-    quickActions: "Actions rapides", findRequests: "Demandes urgentes", findRequestsSub: "3 près de vous",
+    reserveTitle: "Réserve nationale", sampleData: "données d'exemple", view: "Voir",
+    quickActions: "Actions rapides", findRequests: "Demandes urgentes", findRequestsSub: "{count} près de vous",
     compensateTitle: "Compenser pour un patient", compensateSub: "Donner au nom d'un patient",
     schedule: "Collectes près de vous", scheduleSub: "Voir les événements de don à venir",
     urgentRequests: "Demandes urgentes", sortedDistance: "Par distance", nearby: "à proximité", liveMap: "Carte live",
@@ -398,7 +398,7 @@ export const I18N: Record<Lang, Strings> = {
     eligibilitySection: "Éligibilité", eligibilityConsent: "Je suis en bonne santé, 50kg+, entre 18 et 65 ans.", agreeTerms: "J'accepte les conditions et la politique de confidentialité.", completeReg: "Terminer l'inscription",
     profile: "Profil", nextEligible: "Prochain don possible", ready: "Prêt",
     notifications: "Notifications",
-    history: "Historique des dons", signOut: "Se déconnecter", editProfile: "Modifier le profil", settingsLabel: "Paramètres",
+    history: "Historique des dons", historyEmpty: "Aucun don enregistré pour l'instant.", signOut: "Se déconnecter", editProfile: "Modifier le profil", settingsLabel: "Paramètres",
     compensateHint: "Don compensatoire", compensateBlurb: "Quand le stock régional est bas, la transfusion d'un patient est libérée dès qu'une personne donne en son nom — tout groupe compte.",
     patientName: "Nom du patient", patientNamePh: "ex. Amel K.", patientFile: "Dossier patient №", hospitalLabel: "Hôpital",
     compensateNote: "Pas besoin du même groupe — vous remplacez une unité pour la réserve commune.",
@@ -596,11 +596,11 @@ export const I18N: Record<Lang, Strings> = {
     trust: "متوافق مع الإرشادات الوطنية للتبرع بالدم", forDemos: "لأغراض العرض التوضيحي",
     email: "البريد الإلكتروني", password: "كلمة المرور", orDemo: "أو", continueDemo: "المتابعة بحساب تجريبي",
     welcome: "مرحباً بعودتك", eligible: "مؤهل", eligibleNow: "يمكنك التبرع الآن",
-    donations: "تبرعات", livesSaved: "أرواح أُنقذت", streak: "التتابع",
+    responsesGiven: "طلبات استجبت لها",
     ramadanTitle: "تبرع ليلي — رمضان", ramadanSub: "المراكز مفتوحة الليلة حتى 3 صباحاً — بعد التراويح",
     sosLabel: "نداء · عاجل", sosTitle: "طلب {bloodType} حرج قريب منك", units: "وحدات", respond: "استجب",
-    reserveTitle: "المخزون الوطني", updatedNow: "مباشر", view: "عرض",
-    quickActions: "إجراءات سريعة", findRequests: "الطلبات العاجلة", findRequestsSub: "3 بالقرب منك الآن",
+    reserveTitle: "المخزون الوطني", sampleData: "بيانات توضيحية", view: "عرض",
+    quickActions: "إجراءات سريعة", findRequests: "الطلبات العاجلة", findRequestsSub: "{count} بالقرب منك الآن",
     compensateTitle: "تعويض عن مريض", compensateSub: "تبرّع باسم مريض",
     schedule: "حملات قريبة منك", scheduleSub: "شاهد فعاليات التبرع القادمة",
     urgentRequests: "طلبات عاجلة", sortedDistance: "حسب المسافة", nearby: "بالقرب", liveMap: "خريطة مباشرة",
@@ -615,7 +615,7 @@ export const I18N: Record<Lang, Strings> = {
     eligibilitySection: "الأهلية", eligibilityConsent: "أنا بصحة جيدة، وزني 50 كغ+، وعمري بين 18 و65 عاماً.", agreeTerms: "أوافق على الشروط وسياسة الخصوصية.", completeReg: "إكمال التسجيل",
     profile: "الملف", nextEligible: "التبرع القادم المتاح", ready: "جاهز",
     notifications: "الإشعارات",
-    history: "سجل التبرعات", signOut: "تسجيل الخروج", editProfile: "تعديل الملف", settingsLabel: "الإعدادات",
+    history: "سجل التبرعات", historyEmpty: "لا يوجد تبرع مسجل بعد.", signOut: "تسجيل الخروج", editProfile: "تعديل الملف", settingsLabel: "الإعدادات",
     compensateHint: "التبرع التعويضي", compensateBlurb: "عند انخفاض المخزون الجهوي، يُفرَج عن نقل دم المريض بمجرد أن يتبرع شخص باسمه — أي فصيلة تُحتسب.",
     patientName: "اسم المريض", patientNamePh: "مثال: أمل ك.", patientFile: "رقم ملف المريض", hospitalLabel: "المستشفى",
     compensateNote: "لا حاجة لمطابقة الفصيلة — أنت تعوّض وحدة للمخزون المشترك.",

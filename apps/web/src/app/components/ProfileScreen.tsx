@@ -1,52 +1,6 @@
-import { ArrowLeft, Droplet, Heart, Award, Calendar, User, Settings, ChevronRight, Download } from "lucide-react";
-import { useDonorProfile, computeEligibility, type Profile, type Strings } from "@weare/core";
+import { ArrowLeft, Droplet, Calendar, User, Settings, ChevronRight } from "lucide-react";
+import { useDonorProfile, computeEligibility, useResponses, formatRelativeTime, type Profile } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
-
-interface DonationEntry {
-  id: number;
-  location: string;
-  date: string;
-  type: string;
-  units: number;
-}
-
-function downloadCertificate(donorName: string, entry: DonationEntry, t: Strings, dir: "ltr" | "rtl") {
-  const win = window.open("", "_blank");
-  if (!win) return;
-  const body = t.certBody
-    .replace("{date}", entry.date)
-    .replace("{location}", entry.location)
-    .replace("{type}", entry.type)
-    .replace("{units}", String(entry.units));
-  const reference = `#QC-${String(entry.id).padStart(4, "0")}`;
-  win.document.write(`
-    <html dir="${dir}">
-      <head>
-        <title>${t.certTitle}</title>
-        <style>
-          body { font-family: system-ui, sans-serif; padding: 60px; color: #0B2432; }
-          .card { border: 2px solid #0B2432; border-radius: 16px; padding: 48px; text-align: center; }
-          h1 { font-size: 22px; letter-spacing: 0.5px; margin-bottom: 32px; }
-          .name { font-size: 28px; font-weight: 800; margin: 16px 0; color: #E5484D; }
-          p { font-size: 15px; line-height: 1.7; max-width: 480px; margin: 0 auto; }
-          .ref { margin-top: 32px; font-size: 13px; color: #8496A0; }
-        </style>
-      </head>
-      <body>
-        <div class="card">
-          <h1>قطرة · ${t.certTitle}</h1>
-          <p>${t.certIntro}</p>
-          <div class="name">${donorName}</div>
-          <p>${body}</p>
-          <p style="margin-top:20px;">${t.certThanks}</p>
-          <div class="ref">${reference}</div>
-        </div>
-      </body>
-    </html>
-  `);
-  win.document.close();
-  win.print();
-}
 
 interface ProfileScreenProps {
   onBack: () => void;
@@ -61,18 +15,15 @@ function initials(name: string): string {
   return parts.slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "").join("") || "?";
 }
 
-const donationHistory = [
-  { id: 1, location: "City General Hospital", date: "Mar 15, 2025", type: "Whole Blood", units: 1 },
-  { id: 2, location: "Memorial Medical Center", date: "Dec 10, 2024", type: "Whole Blood", units: 1 },
-  { id: 3, location: "St. Mary's Hospital", date: "Sep 5, 2024", type: "Platelets", units: 1 },
-];
-
 export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: ProfileScreenProps) {
   const { t, lang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
   const displayName = profile?.fullName ?? "Yacine B.";
   const displayEmail = profile?.email ?? "yacine.b@email.com";
   const { donorProfile } = useDonorProfile();
+  // No request ids: this screen wants the donor's own responses, which
+  // fetchMyResponses returns regardless, not per-request counts.
+  const { goingTo } = useResponses([]);
   const eligibility = computeEligibility(donorProfile?.lastDonationDate ?? null);
   const nextEligibleText = eligibility.nextEligibleDate
     ? new Intl.DateTimeFormat(lang, { day: "numeric", month: "long", year: "numeric" }).format(eligibility.nextEligibleDate)
@@ -110,21 +61,18 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-[11px] mt-4">
-        <div className="bg-white border rounded-2xl p-3.5 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-          <Droplet className="w-[22px] h-[22px] mx-auto mb-1" style={{ color: "#E5484D" }} fill="#E5484D" />
-          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>12</div>
-          <div className="text-[11px] font-semibold" style={{ color: "#8496A0" }}>{t.donations}</div>
-        </div>
-        <div className="bg-white border rounded-2xl p-3.5 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-          <Heart className="w-[22px] h-[22px] mx-auto mb-1" style={{ color: "#E5484D" }} fill="#E5484D" />
-          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>36</div>
-          <div className="text-[11px] font-semibold" style={{ color: "#8496A0" }}>{t.livesSaved}</div>
-        </div>
-        <div className="bg-white border rounded-2xl p-3.5 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-          <Award className="w-[22px] h-[22px] mx-auto mb-1" style={{ color: "#F5871F" }} />
-          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>3</div>
-          <div className="text-[11px] font-semibold" style={{ color: "#8496A0" }}>Badges</div>
+      {/* One number, counted rather than chosen: rows this donor actually
+          wrote. What stood here — twelve donations, thirty-six lives saved,
+          three badges — were literals shown identically to everyone, including
+          a donor who had never given blood, and "Badges" was never translated
+          at all. No donation history exists to make any of them real. */}
+      <div className="mt-4 bg-white border rounded-2xl p-4 flex items-center gap-[13px]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+        <span className="w-[42px] h-[42px] rounded-xl flex items-center justify-center shrink-0" style={{ background: "#FFECEC" }}>
+          <Droplet className="w-5 h-5" style={{ color: "#E5484D" }} fill="#E5484D" />
+        </span>
+        <div className="flex-1" style={{ textAlign: "start" }}>
+          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{goingTo.size}</div>
+          <div className="text-[11.5px] font-semibold" style={{ color: "#8496A0" }}>{t.responsesGiven}</div>
         </div>
       </div>
 
@@ -146,30 +94,29 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
 
       <div className="mt-5 text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432" }}>{t.history}</div>
       <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-        {donationHistory.map((h, i) => (
-          <div
-            key={h.id}
-            className="flex items-center gap-[13px] px-[15px] py-3.5"
-            style={i < donationHistory.length - 1 ? { borderBottom: "1px solid rgba(11,36,50,0.05)" } : undefined}
-          >
+        {/*
+          One row at most, because one date is all that is recorded.
+          donor_profiles keeps last_donation_at and nothing else — no place, no
+          component, no count — so the three-entry list that used to sit here
+          was invented, down to hospitals in a country this app does not serve.
+          The date is real, so it is what is shown; the certificate button went
+          with the rows it was certifying, since a certificate needs the
+          details that are missing and inventing them would be worse than not
+          issuing one.
+        */}
+        {donorProfile?.lastDonationDate ? (
+          <div className="flex items-center gap-[13px] px-[15px] py-3.5">
             <span className="w-[38px] h-[38px] rounded-[11px] flex items-center justify-center shrink-0" style={{ background: "#FFECEC" }}>
               <Droplet className="w-[17px] h-[17px]" style={{ color: "#E5484D" }} fill="#E5484D" />
             </span>
-            <div className="flex-1">
-              <div className="text-[13.5px] font-bold" style={{ color: "#0B2432" }}>{h.location}</div>
-              <div className="text-xs" style={{ color: "#8496A0" }}>{h.date} · {h.type}</div>
+            <div className="flex-1" style={{ textAlign: "start" }}>
+              <div className="text-[13.5px] font-bold" style={{ color: "#0B2432" }}>{t.lastDonationLabel}</div>
+              <div className="text-xs" style={{ color: "#8496A0" }}>{formatRelativeTime(donorProfile.lastDonationDate, lang)}</div>
             </div>
-            <span className="text-xs font-bold" style={{ color: "#6B7C88" }}>{h.units}u</span>
-            <button
-              onClick={() => downloadCertificate(displayName, h, t, dir)}
-              title={t.downloadCertificate}
-              className="cursor-pointer w-8 h-8 rounded-lg border-none bg-transparent flex items-center justify-center shrink-0"
-              style={{ color: "#8496A0" }}
-            >
-              <Download className="w-4 h-4" />
-            </button>
           </div>
-        ))}
+        ) : (
+          <div className="px-[15px] py-4 text-[13px]" style={{ color: "#8496A0", textAlign: "start" }}>{t.historyEmpty}</div>
+        )}
       </div>
 
       <div className="mt-5 flex flex-col gap-0.5">

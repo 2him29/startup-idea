@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { Droplet, Users, ShieldCheck, ChevronRight, Calendar, Award, PlayCircle, Moon, HeartHandshake, Flame, Share2, Building2 } from "lucide-react";
+import { Droplet, Users, ShieldCheck, ChevronRight, Calendar, PlayCircle, Moon, HeartHandshake, Share2, Building2 } from "lucide-react";
 import { RESERVE, RESERVE_STATUS, isPatientModelEnabled, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, wilayaLabel, shareToWhatsApp, type Profile } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LiveStats } from "./LiveStats";
 import { LangSwitcher } from "./LangSwitcher";
 import { NotificationsBell } from "./NotificationsBell";
 import { useI18n } from "../i18n/LangContext";
-import { getBoolPref, isRamadanNow } from "../prefs";
-import { useCountUp } from "../useCountUp";
+import { getBoolPref, isRamadanNow, getDefaultWilaya } from "../prefs";
 
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
@@ -39,6 +38,18 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
   const { donorProfile } = useDonorProfile();
   const urgentRequest = bloodRequests.find((r) => r.urgency === "Critical") ?? bloodRequests[0];
 
+  /*
+   * "3 near you right now" had the 3 written into the sentence, in all
+   * three languages, so it read the same to a donor with none nearby as to
+   * one with thirty. Counted against the same wilaya filter the Find screen
+   * applies, so the number this card promises is the number that screen
+   * shows when it opens.
+   */
+  const nearbyWilaya = getDefaultWilaya();
+  const nearbyCount = nearbyWilaya
+    ? bloodRequests.filter((r) => r.wilaya === nearbyWilaya).length
+    : bloodRequests.length;
+
   const eligibility = computeEligibility(donorProfile?.lastDonationDate ?? null);
   // Ring sweeps from empty to the real progress once the donor profile loads.
   const ringTarget = 264 * (1 - eligibility.progress);
@@ -48,9 +59,6 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
     return () => cancelAnimationFrame(id);
   }, [ringTarget]);
 
-  const donationsCount = useCountUp(12);
-  const livesCount = useCountUp(36);
-  const streakCount = useCountUp(6);
   const hijri = hijriToday(lang);
 
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
@@ -266,24 +274,6 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             </div>
           )}
 
-          {/* stats */}
-          <div className="grid grid-cols-3 gap-[11px] mt-3.5" style={{ animation: "waRise .45s ease .12s both" }}>
-            <div className="bg-white border rounded-2xl p-3.5 text-center shadow-[0_8px_18px_-14px_rgba(11,36,50,0.4)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-              <div className="text-2xl font-extrabold" style={{ color: "#E5484D" }}>{donationsCount}</div>
-              <div className="text-[11.5px] font-semibold mt-0.5" style={{ color: "#6B7C88" }}>{t.donations}</div>
-            </div>
-            <div className="bg-white border rounded-2xl p-3.5 text-center shadow-[0_8px_18px_-14px_rgba(11,36,50,0.4)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-              <div className="text-2xl font-extrabold" style={{ color: "#E5484D" }}>{livesCount}</div>
-              <div className="text-[11.5px] font-semibold mt-0.5" style={{ color: "#6B7C88" }}>{t.livesSaved}</div>
-            </div>
-            <div className="bg-white border rounded-2xl p-3.5 text-center shadow-[0_8px_18px_-14px_rgba(11,36,50,0.4)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-              <div className="text-2xl font-extrabold flex items-center justify-center gap-1" style={{ color: "#F5871F" }}>
-                <Flame className="w-4 h-4" fill="#F5871F" />{streakCount}
-              </div>
-              <div className="text-[11.5px] font-semibold mt-0.5" style={{ color: "#6B7C88" }}>{t.streak}</div>
-            </div>
-          </div>
-
           {/* SOS broadcast */}
           {urgentRequest && (
             <div
@@ -326,7 +316,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
           {/* national reserve */}
           <div className="mt-[22px] flex items-center justify-between">
             <span className="text-base font-extrabold" style={{ color: "#0B2432" }}>{t.reserveTitle}</span>
-            <span className="text-xs font-bold" style={{ color: "#8496A0" }}>Alger · {t.updatedNow}</span>
+            <span className="text-xs font-bold" style={{ color: "#8496A0" }}>{t.sampleData}</span>
           </div>
           <div className="mt-3 bg-white border rounded-[20px] p-4 shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.06)", animation: "waRise .45s ease .24s both" }}>
             <div className="flex flex-col gap-[13px]">
@@ -357,7 +347,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
               </span>
               <span className="flex-1">
                 <span className="block text-[15px] font-bold" style={{ color: "#0B2432" }}>{t.findRequests}</span>
-                <span className="block text-[12.5px]" style={{ color: "#6B7C88" }}>{t.findRequestsSub}</span>
+                <span className="block text-[12.5px]" style={{ color: "#6B7C88" }}>{t.findRequestsSub.replace("{count}", String(nearbyCount))}</span>
               </span>
               <ChevronRight className="w-[19px] h-[19px]" style={{ color: "#C0CCD2", transform: chevronFlip }} />
             </button>
@@ -405,29 +395,6 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             </button>
           </div>
 
-          {/* recent */}
-          <div className="mt-[22px] text-base font-extrabold" style={{ color: "#0B2432" }}>Recent activity</div>
-          <div className="mt-3 bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-            <div className="flex items-center gap-[13px] px-[15px] py-3.5 border-b" style={{ borderColor: "rgba(11,36,50,0.05)" }}>
-              <span className="w-[38px] h-[38px] rounded-[11px] flex items-center justify-center" style={{ background: "#FFECEC" }}>
-                <Droplet className="w-[18px] h-[18px]" style={{ color: "#E5484D" }} fill="#E5484D" />
-              </span>
-              <div className="flex-1">
-                <div className="text-sm font-bold" style={{ color: "#0B2432" }}>Donation completed</div>
-                <div className="text-xs" style={{ color: "#8496A0" }}>City General · 2 days ago</div>
-              </div>
-              <span className="text-xs font-bold" style={{ color: "#12B76A" }}>+3 lives</span>
-            </div>
-            <div className="flex items-center gap-[13px] px-[15px] py-3.5">
-              <span className="w-[38px] h-[38px] rounded-[11px] flex items-center justify-center" style={{ background: "#FFF3E0" }}>
-                <Award className="w-[18px] h-[18px]" style={{ color: "#F5871F" }} />
-              </span>
-              <div className="flex-1">
-                <div className="text-sm font-bold" style={{ color: "#0B2432" }}>Earned "Regular" badge</div>
-                <div className="text-xs" style={{ color: "#8496A0" }}>1 week ago</div>
-              </div>
-            </div>
-          </div>
         </div>
       ) : (
         <div>

@@ -157,7 +157,9 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
         <div className="flex items-center justify-between mb-[22px]">
           <div>
             <div className="text-[23px] font-extrabold tracking-[-0.4px] whitespace-nowrap" style={{ color: "#0B2432" }}>{t.deskTitle}</div>
-            <div className="text-[13px] mt-0.5" style={{ color: "#8496A0" }}>CHU Mustapha Pacha · Alger · {t.updatedNow}</div>
+            {profile?.fullName && (
+              <div className="text-[13px] mt-0.5" style={{ color: "#8496A0" }}>{profile.fullName}</div>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <NotificationsBell size={40} requests={bloodRequests} onOpen={() => setTab("requests")} />
