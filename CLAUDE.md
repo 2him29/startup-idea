@@ -91,6 +91,10 @@ The e2e suite reads that flag from `apps/web/.env` itself, so the app and the te
 
 **Android Gradle is pinned to Android Studio's bundled JDK** via `org.gradle.java.home` in `apps/web/android/gradle.properties`. The system JDK is newer than Gradle 8.14 supports. Don't remove it.
 
+**That pin does not reach VS Code's Java extension, and the difference looks like broken code.** The extension scans the whole workspace for Gradle builds, finds `apps/web/android` and `node_modules/@capacitor/android/capacitor/build.gradle`, and imports both with its own Gradle and the *system* JDK — which fails with "Unsupported class file major version 69" (major 69 is Java 25) and "Minimum supported Gradle version is 8.13". The result is red error badges on three `build.gradle` files and on `node_modules`, while `./gradlew assembleDebug` builds perfectly, because the wrapper and the pin apply only inside that project.
+
+`.vscode/settings.json` turns it off (`java.import.gradle.enabled: false` plus import exclusions), but `.vscode/` is gitignored, so a fresh clone gets the red back. Two things to know when it happens. Buildship writes `.classpath`, `.project` and `.settings` into `node_modules/@capacitor/android/capacitor/` — npm does not ship those, its `files` field lists only `build.gradle`, the lint files, `proguard-rules.pro` and `src/main/`. And deleting them while VS Code is open is useless: the extension recreates them within seconds using the settings it already has in memory. Change the settings first, then run **Java: Clean Java Language Server Workspace**, which restarts VS Code and clears the cached error markers — they live in a ~47 MB `redhat.java/jdt_ws` cache, not in any file you can see.
+
 ## Conventions
 
 **All colours are inline styles**, not CSS variables or Tailwind theme tokens — Tailwind is used for layout, `style={{}}` for colour. This is why there's no dark mode: it needs a CSS-variable refactor first, and a cheap `invert()` turns the brand red teal.
