@@ -779,6 +779,192 @@ async function checkDonorSearch() {
  * database didn't have — PostgREST rejects such a query wholesale, and the
  * app's fallback then quietly serves mock data instead.
  */
+/**
+ * Committee invites: a link, never an import.
+ *
+ * The point of the feature is that a committee can bring donors it already
+ * knows without anyone uploading those people's phone numbers, so the checks
+ * that matter most are about who may do what: creating a recruitment link
+ * speaks for the association, reading how many arrived does not, and an
+ * anonymous visitor must be able to see whose invitation they are holding
+ * without that becoming a way to read anything else.
+ */
+async function checkInvites() {
+  const ids = {};
+  for (const who of ["invAdmin", "invVolunteer", "invOutsider", "invDonor", "invDonor2"]) {
+    const r = await client.query("insert into auth.users (email) values ($1) returning id", [`${who}@qatra.test`]);
+    ids[who] = r.rows[0].id;
+    await client.query("insert into profiles (id, role, full_name) values ($1,'donor',$2)", [ids[who], who]);
+  }
+  const assoc = (await client.query(
+    "insert into associations (name,type,wilaya,is_verified) values ('CRA Tlemcen','red_crescent','Tlemcen',true) returning id"
+  )).rows[0].id;
+  await client.query("insert into association_members (association_id,user_id,role) values ($1,$2,'admin')", [assoc, ids.invAdmin]);
+  await client.query("insert into association_members (association_id,user_id,role) values ($1,$2,'volunteer')", [assoc, ids.invVolunteer]);
+
+  /** Anonymous, not merely signed-out-authenticated. */
+  async function asAnon(fn) {
+    await client.query("begin");
+    try {
+      await client.query("set local role anon");
+      return await fn();
+    } finally {
+      await client.query("rollback").catch(() => {});
+    }
+  }
+
+  section("invites: creating one speaks for the association");
+  await check("an administrator can create an invite", () =>
+    asUser(ids.invAdmin, async () => {
+      const r = await client.query("select code from create_association_invite($1,'Tlemcen list')", [assoc]);
+      if (!/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{10}$/.test(r.rows[0].code)) {
+        throw new Error(`code out of alphabet: ${r.rows[0].code}`);
+      }
+    }));
+  // A volunteer passes is_association_member but not is_association_admin.
+  // This is the split 20260820120000 had to make for vouching, applied again:
+  // publishing a recruitment link under the committee's name is the same kind
+  // of act as vouching, and belongs to whoever may bind the association.
+  await check("a volunteer of the same association cannot", () =>
+    asUser(ids.invVolunteer, () => expectDenied("select create_association_invite($1)", [assoc])));
+  await check("an outsider cannot", () =>
+    asUser(ids.invOutsider, () => expectDenied("select create_association_invite($1)", [assoc])));
+
+  // Created directly from here on: create_association_invite() runs inside
+  // asUser(), which rolls back, so a code made there cannot be redeemed later.
+  const mk = async (code, extra) => {
+    const e = extra || {};
+    const r = await client.query(
+      "insert into association_invites (association_id, code, created_by, expires_at, max_uses, revoked_at)" +
+        " values ($1,$2,$3,$4,$5,$6) returning id",
+      [assoc, code, ids.invAdmin, e.expires || null, e.maxUses || null, e.revoked || null]
+    );
+    return r.rows[0].id;
+  };
+  const good = await mk("TLEMCEN234");
+  const revoked = await mk("REVOKED234", { revoked: new Date().toISOString() });
+  const expired = await mk("EXPIRED234", { expires: new Date(Date.now() - 864e5).toISOString() });
+  const capped = await mk("CAPPED2345", { maxUses: 1 });
+
+  section("invites: who may read them");
+  await check("a member reads their association's invites", () =>
+    asUser(ids.invVolunteer, () => expectRows("select 1 from association_invites where id=$1", [good], 1)));
+  await check("an outsider reads none of them", () =>
+    asUser(ids.invOutsider, () => expectRows("select 1 from association_invites where id=$1", [good], 0)));
+
+  section("invites: what an anonymous visitor may learn from a code");
+  await check("describe_invite names the association and says the code is good", () =>
+    asAnon(async () => {
+      const r = await client.query("select * from describe_invite('TLEMCEN234')");
+      if (r.rows[0].association_name !== "CRA Tlemcen") throw new Error("wrong association");
+      if (r.rows[0].wilaya !== "Tlemcen") throw new Error("wrong wilaya");
+      if (r.rows[0].is_valid !== true) throw new Error("expected a valid invite");
+    }));
+  await check("lowercase and stray spaces still resolve", () =>
+    asAnon(() => expectRows("select 1 from describe_invite('  tlemcen234 ') where is_valid", [], 1)));
+  await check("a revoked invite reports itself invalid", () =>
+    asAnon(() => expectRows("select 1 from describe_invite('REVOKED234') where is_valid", [], 0)));
+  await check("an expired invite reports itself invalid", () =>
+    asAnon(() => expectRows("select 1 from describe_invite('EXPIRED234') where is_valid", [], 0)));
+  await check("an unknown code returns nothing at all", () =>
+    asAnon(() => expectRows("select 1 from describe_invite('NOSUCHCODE')", [], 0)));
+  // The table itself stays closed; only the function answers. Refused at the
+  // table grant, so the request never reaches a policy predicate written for
+  // signed-in callers.
+  await check("anon still cannot read the invites table directly", () =>
+    asAnon(() => expectDenied("select 1 from association_invites where id=$1", [good])));
+  await check("anon cannot read redemptions either", () =>
+    asAnon(() => expectDenied("select 1 from association_invite_redemptions where invite_id=$1", [good])));
+
+  section("invites: accepting one");
+  await check("a donor redeeming gets the association back", () =>
+    asUser(ids.invDonor, async () => {
+      const r = await client.query("select * from redeem_association_invite('TLEMCEN234')");
+      if (r.rows[0].association_name !== "CRA Tlemcen") throw new Error("wrong association returned");
+      await expectRows("select 1 from association_invite_redemptions where invite_id=$1 and donor_id=$2", [good, ids.invDonor], 1);
+    }));
+  await check("redeeming twice joins once", () =>
+    asUser(ids.invDonor, async () => {
+      await client.query("select * from redeem_association_invite('TLEMCEN234')");
+      await client.query("select * from redeem_association_invite('TLEMCEN234')");
+      await expectRows("select 1 from association_invite_redemptions where invite_id=$1 and donor_id=$2", [good, ids.invDonor], 1);
+    }));
+  await check("a revoked invite cannot be accepted", () =>
+    asUser(ids.invDonor, () => expectDenied("select redeem_association_invite('REVOKED234')")));
+  await check("an expired invite cannot be accepted", () =>
+    asUser(ids.invDonor, () => expectDenied("select redeem_association_invite('EXPIRED234')")));
+  await check("an unknown code cannot be accepted", () =>
+    asUser(ids.invDonor, () => expectDenied("select redeem_association_invite('NOSUCHCODE')")));
+  await check("a use limit is enforced against redemptions, not a counter", async () => {
+    // Two different donors, limit of one. The second must be refused, and the
+    // reason must be the rows that exist rather than a column anything could
+    // have drifted from.
+    await client.query("begin");
+    try {
+      await client.query("set local role authenticated");
+      await client.query(`set local request.jwt.claim.sub = '${ids.invDonor}'`);
+      await client.query("select redeem_association_invite('CAPPED2345')");
+      await client.query(`set local request.jwt.claim.sub = '${ids.invDonor2}'`);
+      await expectDenied("select redeem_association_invite('CAPPED2345')");
+    } finally {
+      await client.query("rollback").catch(() => {});
+    }
+  });
+  await check("an exhausted invite also describes itself as invalid", async () => {
+    await client.query("insert into association_invite_redemptions (invite_id, donor_id) values ($1,$2)", [capped, ids.invDonor2]);
+    try {
+      await asAnon(() => expectRows("select 1 from describe_invite('CAPPED2345') where is_valid", [], 0));
+    } finally {
+      await client.query("delete from association_invite_redemptions where invite_id=$1", [capped]);
+    }
+  });
+
+  section("invites: what the committee sees, and what it does not");
+  await client.query("insert into association_invite_redemptions (invite_id, donor_id) values ($1,$2)", [good, ids.invDonor]);
+  await check("a member sees the count", () =>
+    asUser(ids.invVolunteer, async () => {
+      const r = await client.query("select redeemed from association_invite_counts($1) where invite_id=$2", [assoc, good]);
+      if (r.rows[0] === undefined || r.rows[0].redeemed !== 1) {
+        throw new Error(`expected 1, got ${r.rows[0] === undefined ? "no row" : r.rows[0].redeemed}`);
+      }
+    }));
+  await check("an outsider asking for the same counts gets nothing", () =>
+    asUser(ids.invOutsider, () => expectRows("select 1 from association_invite_counts($1)", [assoc], 0)));
+  await check("a member reads the redemption rows for their own invites", () =>
+    asUser(ids.invAdmin, () => expectRows("select 1 from association_invite_redemptions where invite_id=$1", [good], 1)));
+  await check("an outsider reads none of them", () =>
+    asUser(ids.invOutsider, () => expectRows("select 1 from association_invite_redemptions where invite_id=$1", [good], 0)));
+  await check("a donor reads their own redemption", () =>
+    asUser(ids.invDonor, () => expectRows("select 1 from association_invite_redemptions where donor_id=$1", [ids.invDonor], 1)));
+  // The roster is a count, not a directory: knowing that someone joined must
+  // not become a way around the audited reveal path.
+  await check("the redemption row carries no name, phone or blood type", async () => {
+    const cols = (await client.query(
+      "select column_name from information_schema.columns where table_name='association_invite_redemptions'"
+    )).rows.map((r) => r.column_name).sort();
+    const expected = ["donor_id", "invite_id", "redeemed_at"];
+    if (JSON.stringify(cols) !== JSON.stringify(expected)) {
+      throw new Error(`unexpected columns: ${cols.join(", ")}`);
+    }
+  });
+
+  section("invites: revoking");
+  await check("a volunteer cannot revoke", () =>
+    asUser(ids.invVolunteer, () => expectDenied("select revoke_association_invite($1)", [good])));
+  await check("an administrator can, and the redemptions survive it", () =>
+    asUser(ids.invAdmin, async () => {
+      await client.query("select revoke_association_invite($1)", [good]);
+      await expectRows("select 1 from association_invites where id=$1 and revoked_at is not null", [good], 1);
+      await expectRows("select 1 from association_invite_redemptions where invite_id=$1", [good], 1);
+    }));
+  await check("nobody may write an invite row directly", () =>
+    asUser(ids.invAdmin, () => expectDenied(
+      "insert into association_invites (association_id, code, created_by) values ($1,'HANDMADE12',$2)", [assoc, ids.invAdmin])));
+  await check("nobody may hand-write a redemption either", () =>
+    asUser(ids.invDonor, () => expectDenied(
+      "insert into association_invite_redemptions (invite_id, donor_id) values ($1,$2)", [revoked, ids.invDonor])));
+}
+
 async function checkGrants() {
   section("api surface: the permission layer, not just the guard inside");
 
@@ -810,6 +996,12 @@ async function checkGrants() {
     "queue_new_request_notification",
     "queue_response_notification",
     "response_counts",
+    "is_association_member",
+    "create_association_invite",
+    "revoke_association_invite",
+    "redeem_association_invite",
+    "association_invite_counts",
+    "generate_invite_code",
   ];
 
   for (const fn of anonMustNotExecute) {
@@ -828,7 +1020,7 @@ async function checkGrants() {
   /* The predicates behind RLS must stay callable by signed-in users: a policy
      expression runs as the querying role, so revoking these would break every
      policy that references one. */
-  for (const fn of ["can_verify_in_wilaya", "is_platform_admin", "is_phone_verified"]) {
+  for (const fn of ["can_verify_in_wilaya", "is_platform_admin", "is_phone_verified", "is_association_member"]) {
     await check(`authenticated keeps EXECUTE on ${fn}() for RLS`, async () => {
       const r = await client.query(
         `select count(*)::int n from pg_proc p
@@ -840,6 +1032,25 @@ async function checkGrants() {
       if (r.rows[0].n === 0) throw new Error(`${fn} is no longer callable by authenticated; RLS will fail`);
     });
   }
+
+  /*
+   * describe_invite() is the one function since 20260821160000 that anon is
+   * meant to reach, and the exception is load-bearing: a donor meets a
+   * committee's invite link before they have an account, and a page that
+   * cannot name the association before asking someone to sign up is a
+   * suspicious link rather than an invitation. If a future lockdown sweeps it
+   * up with the rest, every invite silently stops working for exactly the
+   * people it is aimed at, so the grant is asserted in the positive direction.
+   */
+  await check("anon keeps EXECUTE on describe_invite() by design", async () => {
+    const r = await client.query(
+      `select count(*)::int n from pg_proc p
+       where p.proname = 'describe_invite'
+         and p.pronamespace = 'public'::regnamespace
+         and has_function_privilege('anon', p.oid, 'EXECUTE')`
+    );
+    if (r.rows[0].n === 0) throw new Error("describe_invite is closed to anon; invite links cannot work");
+  });
 
   /* A SECURITY DEFINER view hides that property at the call site. The counts
      are a function now, which declares it. */
@@ -1019,6 +1230,7 @@ async function main() {
   await applyMigrations();
   await checkRls();
   await checkDonorSearch();
+  await checkInvites();
   await checkGrants();
   await checkClientContract();
   await checkSeed();
