@@ -1042,6 +1042,29 @@ async function checkGrants() {
    * up with the rest, every invite silently stops working for exactly the
    * people it is aimed at, so the grant is asserted in the positive direction.
    */
+  /*
+   * Every function this project adds pins its search_path. generate_invite_code
+   * shipped without one and Supabase's linter caught it: it reads no tables, so
+   * the setting looked like ceremony, but it is called from inside a SECURITY
+   * DEFINER function and was safe only because that caller happened to pin one.
+   */
+  await check("every invite function pins its search_path", async () => {
+    const r = await client.query(
+      `select p.proname from pg_proc p
+       where p.pronamespace = 'public'::regnamespace
+         and p.proname in ('generate_invite_code','create_association_invite',
+                           'revoke_association_invite','redeem_association_invite',
+                           'describe_invite','association_invite_counts','is_association_member')
+         and not exists (
+           select 1 from unnest(coalesce(p.proconfig, '{}')) c
+           where c like 'search_path=%'
+         )`
+    );
+    if (r.rowCount > 0) {
+      throw new Error(`no search_path on: ${r.rows.map((x) => x.proname).join(", ")}`);
+    }
+  });
+
   await check("anon keeps EXECUTE on describe_invite() by design", async () => {
     const r = await client.query(
       `select count(*)::int n from pg_proc p

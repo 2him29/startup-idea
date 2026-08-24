@@ -185,7 +185,7 @@ begin
       returning * into v_row;
       return v_row;
     exception when unique_violation then
-      -- A collision at 49 bits means something is wrong with random(), not
+      -- A collision at fifty bits means something is wrong with random(), not
       -- that we were unlucky. Retry a few times, then say so rather than
       -- looping forever inside a request.
       if v_tries >= 5 then
