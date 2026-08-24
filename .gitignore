@@ -41,3 +41,10 @@ Thumbs.db
 /*.dc.html
 /Qatra*.zip
 /Design*.zip
+
+# LaTeX build leftovers. The compiled dossier PDF is tracked; the aux files
+# that produce it are not.
+docs/build/*.aux
+docs/build/*.log
+docs/build/*.out
+docs/build/*.toc

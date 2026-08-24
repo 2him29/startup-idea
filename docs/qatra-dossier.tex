@@ -1,0 +1,484 @@
+% Qatra — Technical and Strategic Dossier
+%
+% Compile with XeLaTeX (needed for the Arabic in the title and app names):
+%   xelatex -output-directory=build docs/qatra-dossier.tex
+%
+% Everything factual in here is drawn from the repository, from the live
+% Supabase projects, or from the sources listed in the appendix. Figures that
+% come from a test run or a query are labelled as such, and the date they were
+% taken is on the title page — a dossier that cannot be re-checked is a
+% brochure.
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{parskip}
+
+\definecolor{qatraRed}{HTML}{E5484D}
+\definecolor{qatraNavy}{HTML}{0B2432}
+\definecolor{qatraTeal}{HTML}{0E8BA8}
+\definecolor{qatraGrey}{HTML}{5A6B75}
+\definecolor{qatraGreen}{HTML}{12B76A}
+\definecolor{qatraAmber}{HTML}{F5871F}
+\definecolor{rule}{HTML}{DCE4E7}
+
+\usepackage{polyglossia}
+\setmainlanguage{english}
+\setotherlanguage{arabic}
+\setmainfont{Segoe UI}
+\newfontfamily\arabicfont[Script=Arabic]{Segoe UI}
+\newcommand{\ar}[1]{\textarabic{#1}}
+
+\titleformat{\section}{\Large\bfseries\color{qatraNavy}}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{qatraTeal}}{\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.4em}{0.6em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{qatraGrey}Qatra — Technical and Strategic Dossier}
+\fancyhead[R]{\small\color{qatraGrey}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\note}[1]{{\small\color{qatraGrey}\textit{#1}}}
+\newcommand{\good}{{\color{qatraGreen}\textbf{Built}}}
+\newcommand{\open}{{\color{qatraAmber}\textbf{Open}}}
+\newcommand{\none}{{\color{qatraRed}\textbf{Not built}}}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{3cm}
+{\Huge\bfseries\color{qatraNavy} Qatra \ar{قطرة}}\\[0.5em]
+{\Large\color{qatraRed} Technical and Strategic Dossier}\\[2em]
+{\large Blood-donation matching for Algeria}\\[0.4em]
+{\color{qatraGrey} Families ask, associations vouch, donors answer.}\\[3em]
+
+\begin{minipage}{0.8\textwidth}
+\centering\small\color{qatraGrey}
+Every figure in this document was taken from the repository, from the live
+database, or from a named public source. Test results are from runs on the
+date below. Nothing here is aspirational unless it appears in
+Section~\ref{sec:notbuilt}, which exists to say what is missing.
+\end{minipage}
+
+\vfill
+{\color{qatraGrey}Yacine Omar Fodhil \\ 24 August 2026}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ===========================================================================
+\section{Executive summary}
+
+Algeria is the best country in Africa at collecting blood and still runs short
+of it. The Agence Nationale du Sang reports roughly \textbf{677\,000 bags} from
+over \textbf{800\,000 donors}, a rate of \textbf{13.98 donors per 1\,000
+inhabitants} — the highest on the continent for a decade — and describes its own
+problem not as a shortage of willing people but as
+\emph{``ce déséquilibre entre l'offre et la demande''}: a timing failure. Only
+\textbf{22\% of donors give regularly}, which the agency calls
+\emph{``relativement faible''}, and its stated request is that citizens
+\textbf{register on regular-donor lists}.
+
+Qatra answers that request. It knows the date every donor becomes eligible
+again, and it reaches the compatible ones the moment somebody nearby needs
+their type.
+
+Three things distinguish it from what already exists:
+
+\begin{enumerate}[leftmargin=1.4em]
+  \item \textbf{Requests are vouched for.} A verified association in the same
+        wilaya can put its name to a request. The market-leading competitor
+        states in its own store listing that it verifies nothing.
+  \item \textbf{Health data is handled lawfully.} Consent is recorded per
+        purpose with the version of the text shown; a donor's phone number is
+        masked until deliberately opened, and every opening is logged in a
+        record the donor can read and nobody can delete.
+  \item \textbf{The loop closes.} Post, notify, respond, and the family sees
+        who is coming. A registry answers \emph{who could give}. Qatra answers
+        \emph{who is coming, right now}.
+\end{enumerate}
+
+% ===========================================================================
+\section{The problem, with evidence}
+
+\subsection{Algeria does not have a donor shortage}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Figure} & \textbf{Meaning} \\
+\midrule
+13.98 per 1\,000 & Donation rate. First in Africa for around a decade. \\
+677\,000 bags & Collected, from 800\,000+ donors; up 6.75\% since 2023. \\
+\textbf{22\%} & \textbf{Share of donors who give regularly.} ANS: \emph{``relativement faible''}. \\
+58 & Wilayas. Blood is coordinated locally; a donor two provinces away cannot help today. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The ANS names the summer as its pressure point — road-accident season — and has
+run joint campaigns with the national police and Algérie Télécom to cover it.
+Its ask of the public is continuity, not volume:
+\emph{``participer à l'alimentation continue de la banque du sang''}.
+
+\subsection{Which means the problem is reach, not recruitment}
+
+Seventy-eight per cent of Algerian donors give once and are never effectively
+called again. Nothing in the existing landscape knows when a given donor became
+eligible again, or tells them that somebody two kilometres away needs exactly
+their type this evening. That is the gap this product occupies.
+
+% ===========================================================================
+\section{Competitive landscape}
+
+\note{Install counts and ratings retrieved from Google Play on 24 August 2026.
+Platform claims verified against the operators' own sites on the same date.}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lllX@{}}
+\toprule
+\textbf{Product} & \textbf{Installs} & \textbf{Rating} & \textbf{Observation} \\
+\midrule
+\ar{بنك الدم الجزائري} (Nabil\_Soft) & 10K+ & 4.7 / 130 & Market leader. \textbf{Contains ads.} \\
+\ar{بنك الدم الجزائري} (SangDz) & 1K+ & — & Solo developer based in France. \\
+Sadaka \ar{صدقة} & 1K+ & — & — \\
+Nabdz & — & — & Best-designed. 2 requests, 3 donors live. \\
+ONSC / Ministry platforms & — & — & Announced June 2025. No public address. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Approximately \textbf{12\,000 installs across every blood application in
+Algeria}, in a country of 45 million with the continent's highest donation rate.
+The field is not crowded; it is empty.
+
+\subsection{The announced national platforms have no front door}
+
+The National Observatory of Civil Society launched a donor platform with the
+Algerian Red Crescent on 14 June 2025; the Ministry of Health announced its own
+three days later. Fourteen months on:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \texttt{marsad.dz} is the Observatory's institutional site — governance,
+        compliance, tenders. It is actively maintained, with content through
+        April 2026, and carries no donor platform.
+  \item Neither announcement names a URL, an application, or any route by which
+        a citizen reaches the system.
+  \item The Ministry's own site lists five other digital services it does ship
+        — a pharmacy system, a health map, a professional space, a training
+        registry — and no blood platform.
+\end{itemize}
+
+A launch with ministers, a telecom sponsor and no discoverable product is a
+press event. That may change, and the strategic response is not to compete with
+it (Section~\ref{sec:cra}).
+
+\subsection{Three findings about the market leader}
+
+\textbf{It carries advertising.} \ar{بنك الدم الجزائري} is listed as
+\emph{Contains ads}. Its developer's other titles are \emph{Easy Hairstyles for
+Girls}, \emph{PermisDZ}, and several baccalaureate revision apps. Blood
+donation is the sixth item in a portfolio.
+
+\textbf{Its data-safety declaration states ``No data collected.''} The
+application collects, by its own description, a donor's name, wilaya,
+\textbf{blood type} and telephone number. Blood type is health data. That
+declaration is inaccurate on its face.
+
+\textbf{It disclaims verification in writing:}
+
+\begin{quote}\itshape
+``This application does not provide any medical services or health advice and
+does not represent any medical or governmental entity\ldots{} The information
+provided is provided by the users.''
+\end{quote}
+
+The fraud problem is therefore not an unrecognised gap in the market. It is a
+term of service.
+
+\subsection{And the most serious competitor demonstrates the same emptiness}
+
+Nabdz is the best-built of them — 58 wilayas, urgency tiers, a pledge mechanic
+comparable to Qatra's response counter. Its live public grid currently shows two
+requests and three donors, one of the requests titled \textbf{``Test Patient''}.
+
+% ===========================================================================
+\section{Regulatory position}
+
+\note{This section states the reasoning behind decisions already implemented in
+the codebase. It is engineering rationale, not legal advice, and the open
+question in Section~\ref{sec:residency} should be settled with counsel or with
+the ANS before any public launch.}
+
+\subsection{Health data — Loi 18-07 and Loi 25-11}
+
+A patient's name attached to a blood type, and a donor's telephone number
+attached to theirs, are health data. Qatra treats them accordingly:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Consent is recorded per purpose, with the version of the text
+        shown.} Two purposes exist — \texttt{health\_data} and
+        \texttt{contact\_sharing} — each stamped with the wording the user
+        actually read (\texttt{health-data-v1}, \texttt{contact-sharing-v1}).
+        Consent given against superseded wording stops granting access until
+        the user agrees again.
+  \item \textbf{Consent records have no delete policy.} They are the evidence
+        that processing was lawful, and evidence a controller can erase is not
+        evidence.
+  \item \textbf{Donor numbers are masked until deliberately opened.} Search
+        returns \texttt{05 •• •• •• 56}. A single function returns the whole
+        number, and it writes a row while doing so.
+  \item \textbf{Every reveal is logged, and the donor can read the log.} The
+        record names who opened the number, for which donor, on behalf of which
+        association, and when. It cannot be updated or deleted by anyone.
+  \item \textbf{Data-subject rights have a route in the product} — export,
+        correction, deletion — rather than an email address on a policy page.
+\end{itemize}
+
+\subsection{Who may vouch — Loi 12-06 on associations}
+
+Verification publishes an attestation under an association's name. An
+association is a legal person acting through its statutory representatives, not
+through whichever member happens to be holding a phone; if a vouched request
+proves fraudulent, the association carries it. Verification is therefore
+restricted to association \emph{administrators} in the request's own wilaya,
+enforced in the database rather than the interface.
+
+Volunteers keep everything else — the request list, donor search, the work of
+mobilising people. They simply cannot sign the association's name.
+
+\note{``Administrator'' is a proxy for ``entitled to bind the association''. A
+real committee's mandate structure may be richer, and blood-request vetting is
+not itself a regulated medical act. This mapping is marked in the migration and
+should be confirmed with the ANS.}
+
+\subsection{No payment, ever}
+
+Blood donation in Algeria is voluntary and unpaid. Paying donors — in cash,
+vouchers, credit, priority, or anything exchangeable for them — compromises the
+safety of the supply, because a donor with a financial motive has a reason to
+conceal a disqualifying history.
+
+This is a documented invariant at the top of the compliance module and a
+code-review gate, not a preference. Non-transferable recognition (streaks,
+certificates) is permitted precisely because it cannot be exchanged.
+
+\subsection{Open question: data residency}\label{sec:residency}
+
+The production database is hosted in AWS \texttt{us-east-1}. Algerian patients'
+names, blood types and telephone numbers therefore rest on servers outside
+Algeria. Four files in the repository carry a \texttt{TODO(compliance)} marker
+recording this.
+
+This is a decision to be taken deliberately, and the options are known: a
+European region shortens the answer, and domestic hosting removes the question
+entirely. It is a launch gate, not a demonstration gate, but it is the question
+a well-informed panel will ask.
+
+% ===========================================================================
+\section{How the loop closes}
+
+\begin{enumerate}[leftmargin=1.4em]
+  \item \textbf{A family posts a request.} Three steps: who needs blood, where,
+        how urgent. The hospital is free text — a family knows their hospital by
+        name, not by an identifier in a directory.
+  \item \textbf{Phone verification interrupts \emph{after} the form, not
+        before.} A plea written at 3am is captured while the person still has
+        the words; the draft is held and posted the moment the number is
+        confirmed. It is never asked for twice.
+  \item \textbf{Compatible donors nearby are notified.} Same wilaya, compatible
+        blood type, eligible now — not inside the 90-day cooldown — and never
+        the person who posted it.
+  \item \textbf{A committee may vouch for it.} The console groups requests by
+        what to do next: needs review, open a long time, already vouched.
+  \item \textbf{A donor responds, and the family sees it.} The count is public
+        so twenty people do not arrive for two units; the identities are not.
+  \item \textbf{A donor who cannot go says so.} Withdrawal is a state change the
+        family sees, not an erasure.
+\end{enumerate}
+
+% ===========================================================================
+\section{Technical architecture}
+
+\subsection{Stack}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+Web application & React 18, Vite 6, TypeScript, Tailwind for layout \\
+Mobile shells & Capacitor (Android, iOS) over the same source \\
+Backend & Supabase: PostgreSQL, PostgREST, GoTrue, Edge Functions (Deno) \\
+Notifications & Web Push (VAPID), queued in the database, sent by a worker \\
+Maps & Leaflet over OpenStreetMap \\
+Languages & English, French, Arabic, with full right-to-left support \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The core package is framework-agnostic by design: configuration is injected
+rather than read from the bundler's environment, so a non-Vite host can consume
+the same logic.
+
+\subsection{Security model}
+
+Authorisation lives in the database, not the interface. \textbf{56 row-level
+security policies} and \textbf{21 \texttt{SECURITY DEFINER} functions} decide
+who may read and write what; the client can only ask.
+
+Three principles are worth stating because they were arrived at by correcting
+mistakes:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{One right per predicate.} A single function once gated
+        vouching, patient-record access \emph{and} donor search. Narrowing it
+        for one purpose silently removed a right unrelated to the decision.
+        They are now separate.
+  \item \textbf{Two layers, not one.} Revoking a function from
+        \texttt{public} does not remove Supabase's separate grants to the
+        \texttt{anon} and \texttt{authenticated} roles. Several functions were
+        therefore reachable by anonymous callers and stopped only by their own
+        internal guard. The test suite now asserts the grants themselves.
+  \item \textbf{Logs that cannot be rewritten.} Consent records and contact
+        reveals have no update or delete policy at all.
+\end{itemize}
+
+\subsection{Notifications}
+
+Database triggers write to an outbox; an edge function drains it. An HTTP call
+inside the transaction would make \emph{posting a plea for blood} fail whenever
+a push service was slow, and a failed send would leave nothing to retry.
+
+Each claim takes a five-minute lease. \texttt{SKIP LOCKED} alone separates only
+simultaneous workers — a second worker a moment later would send the same
+notification again, and the test suite caught exactly that.
+
+The payload carries blood type and wilaya and nothing else. A push lands on a
+lock screen that anyone nearby can read, so it says only what the public request
+list already shows.
+
+\subsection{Blood compatibility}
+
+The full eight-by-eight red-cell table is written out rather than derived, so a
+reader can check it against a transfusion chart line by line. Unknown or missing
+types answer \emph{false}, never \emph{true}: the safe answer to ``do we know
+this is safe?'' is no.
+
+The unit tests check the table from both directions against an independently
+written chart, verify that rhesus is not symmetric, and confirm that a donor
+whose type is unrecorded is asked rather than refused.
+
+\subsection{Verification and testing}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lrX@{}}
+\toprule
+\textbf{Suite} & \textbf{Count} & \textbf{What it covers} \\
+\midrule
+\texttt{verify:db} & 148 & RLS against real PostgreSQL, as several users \\
+\texttt{test:unit} & 7 & Blood compatibility, both directions \\
+Playwright & 32 & End-to-end journeys, three languages, two viewports \\
+\midrule
+Migrations & 24 & Applied in filename order \\
+Screens & 23 & \\
+Components & 38 & \\
+Translated strings & 310 & Each in all three languages, enforced by the type system \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+A missing translation is a compilation error, not a visible gap: the string
+table is a TypeScript interface, so a key added in one language and forgotten in
+another fails the build.
+
+% ===========================================================================
+\section{What is built, and what is not}\label{sec:notbuilt}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{State} & \textbf{Capability} \\
+\midrule
+\good & Patient/family posts a request; association verifies it \\
+\good & Donor discovery, map, urgency and recency ordering \\
+\good & Donor responds; family sees the count; withdrawal supported \\
+\good & Web push: compatible donors in-wilaya, and the family on a response \\
+\good & Consent, contact-reveal logging, data-subject requests \\
+\good & Blood compatibility with tests \\
+\good & Trilingual EN / FR / AR with right-to-left \\
+\good & Public demonstration deployment \\
+\midrule
+\open & Demonstration OTP is enabled: any number can be claimed \\
+\open & Data residency (Section~\ref{sec:residency}) \\
+\open & ``Administrator'' as proxy for authority to bind an association \\
+\midrule
+\none & Native push for the Capacitor Android build (needs FCM) \\
+\none & Android build refreshed against the current application \\
+\none & Pagination beyond a 200-request cap per wilaya \\
+\none & Any integration with a national registry or hospital system \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% ===========================================================================
+\section{Positioning}\label{sec:cra}
+
+\subsection{Not ``first''}
+
+There is a national registry announced and at least three applications live.
+Claiming to be first is both false and checkable in thirty seconds, and
+volunteering the competition first reads as command where being caught by it
+reads as naivety.
+
+\subsection{The line}
+
+\begin{quote}\itshape
+Algeria has a national donor registry. It answers \emph{who could give}. Qatra
+answers \emph{who is coming, right now, and can this request be trusted} — and
+it does so to a standard a committee can put its name on.
+\end{quote}
+
+\subsection{Why the Red Crescent partnership strengthens}
+
+The Algerian Red Crescent is already the state's chosen partner in this space,
+having co-launched the June 2025 platform. A CRA wilaya committee vouching
+through Qatra is therefore not a rival to the national effort but the local
+layer it does not have. The compliance architecture is what makes that
+partnership possible: an institution can only lend its name to a system that
+handles health data properly.
+
+% ===========================================================================
+\section{Sources}
+
+\begin{itemize}[leftmargin=1.4em]\small
+  \item Agence Nationale du Sang, on regular-donor lists and the summer
+        supply–demand imbalance: \url{https://news.radioalgerie.dz/fr/node/47717}
+  \item ANS collection figures and donation rate:
+        \url{https://www.algerie360.com/don-de-sang-lagence-nationale-donne-lalerte/}
+  \item ONSC platform launch:
+        \url{https://www.dzair-tube.dz/en/algeria-launches-first-digital-blood-donor-platform-to-strengthen-national-lifeline/}
+  \item Ministry of Health platform:
+        \url{https://meatechwatch.com/2025/06/18/algeria-launches-digital-platform-to-enhance-blood-donation-management-nationwide/}
+  \item National Observatory of Civil Society: \url{https://marsad.dz}
+  \item Ministry of Health: \url{https://www.sante.gov.dz}
+  \item \ar{بنك الدم الجزائري} (Nabil\_Soft) on Google Play:
+        \url{https://play.google.com/store/apps/details?id=com.dz.bank.blood.nabilsoft.bankblooddz}
+  \item \ar{بنك الدم الجزائري} SangDz on Google Play:
+        \url{https://play.google.com/store/apps/details?id=com.blood.sangdz}
+  \item Nabdz emergency grid: \url{https://nabdz.com/en/blood-donation}
+\end{itemize}
+
+\vfill
+\note{Repository: \url{https://github.com/2him29/startup-idea} — public
+demonstration at \url{https://2him29.github.io/startup-idea/}}
+
+\end{document}
