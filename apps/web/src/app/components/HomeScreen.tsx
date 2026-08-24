@@ -45,6 +45,10 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
    * applies, so the number this card promises is the number that screen
    * shows when it opens.
    */
+  // Legacy mode only. Counted from the open list the console shows, rather
+  // than the 8 / 14 / 156 / 2 that used to be typed in here.
+  const criticalCount = bloodRequests.filter((r) => r.urgency === "Critical").length;
+
   const nearbyWilaya = getDefaultWilaya();
   const nearbyCount = nearbyWilaya
     ? bloodRequests.filter((r) => r.wilaya === nearbyWilaya).length
@@ -404,15 +408,18 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
           >
             <Users className="absolute opacity-[0.15]" style={{ width: 140, height: 140, insetInlineEnd: -20, top: -20 }} stroke="white" fill="none" strokeWidth={1.5} />
             <span className="text-[13px] opacity-90 font-semibold">{t.signedInAs}</span>
-            <div className="text-[21px] font-extrabold tracking-[-0.4px]">{profile?.fullName ?? "CHU Mustapha Pacha"}</div>
+            <div className="text-[21px] font-extrabold tracking-[-0.4px]">{profile?.fullName ?? ""}</div>
             <div className="mt-4 flex gap-2.5">
               <div className="flex-1 bg-white/[0.16] rounded-[14px] px-[13px] py-[11px]">
-                <div className="text-[22px] font-extrabold">8</div>
+                <div className="text-[22px] font-extrabold">{bloodRequests.length}</div>
                 <div className="text-[11.5px] opacity-90">{t.activeRequests}</div>
               </div>
+              {/* "Donors matched" was 14 and nothing counts it: no table
+                  records a donor being matched to a request. Critical requests
+                  can be counted, and are the more useful number on a desk. */}
               <div className="flex-1 bg-white/[0.16] rounded-[14px] px-[13px] py-[11px]">
-                <div className="text-[22px] font-extrabold">14</div>
-                <div className="text-[11.5px] opacity-90">{t.donorsMatched}</div>
+                <div className="text-[22px] font-extrabold">{criticalCount}</div>
+                <div className="text-[11.5px] opacity-90">{t.critical}</div>
               </div>
             </div>
           </div>
@@ -426,21 +433,6 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             {t.openConsole}
           </button>
 
-          <div className="grid grid-cols-3 gap-[11px] mt-3.5">
-            <div className="bg-white border rounded-2xl p-3.5 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-              <div className="text-[23px] font-extrabold" style={{ color: "#0E8BA8" }}>156</div>
-              <div className="text-[11px] font-semibold" style={{ color: "#6B7C88" }}>Total</div>
-            </div>
-            <div className="bg-white border rounded-2xl p-3.5 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-              <div className="text-[23px] font-extrabold" style={{ color: "#12B76A" }}>8</div>
-              <div className="text-[11px] font-semibold" style={{ color: "#6B7C88" }}>Active</div>
-            </div>
-            <div className="bg-white border rounded-2xl p-3.5 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
-              <div className="text-[23px] font-extrabold" style={{ color: "#E5484D" }}>2</div>
-              <div className="text-[11px] font-semibold" style={{ color: "#6B7C88" }}>{t.critical}</div>
-            </div>
-          </div>
-
           <div className="mt-[22px] text-base font-extrabold" style={{ color: "#0B2432" }}>{t.quickActions}</div>
           <div className="mt-3 flex flex-col gap-[11px]">
             <button
@@ -452,10 +444,10 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
                 <Droplet className="w-[21px] h-[21px]" />
               </span>
               <span className="flex-1">
-                <span className="block text-[15px] font-bold">View blood requests</span>
-                <span className="block text-[12.5px] opacity-90">Manage all open requests</span>
+                <span className="block text-[15px] font-bold">{t.viewRequests}</span>
+                <span className="block text-[12.5px] opacity-90">{t.manageRequests}</span>
               </span>
-              <span className="text-xs font-extrabold bg-white/[0.22] px-2.5 py-1 rounded-full">8</span>
+              <span className="text-xs font-extrabold bg-white/[0.22] px-2.5 py-1 rounded-full">{bloodRequests.length}</span>
             </button>
             <button
               onClick={() => onNavigate("matching")}

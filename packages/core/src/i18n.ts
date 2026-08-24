@@ -42,6 +42,7 @@ export interface Strings {
   patientName: string; patientNamePh: string; patientFile: string; hospitalLabel: string;
   compensateNote: string; compensateCta: string;
   signedInAs: string; activeRequests: string; donorsMatched: string;
+  viewRequests: string; manageRequests: string;
   openConsole: string; findDonors: string; findDonorsSub: string;
   navHome: string; navFind: string; navGive: string; navProfile: string;
   urgencyCritical: string; urgencyHigh: string; urgencyMedium: string; urgencyLow: string;
@@ -187,6 +188,7 @@ export const I18N: Record<Lang, Strings> = {
     compensateNote: "You don't need to match the patient's blood type — you're replacing a unit for the shared reserve.",
     compensateCta: "Pledge a compensation donation",
     signedInAs: "Signed in as", activeRequests: "Active requests", donorsMatched: "Donors matched",
+    viewRequests: "View blood requests", manageRequests: "Manage all open requests",
     openConsole: "Open the full hospital console", findDonors: "Find donors", findDonorsSub: "Search available donors nearby",
     navHome: "Home", navFind: "Find", navGive: "Give", navProfile: "Profile",
     urgencyCritical: "Critical", urgencyHigh: "High", urgencyMedium: "Medium", urgencyLow: "Low",
@@ -404,6 +406,7 @@ export const I18N: Record<Lang, Strings> = {
     compensateNote: "Pas besoin du même groupe — vous remplacez une unité pour la réserve commune.",
     compensateCta: "Promettre un don de compensation",
     signedInAs: "Connecté en tant que", activeRequests: "Demandes actives", donorsMatched: "Donneurs jumelés",
+    viewRequests: "Voir les demandes", manageRequests: "Gérer les demandes ouvertes",
     openConsole: "Ouvrir la console hôpital", findDonors: "Trouver des donneurs", findDonorsSub: "Donneurs disponibles à proximité",
     navHome: "Accueil", navFind: "Chercher", navGive: "Donner", navProfile: "Profil",
     urgencyCritical: "Critique", urgencyHigh: "Élevée", urgencyMedium: "Moyenne", urgencyLow: "Faible",
@@ -621,6 +624,7 @@ export const I18N: Record<Lang, Strings> = {
     compensateNote: "لا حاجة لمطابقة الفصيلة — أنت تعوّض وحدة للمخزون المشترك.",
     compensateCta: "التعهد بتبرع تعويضي",
     signedInAs: "مسجّل الدخول باسم", activeRequests: "طلبات نشطة", donorsMatched: "متبرعون مطابقون",
+    viewRequests: "عرض طلبات الدم", manageRequests: "إدارة الطلبات المفتوحة",
     openConsole: "فتح لوحة المستشفى الكاملة", findDonors: "ابحث عن متبرعين", findDonorsSub: "متبرعون متاحون بالقرب منك",
     navHome: "الرئيسية", navFind: "بحث", navGive: "تبرّع", navProfile: "الملف",
     urgencyCritical: "حرج", urgencyHigh: "مرتفع", urgencyMedium: "متوسط", urgencyLow: "منخفض",
