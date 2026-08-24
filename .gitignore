@@ -48,3 +48,8 @@ docs/build/*.aux
 docs/build/*.log
 docs/build/*.out
 docs/build/*.toc
+
+# Installers. The TeX toolchain that builds the dossier is a local prerequisite,
+# not a project asset — and GitHub rejects any push carrying a file over 100 MB,
+# so one stray `git add -A` blocks every commit behind it.
+*.exe
