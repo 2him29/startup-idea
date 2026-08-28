@@ -8,6 +8,7 @@ import {
   errorMessage,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { SCREEN_BG } from "../background";
 
 interface CompensateScreenProps {
   onBack: () => void;
@@ -17,7 +18,6 @@ interface CompensateScreenProps {
 
 const PURPLE = "#6B4FC0";
 const PURPLE_GRADIENT = "linear-gradient(135deg,#6B4FC0,#8A6BD6)";
-const SCREEN_BG = "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)";
 
 /**
  * Compensate for a patient (family replacement).

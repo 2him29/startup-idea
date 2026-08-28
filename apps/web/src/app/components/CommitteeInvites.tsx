@@ -12,6 +12,7 @@ import {
   type AssociationInvite,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { SCREEN_BG } from "../background";
 import { RequestCardSkeleton } from "./Skeletons";
 
 interface CommitteeInvitesProps {
@@ -54,7 +55,7 @@ export function CommitteeInvites({ onBack }: CommitteeInvitesProps) {
   const shell = (children: ReactNode) => (
     <div
       className="min-h-screen px-5 pt-2 pb-[130px]"
-      style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}
+      style={{ background: SCREEN_BG }}
     >
       <div className="flex items-center gap-3 mb-4">
         <button

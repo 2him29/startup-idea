@@ -17,6 +17,7 @@ import {
   errorMessage,
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { SCREEN_BG } from "../background";
 import { BloodType } from "./BloodType";
 import { useToast } from "./Toast";
 import { RequestCardSkeleton } from "./Skeletons";
@@ -158,7 +159,7 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
   );
 
   const shell = (children: React.ReactNode) => (
-    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
+    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: SCREEN_BG }}>
       {header}
       {children}
     </div>

@@ -1,6 +1,7 @@
 import { ArrowLeft, BadgeCheck, ChevronRight, Clock, Link2, Users } from "lucide-react";
 import { useCommitteeInbox, wilayaLabel } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { SCREEN_BG } from "../background";
 import { RequestCardSkeleton } from "./Skeletons";
 
 interface CommitteeHubProps {
@@ -24,7 +25,7 @@ export function CommitteeHub({ onBack, onNavigate, onApply }: CommitteeHubProps)
   const { association, waiting, stale, loading } = useCommitteeInbox();
 
   const shell = (children: React.ReactNode) => (
-    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
+    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: SCREEN_BG }}>
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={onBack}
@@ -84,7 +85,7 @@ export function CommitteeHub({ onBack, onNavigate, onApply }: CommitteeHubProps)
         key={key}
         data-testid={`committee-${key}`}
         onClick={() => onNavigate(screen)}
-        className="cursor-pointer w-full border rounded-[20px] p-[18px] bg-white flex items-center gap-4 shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
+        className="cursor-pointer transition-transform duration-100 active:scale-[0.985] w-full border rounded-[20px] p-[18px] bg-white flex items-center gap-4 shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
         style={{ borderColor: "rgba(11,36,50,0.06)", textAlign: "start" }}
       >
         <span className="w-12 h-12 rounded-[15px] flex items-center justify-center shrink-0" style={{ background: "#EEE9FB" }}>

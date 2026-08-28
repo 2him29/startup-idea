@@ -1,6 +1,8 @@
 import { ArrowLeft, Droplet, Calendar, User, Settings, ChevronRight } from "lucide-react";
 import { useDonorProfile, computeEligibility, useResponses, formatRelativeTime, type Profile } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { useCountUp } from "../useCountUp";
+import { SCREEN_BG } from "../background";
 
 interface ProfileScreenProps {
   onBack: () => void;
@@ -24,13 +26,14 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
   // No request ids: this screen wants the donor's own responses, which
   // fetchMyResponses returns regardless, not per-request counts.
   const { goingTo } = useResponses([]);
+  const answered = useCountUp(goingTo.size);
   const eligibility = computeEligibility(donorProfile?.lastDonationDate ?? null);
   const nextEligibleText = eligibility.nextEligibleDate
     ? new Intl.DateTimeFormat(lang, { day: "numeric", month: "long", year: "numeric" }).format(eligibility.nextEligibleDate)
     : t.ready;
 
   return (
-    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
+    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: SCREEN_BG }}>
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={onBack}
@@ -71,7 +74,7 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
           <Droplet className="w-5 h-5" style={{ color: "#E5484D" }} fill="#E5484D" />
         </span>
         <div className="flex-1" style={{ textAlign: "start" }}>
-          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{goingTo.size}</div>
+          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{answered}</div>
           <div className="text-[11.5px] font-semibold" style={{ color: "#8496A0" }}>{t.responsesGiven}</div>
         </div>
       </div>

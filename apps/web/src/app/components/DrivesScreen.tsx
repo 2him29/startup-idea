@@ -1,6 +1,7 @@
 import { ArrowLeft, Calendar, MapPin } from "lucide-react";
 import { useBloodDrives, formatDriveDate, wilayaLabel } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { SCREEN_BG } from "../background";
 
 interface DrivesScreenProps {
   onBack: () => void;
@@ -12,7 +13,7 @@ export function DrivesScreen({ onBack }: DrivesScreenProps) {
   const { drives } = useBloodDrives();
 
   return (
-    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
+    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: SCREEN_BG }}>
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={onBack}

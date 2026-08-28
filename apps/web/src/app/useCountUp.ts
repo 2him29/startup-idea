@@ -9,6 +9,18 @@ export function useCountUp(target: number, durationMs = 900): number {
       setValue(target);
       return;
     }
+
+    /*
+     * The stylesheet's prefers-reduced-motion rule cannot reach this.
+     * It flattens CSS animations and transitions; this is a
+     * requestAnimationFrame loop, so someone who asked for less motion would
+     * still get a number ticking upward at them. Ask directly and skip to the
+     * answer.
+     */
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setValue(target);
+      return;
+    }
     let raf = 0;
     const start = performance.now();
     const tick = (now: number) => {

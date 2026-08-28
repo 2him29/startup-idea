@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { signIn, signUpDonor, signUpHospital, type Profile } from "@weare/core";
 import { QatraMark } from "./QatraMark";
 import { useI18n } from "../i18n/LangContext";
+import { SCREEN_BG } from "../background";
 
 interface AuthScreenProps {
   role: "donor" | "hospital";
@@ -67,7 +68,7 @@ export function AuthScreen({ role, onBack, onAuthenticated }: AuthScreenProps) {
   return (
     <div
       className="min-h-screen px-5 pt-2 pb-[130px] md:flex md:flex-col md:items-center md:justify-center md:px-6 md:py-12"
-      style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}
+      style={{ background: SCREEN_BG }}
     >
       <div className="md:w-full md:max-w-md">
       <div className="flex items-center gap-3 mb-4">

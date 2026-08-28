@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Download, FileEdit, Trash2 } from "lucide-react";
 import { submitDataSubjectRequest, fetchMyDataSubjectRequests, formatRelativeTime, type DsrKind, type DataSubjectRequest, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { SCREEN_BG } from "../background";
 import { useToast } from "./Toast";
 
 interface DataRightsScreenProps {
@@ -68,7 +69,7 @@ export function DataRightsScreen({ onBack }: DataRightsScreenProps) {
   };
 
   return (
-    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
+    <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: SCREEN_BG }}>
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={onBack}

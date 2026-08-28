@@ -5,6 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useHospitals, openDirections, wilayaLabel } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { SCREEN_BG } from "../background";
 import { RequestRowSkeleton } from "./Skeletons";
 
 interface HospitalsScreenProps {
@@ -42,7 +43,7 @@ export function HospitalsScreen({ onBack }: HospitalsScreenProps) {
     .sort((a, b) => (a.wilaya ?? "").localeCompare(b.wilaya ?? "") || a.name.localeCompare(b.name));
 
   return (
-    <div className="min-h-screen px-5 pt-2 pb-[40px]" style={{ background: "linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)" }}>
+    <div className="min-h-screen px-5 pt-2 pb-[40px]" style={{ background: SCREEN_BG }}>
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={onBack}
