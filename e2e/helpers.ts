@@ -141,7 +141,7 @@ export async function signOut(page: Page): Promise<void> {
  * behind one Committee tab that opens a two-card hub. Tests reach them the way
  * a volunteer does.
  */
-export async function openCommittee(page: Page, tool: "verify" | "donors"): Promise<void> {
+export async function openCommittee(page: Page, tool: "verify" | "donors" | "invites"): Promise<void> {
   await clickNavById(page, "committee");
   const card = page.getByTestId(`committee-${tool}`);
   await card.waitFor({ state: "visible", timeout: 30_000 });
