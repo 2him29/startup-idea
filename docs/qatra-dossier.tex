@@ -476,6 +476,198 @@ partnership possible: an institution can only lend its name to a system that
 handles health data properly.
 
 % ===========================================================================
+
+% ===========================================================================
+\section{Presenting this}\label{sec:pitch}
+
+\note{This section is written for the person presenting, not for the reader
+being presented to. Everything in it is drawn from the sections above; nothing
+new is claimed here.}
+
+\subsection{The sentence to open and close with}
+
+\begin{quote}
+\textbf{Algeria is the best country in Africa at collecting blood and still
+runs short of it. That is a timing problem, not a willingness problem — and
+timing is a software problem.}
+\end{quote}
+
+Say it first. Say it again at the end. Everything between the two is evidence
+for it.
+
+\subsection{The first thirty seconds}
+
+Open with the fact that contradicts the room's assumption. Everyone expects a
+plea about apathy; the ANS's own numbers say the opposite.
+
+\begin{enumerate}[leftmargin=1.4em]
+  \item \textbf{13.98 donors per 1\,000 inhabitants.} First in Africa, for
+        about a decade. Algerians give.
+  \item \textbf{Only 22\% give regularly.} The agency's own word for this is
+        \emph{``relativement faible''}.
+  \item \textbf{So 78\% gave once and were never effectively called again.}
+        Nothing in the country knows the date a given donor became eligible
+        again.
+\end{enumerate}
+
+Then the turn: \emph{the ANS's stated request to citizens is to register on
+regular-donor lists. This is that register, and it makes the call.}
+
+\subsection{The demonstration, in this order}
+
+Four minutes. Resist showing the whole app; show the loop closing, because that
+is the thing no competitor has.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}rlX@{}}
+\toprule
+& \textbf{Show} & \textbf{Say} \\
+\midrule
+1 & A family posts a request & ``Three fields. The hospital is free text,
+because a family knows its hospital by name, not by an identifier.'' \\
+2 & A committee vouches for it & ``An association in the same wilaya puts its
+name to this. The market leader states in its own store listing that it
+verifies nothing.'' \\
+3 & The badge on the donor's screen & ``And it survives a WhatsApp forward —
+the committee is named in the shared message, so a forwarded plea stays
+checkable.'' \\
+4 & A donor responds & ``Compatible donors in that wilaya were notified. Not
+everyone: the right blood types, eligible today, never the person who posted
+it.'' \\
+5 & The progress bar & ``Three of four units pledged. The twentieth donor can
+see the request is covered and go find another one.'' \\
+6 & The invite screen & ``And this is how a Red Crescent committee brings the
+donor list it already has — a link, never an upload. Each donor signs up and
+consents themselves.'' \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{The argument that matters to a public body}
+
+A ministry does not adopt the best application. It adopts the one it
+\emph{can} adopt. Frame the competition as a question of eligibility rather
+than of features:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item The market leader has ten thousand installs and \textbf{publishes
+        donors' telephone numbers}, while declaring ``No data collected'' on a
+        listing that collects blood type and phone number. No Algerian public
+        body can put its name to that.
+  \item A product built on a proprietary foreign mobile backend \textbf{cannot
+        be hosted in Algeria at all}, whatever its owner decides.
+  \item The announced national platforms have no public front door.
+\end{itemize}
+
+So the claim is not ``ours is nicer''. It is:
+
+\begin{quote}
+\textbf{This is the only one of these that could lawfully become national
+infrastructure.}
+\end{quote}
+
+\subsection{Three things to run, rather than describe}
+
+Claims are discounted; commands are not. Each of these takes under two minutes.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Command} & \textbf{What it proves in front of them} \\
+\midrule
+\texttt{npm run verify:db} & 188 checks against a real PostgreSQL that is
+\emph{not} Supabase. This is the answer to ``can this be hosted in Algeria'' —
+the schema runs on any Postgres, on any server, in any country. \\
+\texttt{npm run test:unit} & The blood-compatibility table, checked in both
+directions against an independently written chart. The one place where being
+wrong is a medical error. \\
+\texttt{npm test} & 48 end-to-end journeys through a real browser, in three
+languages and two viewports. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Questions that will be asked, and honest answers}
+
+The weak answers are the ones given defensively. Each of these is better
+answered plainly.
+
+\begin{description}[leftmargin=0em, style=unboxed]
+
+\item[``How many people use it?''] \emph{Nobody yet.} Say it without
+flinching, then say what it is designed for: one wilaya committee with the
+donors it already has. The invite mechanism exists for exactly that, and it
+works. A pilot with one committee is the ask, not a claim of traction.
+
+\item[``Where is the data?''] Today, AWS \texttt{us-east-1} — outside Algeria,
+and a launch gate rather than a demonstration gate. Then Section
+\ref{sec:residency}: no proprietary extensions, no hosted-only services, the
+address injected at startup. Offer to run \texttt{verify:db} on the spot.
+
+\item[``How do you know a request is real?''] Three layers, and none of them
+is a claim of certainty: the poster's phone number is verified, an association
+in the same wilaya can vouch under its own name, and the committee sees a
+plausibility panel before it does. Qatra reduces the cost of a lie; it does not
+pretend to eliminate it.
+
+\item[``What stops someone harvesting donors' numbers?''] Search returns masked
+numbers. Opening one is a deliberate act, restricted to members of an
+association in that wilaya, and every opening is written to a log the donor can
+read and nobody can delete.
+
+\item[``Isn't this just a WhatsApp group?''] A chain message is
+unattributable and never closes. This one carries the vouching committee's name
+into the forward, and the family sees who is actually coming.
+
+\item[``What if the state builds its own?''] It announced platforms and did not
+ship a front door. And the architecture is deliberately portable — if the right
+answer is that the state operates this, that is a handover, not a competitor.
+
+\item[``How does it make money?''] Be careful and be honest. Donor payment is
+excluded by law and by design, so there is no consumer revenue here and there
+should not be. The realistic routes are institutional: tooling paid for by the
+bodies that coordinate donation, or public funding. \textbf{This is not
+solved, and claiming otherwise in front of people who fund things is the
+fastest way to lose them.}
+
+\item[``Is phone verification real?''] In the demonstration build, no — a
+fixed code is accepted, because there is no SMS provider connected. It is a
+flag, it is off in production, and it is listed in Section
+\ref{sec:notbuilt}. Volunteering this before being caught by it is worth more
+than the point it costs.
+
+\end{description}
+
+\subsection{What not to claim}
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Do not claim users, pilots or partnerships that do not exist.}
+        The Red Crescent is the intended partner, not a signed one. One
+        checkable exaggeration discredits every figure in this document.
+  \item \textbf{Do not claim lives saved.} The application deliberately removed
+        that number because nothing counts it.
+  \item \textbf{Do not promise medical outcomes.} Qatra moves information
+        between people; it does not transfuse anyone.
+  \item \textbf{Do not hide the open items.} Section \ref{sec:notbuilt} exists
+        so that a panel finds nothing you did not already say. A gap you
+        disclosed is competence; the same gap discovered is a credibility
+        problem.
+\end{itemize}
+
+\subsection{The ask}
+
+A presentation without a request is a report. Ask for the two things that are
+actually needed and cannot be built:
+
+\begin{enumerate}[leftmargin=1.4em]
+  \item \textbf{One wilaya committee, for one pilot.} Twenty real donors on a
+        real list, for one season. That converts every architectural claim in
+        this document into evidence.
+  \item \textbf{An introduction to the Agence Nationale du Sang.} Two questions
+        need an authoritative answer: who may bind an association, and where
+        the data must live.
+\end{enumerate}
+
 \section{Sources}
 
 \begin{itemize}[leftmargin=1.4em]\small
