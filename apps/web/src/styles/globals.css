@@ -260,9 +260,9 @@ html[lang="ar"] body {
   background: linear-gradient(
     110deg,
     transparent 20%,
-    rgba(229, 72, 77, .10) 35%,
-    rgba(229, 72, 77, .55) 50%,
-    rgba(229, 72, 77, .10) 65%,
+    rgba(229, 72, 77, .18) 35%,
+    rgba(229, 72, 77, .72) 50%,
+    rgba(229, 72, 77, .18) 65%,
     transparent 80%
   );
   transform: translateX(-100%);
@@ -270,11 +270,11 @@ html[lang="ar"] body {
 
 @media (hover: hover) {
   .wa-sos:hover {
-    box-shadow: 0 0 26px -6px rgba(229, 72, 77, .6);
+    box-shadow: 0 0 30px -5px rgba(229, 72, 77, .72);
   }
   .wa-sos:hover::after {
     opacity: 1;
-    animation: waSosSweep 1.9s linear infinite;
+    animation: waSosSweep 1.2s linear infinite;
   }
   /* The light travels with the reading direction. */
   [dir="rtl"] .wa-sos:hover::after {
