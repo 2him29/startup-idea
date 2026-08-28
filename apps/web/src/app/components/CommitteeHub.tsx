@@ -1,5 +1,5 @@
-import { ArrowLeft, BadgeCheck, ChevronRight, Clock, Link2, Users } from "lucide-react";
-import { useCommitteeInbox, wilayaLabel } from "@weare/core";
+import { ArrowLeft, BadgeCheck, ChevronRight, Clock, Link2, Timer, Users } from "lucide-react";
+import { useCommitteeInbox, useWilayaResponseStats, wilayaLabel, formatDuration } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { SCREEN_BG } from "../background";
 import { RequestCardSkeleton } from "./Skeletons";
@@ -23,6 +23,7 @@ export function CommitteeHub({ onBack, onNavigate, onApply }: CommitteeHubProps)
   const { t, lang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
   const { association, waiting, stale, loading } = useCommitteeInbox();
+  const { stats: reach } = useWilayaResponseStats(association?.wilaya ?? null);
 
   const shell = (children: React.ReactNode) => (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: SCREEN_BG }}>
@@ -136,6 +137,41 @@ export function CommitteeHub({ onBack, onNavigate, onApply }: CommitteeHubProps)
         t.invitesCard,
         t.invitesCardSub,
         "committee-invites"
+      )}
+
+      {/*
+        The only number in this product that says whether it works.
+
+        Both halves are shown together and that is deliberate. A median time to
+        the first donor, on its own, is computed over the requests that were
+        answered — so a wilaya where nine pleas in ten go nowhere and the tenth
+        was lucky would report a wonderful number, the failures invisible
+        precisely because they failed. The count comes first for that reason,
+        and when nothing has been answered the screen says so instead of
+        showing a time.
+      */}
+      {reach && reach.requests > 0 && (
+        <div
+          className="mt-1 rounded-[20px] p-[18px] flex items-start gap-3"
+          style={{ background: "#EEF4FF", border: "1px solid rgba(59,98,192,0.25)", textAlign: "start" }}
+        >
+          <Timer className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#3B62C0" }} />
+          <div>
+            <div className="text-[13.5px] font-extrabold" style={{ color: "#2A3A5C" }}>
+              {t.reachTitle.replace("{wilaya}", wilayaLabel(association.wilaya, lang))}
+            </div>
+            <div className="text-[12.5px] mt-1 leading-relaxed" style={{ color: "#3A4A66" }}>
+              {t.reachAnswered
+                .replace("{answered}", String(reach.answered))
+                .replace("{requests}", String(reach.requests))}
+            </div>
+            <div className="text-[12.5px] mt-0.5 leading-relaxed" style={{ color: "#3A4A66" }}>
+              {reach.medianMinutes === null
+                ? t.reachUnanswered
+                : t.reachMedian.replace("{duration}", formatDuration(reach.medianMinutes, lang))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/*

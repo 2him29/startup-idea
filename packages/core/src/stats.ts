@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { getSupabase } from "./supabaseClient";
 
 export interface PublicStats {
@@ -41,4 +42,84 @@ export async function fetchPublicStats(): Promise<PublicStats | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * How a wilaya is actually doing: how many pleas were answered, and how fast.
+ *
+ * Both halves matter and the second is meaningless alone. A median computed
+ * over answered requests only would report "four minutes" for a wilaya where
+ * nine pleas in ten go nowhere and the tenth was lucky — the failures vanish
+ * precisely because they failed. Callers are expected to show `answered` out of
+ * `requests` beside the time, never the time by itself.
+ */
+export interface WilayaResponseStats {
+  /** Requests posted in this wilaya within the window. */
+  requests: number;
+  /** How many of them got at least one donor who has not withdrawn. */
+  answered: number;
+  /** Median minutes from posting to the first donor, or null if none were. */
+  medianMinutes: number | null;
+  fastestMinutes: number | null;
+}
+
+export async function fetchWilayaResponseStats(
+  wilaya: string,
+  days = 90
+): Promise<WilayaResponseStats | null> {
+  try {
+    const { data, error } = await getSupabase().rpc("wilaya_response_stats", {
+      p_wilaya: wilaya,
+      p_days: days,
+    });
+    if (error || !data) return null;
+
+    const row = (data as {
+      requests: number;
+      answered: number;
+      median_minutes: string | number | null;
+      fastest_minutes: string | number | null;
+    }[])[0];
+    if (!row) return null;
+
+    // Postgres numerics arrive as strings; null must survive as null rather
+    // than becoming 0, which would read as help arriving instantly.
+    const num = (v: string | number | null) => (v === null ? null : Number(v));
+
+    return {
+      requests: Number(row.requests),
+      answered: Number(row.answered),
+      medianMinutes: num(row.median_minutes),
+      fastestMinutes: num(row.fastest_minutes),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function useWilayaResponseStats(wilaya: string | null) {
+  const [stats, setStats] = useState<WilayaResponseStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!wilaya) {
+      setStats(null);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    fetchWilayaResponseStats(wilaya)
+      .then((s) => {
+        if (!cancelled) setStats(s);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [wilaya]);
+
+  return { stats, loading };
 }

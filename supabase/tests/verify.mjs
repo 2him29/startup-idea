@@ -965,6 +965,115 @@ async function checkInvites() {
       "insert into association_invite_redemptions (invite_id, donor_id) values ($1,$2)", [revoked, ids.invDonor])));
 }
 
+/**
+ * Time to first response.
+ *
+ * The assertions worth having here are not about arithmetic, they are about
+ * what gets counted. A median computed only over answered requests, reported
+ * without the number that were not answered, would flatter a wilaya where most
+ * pleas go nowhere — so the two numbers are checked together, against a fixture
+ * built to have both kinds in it.
+ */
+async function checkResponseTime() {
+  const ids = {};
+  for (const who of ["rtMember", "rtOutsider", "rtFamily", "rtDonorA", "rtDonorB", "rtDonorC"]) {
+    const r = await client.query("insert into auth.users (email) values ($1) returning id", [`${who}@qatra.test`]);
+    ids[who] = r.rows[0].id;
+    await client.query("insert into profiles (id, role, full_name, phone_verified) values ($1,'donor',$2,true)", [ids[who], who]);
+  }
+
+  const assoc = (await client.query(
+    "insert into associations (name,type,wilaya,is_verified) values ('CRA Setif','red_crescent','Setif',true) returning id"
+  )).rows[0].id;
+  await client.query("insert into association_members (association_id,user_id,role) values ($1,$2,'volunteer')", [assoc, ids.rtMember]);
+
+  // A second wilaya the member belongs to, where nothing has happened. Needed
+  // because the day window clamps to a minimum of one day on purpose, so
+  // p_days = 0 still sees an hour-old request.
+  const quiet = (await client.query(
+    "insert into associations (name,type,wilaya,is_verified) values ('CRA Bejaia','red_crescent','Bejaia',true) returning id"
+  )).rows[0].id;
+  await client.query("insert into association_members (association_id,user_id,role) values ($1,$2,'volunteer')", [quiet, ids.rtMember]);
+
+  const patient = (await client.query(
+    "insert into patients (full_name,blood_type,wilaya,created_by) values ('Setif patient','O+','Setif',$1) returning id",
+    [ids.rtFamily]
+  )).rows[0].id;
+
+  // Four requests, all an hour old, deliberately covering every case the
+  // function has to distinguish.
+  const mkRequest = async (tag) => {
+    const r = await client.query(
+      `insert into blood_requests (patient_record_id, patient_id, blood_type, units, urgency, wilaya, created_at)
+       values ($1,$2,'O+',1,'High','Setif', now() - interval '60 minutes') returning id`,
+      [patient, tag]
+    );
+    return r.rows[0].id;
+  };
+  const answeredIn40 = await mkRequest("RT-1");
+  const answeredIn50 = await mkRequest("RT-2");
+  const neverAnswered = await mkRequest("RT-3");
+  const withdrawn = await mkRequest("RT-4");
+
+  const respond = async (request, donor, minutesAgo, status) => {
+    await client.query(
+      `insert into request_responses (request_id, donor_id, status, created_at)
+       values ($1,$2,$3, now() - make_interval(mins => $4))`,
+      [request, donor, status, minutesAgo]
+    );
+  };
+  await respond(answeredIn40, ids.rtDonorA, 20, "confirmed");
+  await respond(answeredIn50, ids.rtDonorB, 10, "confirmed");
+  // Answered, then taken back. A donor who withdrew did reply, but counting it
+  // would tell a committee help arrived when it left again.
+  await respond(withdrawn, ids.rtDonorC, 30, "cancelled");
+
+  section("response time: the number no directory can report");
+
+  await check("counts every request, not only the ones that were answered", () =>
+    asUser(ids.rtMember, async () => {
+      const r = await client.query("select * from wilaya_response_stats('Setif')");
+      const row = r.rows[0];
+      if (Number(row.requests) !== 4) throw new Error(`expected 4 requests, got ${row.requests}`);
+      if (Number(row.answered) !== 2) throw new Error(`expected 2 answered, got ${row.answered}`);
+    }));
+
+  await check("a withdrawn response is not an answer", async () => {
+    // Checked out here rather than inside asUser: a committee member cannot
+    // read request_responses at all since 20260821120000 narrowed that policy
+    // from `using (true)`.
+    await expectRows("select 1 from request_responses where request_id=$1", [withdrawn], 1);
+    await asUser(ids.rtMember, async () => {
+      const r = await client.query("select answered from wilaya_response_stats('Setif')");
+      if (Number(r.rows[0].answered) !== 2) throw new Error("cancelled response was counted as an answer");
+    });
+  });
+
+  await check("median is the middle of the answered intervals", () =>
+    asUser(ids.rtMember, async () => {
+      const r = await client.query("select median_minutes, fastest_minutes from wilaya_response_stats('Setif')");
+      const median = Number(r.rows[0].median_minutes);
+      const fastest = Number(r.rows[0].fastest_minutes);
+      // 40 and 50 minutes; the clock moves during the test, so allow a minute.
+      if (Math.abs(median - 45) > 1) throw new Error(`expected ~45, got ${median}`);
+      if (Math.abs(fastest - 40) > 1) throw new Error(`expected ~40, got ${fastest}`);
+    }));
+
+  await check("a wilaya with nothing in it reports nothing rather than zero minutes", () =>
+    asUser(ids.rtMember, async () => {
+      const r = await client.query("select * from wilaya_response_stats('Bejaia')");
+      const row = r.rows[0];
+      if (Number(row.requests) !== 0) throw new Error(`expected no requests, got ${row.requests}`);
+      if (row.median_minutes !== null) throw new Error("median over nothing must be null, not 0");
+    }));
+
+  await check("someone with no standing in the wilaya learns nothing", () =>
+    asUser(ids.rtOutsider, async () => {
+      const r = await client.query("select requests from wilaya_response_stats('Setif')");
+      if (Number(r.rows[0].requests) !== 0) throw new Error("an outsider was given counts");
+    }));
+}
+
 async function checkGrants() {
   section("api surface: the permission layer, not just the guard inside");
 
@@ -1002,6 +1111,7 @@ async function checkGrants() {
     "redeem_association_invite",
     "association_invite_counts",
     "generate_invite_code",
+    "wilaya_response_stats",
   ];
 
   for (const fn of anonMustNotExecute) {
@@ -1254,6 +1364,7 @@ async function main() {
   await checkRls();
   await checkDonorSearch();
   await checkInvites();
+  await checkResponseTime();
   await checkGrants();
   await checkClientContract();
   await checkSeed();

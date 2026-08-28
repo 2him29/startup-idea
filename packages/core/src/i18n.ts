@@ -146,6 +146,8 @@ export interface Strings {
   // --- Committee hub (Nav B) ---
   navCommittee: string; navCommitteeWaiting: string; committeeTitle: string; committeeVerifyCard: string; committeeVerifySub: string;
   committeeDonorsCard: string; committeeDonorsSub: string; committeeNoneToday: string;
+  reachTitle: string; reachAnswered: string; reachMedian: string; reachNone: string;
+  reachUnanswered: string;
   invitesCard: string; invitesCardSub: string; invitesTitle: string; invitesIntro: string;
   invitesCreate: string; invitesLabelPlaceholder: string; invitesNone: string; invitesJoined: string;
   invitesCopy: string; invitesCopied: string; invitesRevoke: string; invitesAdminOnly: string;
@@ -360,6 +362,11 @@ export const I18N: Record<Lang, Strings> = {
     inviteInvalidBody: "It may have been withdrawn or reached its limit. Ask the committee for a new one.",
     inviteAccepted: "You're on {association}'s donor list.",
     committeeNoneToday: "Nothing waiting — the list is clear",
+    reachTitle: "Reach in {wilaya}, last 90 days",
+    reachAnswered: "{answered} of {requests} requests reached a donor",
+    reachMedian: "{duration} to the first donor, typically",
+    reachUnanswered: "Nobody has answered any of them yet.",
+    reachNone: "No requests posted here in the last 90 days.",
     staleTitle: "{count} open more than a month",
     staleBody: "Nothing closes them automatically. Call the families and clear the list.",
     hospitalMatched: "Matched to a known hospital — your request will show on the donor map.",
@@ -578,6 +585,11 @@ export const I18N: Record<Lang, Strings> = {
     inviteInvalidBody: "Il a peut-être été retiré ou atteint sa limite. Demandez-en un nouveau au comité.",
     inviteAccepted: "Vous êtes sur la liste de donneurs de {association}.",
     committeeNoneToday: "Rien en attente — la liste est à jour",
+    reachTitle: "Portée à {wilaya}, 90 derniers jours",
+    reachAnswered: "{answered} demandes sur {requests} ont trouvé un donneur",
+    reachMedian: "{duration} jusqu'au premier donneur, en général",
+    reachUnanswered: "Personne n'a encore répondu à aucune.",
+    reachNone: "Aucune demande publiée ici depuis 90 jours.",
     staleTitle: "{count} ouvertes depuis plus d'un mois",
     staleBody: "Rien ne les ferme automatiquement. Appelez les familles et videz la liste.",
     hospitalMatched: "Hôpital reconnu — votre demande apparaîtra sur la carte des donneurs.",
@@ -796,6 +808,11 @@ export const I18N: Record<Lang, Strings> = {
     inviteInvalidBody: "ربما تم سحبه أو بلغ حده. اطلب رابطًا جديدًا من اللجنة.",
     inviteAccepted: "أنت الآن في قائمة متبرعي {association}.",
     committeeNoneToday: "لا شيء في الانتظار — القائمة خالية",
+    reachTitle: "الاستجابة في {wilaya}، آخر 90 يومًا",
+    reachAnswered: "{answered} من أصل {requests} طلبات وجدت متبرعًا",
+    reachMedian: "{duration} حتى أول متبرع، عادةً",
+    reachUnanswered: "لم يستجب أحد لأي منها بعد.",
+    reachNone: "لم تُنشر أي طلبات هنا خلال 90 يومًا.",
     staleTitle: "{count} مفتوحة منذ أكثر من شهر",
     staleBody: "لا شيء يغلقها تلقائياً. اتصل بالعائلات وأفرغ القائمة.",
     hospitalMatched: "مستشفى معروف — سيظهر طلبك على خريطة المتبرعين.",

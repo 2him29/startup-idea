@@ -121,3 +121,30 @@ export function urgencyLabel(urgency: Urgency, t: Strings): string {
     case "Low": return t.urgencyLow;
   }
 }
+
+/**
+ * A duration, in the unit a person would actually say it in.
+ *
+ * The first version of the committee's reach panel printed "2298 min to the
+ * first donor", which is true, unreadable, and therefore useless — nobody
+ * converts that in their head. Minutes below an hour and a half, hours below
+ * two days, days after that.
+ *
+ * Intl does the unit words, so this needs no entries in the dictionary and is
+ * right in all three languages without anyone translating "hr".
+ */
+export function formatDuration(minutes: number, lang: Lang): string {
+  const locale = lang === "ar" ? "ar-DZ" : lang === "fr" ? "fr-DZ" : "en-US";
+  const say = (value: number, unit: "minute" | "hour" | "day", digits = 0) =>
+    new Intl.NumberFormat(locale, {
+      style: "unit",
+      unit,
+      unitDisplay: "short",
+      maximumFractionDigits: digits,
+    }).format(value);
+
+  if (minutes < 90) return say(Math.round(minutes), "minute");
+  const hours = minutes / 60;
+  if (hours < 48) return say(hours, "hour", 1);
+  return say(hours / 24, "day", 1);
+}
