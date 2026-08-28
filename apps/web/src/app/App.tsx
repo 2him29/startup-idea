@@ -15,6 +15,7 @@ import { ProfileScreen } from "./components/ProfileScreen";
 import { EditProfileScreen } from "./components/EditProfileScreen";
 import { SettingsScreen } from "./components/SettingsScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
+import { SCREEN_BG } from "./background";
 import { CommitteeInvites } from "./components/CommitteeInvites";
 import { InviteBanner } from "./components/InviteBanner";
 import { Sidebar } from "./components/Sidebar";
@@ -362,7 +363,7 @@ export default function App() {
   const isFullBleed = !userType || isConsole;
 
   return (
-    <div className="size-full bg-background md:flex">
+    <div className="size-full bg-background md:flex" style={{ background: SCREEN_BG }}>
       {!online && (
         <div
           className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 px-4 py-2 text-white text-[12.5px] font-bold"

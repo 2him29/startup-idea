@@ -7,7 +7,7 @@ import { LangSwitcher } from "./LangSwitcher";
 import { NotificationsBell } from "./NotificationsBell";
 import { useI18n } from "../i18n/LangContext";
 import { getBoolPref, isRamadanNow, getDefaultWilaya } from "../prefs";
-import { SCREEN_BG } from "../background";
+import { SCREEN_BG, SPLASH_BG } from "../background";
 
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
@@ -91,7 +91,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
     return (
       <div
         className="flex flex-col min-h-screen p-6 pb-8 md:p-12"
-        style={{ background: "radial-gradient(130% 90% at 50% -10%, #FFE1E0 0%, #FFF3F2 40%, #F4FBFC 100%)" }}
+        style={{ background: SPLASH_BG }}
       >
         <div className="flex justify-center md:justify-end">
           <LangSwitcher />
@@ -344,7 +344,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
           <div className="mt-3 flex flex-col gap-[11px]" style={{ animation: "waRise .45s ease .3s both" }}>
             <button
               onClick={() => onNavigate("matching")}
-              className="cursor-pointer transition-transform duration-100 active:scale-[0.985] text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
+              className="cursor-pointer transition-colors duration-150 active:bg-[#FFF3F2] text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
               style={{ borderColor: "rgba(11,36,50,0.06)", textAlign: "start" }}
             >
               <span className="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0" style={{ background: "#FFECEC" }}>
@@ -358,7 +358,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             </button>
             <button
               onClick={() => onNavigate("compensate")}
-              className="cursor-pointer transition-transform duration-100 active:scale-[0.985] text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
+              className="cursor-pointer transition-colors duration-150 active:bg-[#FFF3F2] text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
               style={{ borderColor: "rgba(11,36,50,0.06)", textAlign: "start" }}
             >
               <span className="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0" style={{ background: "#EEE9FB" }}>
@@ -372,7 +372,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             </button>
             <button
               onClick={() => onNavigate("drives")}
-              className="cursor-pointer transition-transform duration-100 active:scale-[0.985] text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
+              className="cursor-pointer transition-colors duration-150 active:bg-[#FFF3F2] text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
               style={{ borderColor: "rgba(11,36,50,0.06)", textAlign: "start" }}
             >
               <span className="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0" style={{ background: "#E4F6FB" }}>
@@ -386,7 +386,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             </button>
             <button
               onClick={() => onNavigate("hospitals")}
-              className="cursor-pointer transition-transform duration-100 active:scale-[0.985] text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
+              className="cursor-pointer transition-colors duration-150 active:bg-[#FFF3F2] text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
               style={{ borderColor: "rgba(11,36,50,0.06)", textAlign: "start" }}
             >
               <span className="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0" style={{ background: "#EAF6EF" }}>
@@ -452,7 +452,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             </button>
             <button
               onClick={() => onNavigate("matching")}
-              className="cursor-pointer transition-transform duration-100 active:scale-[0.985] text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
+              className="cursor-pointer transition-colors duration-150 active:bg-[#FFF3F2] text-left w-full border rounded-2xl p-[15px] bg-white flex items-center gap-[14px] shadow-[0_8px_18px_-16px_rgba(11,36,50,0.5)]"
               style={{ borderColor: "rgba(11,36,50,0.06)", textAlign: "start" }}
             >
               <span className="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0" style={{ background: "#E4F6FB" }}>

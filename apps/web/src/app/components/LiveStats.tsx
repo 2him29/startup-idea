@@ -62,7 +62,7 @@ export function LiveStats() {
         {items.map(({ icon: Icon, value, label, tone, bg }) => (
           <div
             key={label}
-            className="rounded-[18px] md:rounded-2xl bg-white/70 border px-3 py-3.5 md:py-5 text-center"
+            className="rounded-[18px] md:rounded-2xl bg-white/90 border px-3 py-3.5 md:py-5 text-center"
             style={{ borderColor: "rgba(11,36,50,0.06)", backdropFilter: "blur(6px)" }}
           >
             <span

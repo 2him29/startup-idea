@@ -85,7 +85,7 @@ export function CommitteeHub({ onBack, onNavigate, onApply }: CommitteeHubProps)
         key={key}
         data-testid={`committee-${key}`}
         onClick={() => onNavigate(screen)}
-        className="cursor-pointer transition-transform duration-100 active:scale-[0.985] w-full border rounded-[20px] p-[18px] bg-white flex items-center gap-4 shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
+        className="cursor-pointer transition-colors duration-150 active:bg-[#FFF3F2] w-full border rounded-[20px] p-[18px] bg-white flex items-center gap-4 shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
         style={{ borderColor: "rgba(11,36,50,0.06)", textAlign: "start" }}
       >
         <span className="w-12 h-12 rounded-[15px] flex items-center justify-center shrink-0" style={{ background: "#EEE9FB" }}>

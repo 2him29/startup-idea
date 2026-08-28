@@ -55,3 +55,13 @@ export const ZELLIGE = `url("data:image/svg+xml,${encodeURIComponent(TILE)}")`;
  */
 export const SCREEN_BG =
   `${ZELLIGE} repeat, linear-gradient(180deg,#FFF7F6 0%, #F6FBFC 58%, #FFFFFF 100%)`;
+
+/**
+ * The splash, which keeps its own warmer radial wash.
+ *
+ * It is the first thing anyone sees and the one screen with no cards over
+ * it, so the lattice is the whole texture rather than a hint behind
+ * something else.
+ */
+export const SPLASH_BG =
+  `${ZELLIGE} repeat, radial-gradient(130% 90% at 50% -10%, #FFE1E0 0%, #FFF3F2 40%, #F4FBFC 100%)`;
