@@ -44,10 +44,13 @@ Thumbs.db
 
 # LaTeX build leftovers. The compiled dossier PDF is tracked; the aux files
 # that produce it are not.
-docs/build/*.aux
-docs/build/*.log
-docs/build/*.out
-docs/build/*.toc
+# Anywhere under docs/, not just docs/build: compiling from an editor, or
+# without -output-directory, drops them beside the .tex instead.
+docs/**/*.aux
+docs/**/*.log
+docs/**/*.out
+docs/**/*.toc
+docs/**/*.synctex.gz
 
 # Installers. The TeX toolchain that builds the dossier is a local prerequisite,
 # not a project asset — and GitHub rejects any push carrying a file over 100 MB,
