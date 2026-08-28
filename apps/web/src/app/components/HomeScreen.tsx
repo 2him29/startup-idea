@@ -283,8 +283,8 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
           {urgentRequest && (
             <div
               onClick={() => onNavigate("matching")}
-              className="cursor-pointer w-full mt-3.5 rounded-[20px] px-[18px] py-4 text-white flex items-center gap-[14px]"
-              style={{ background: "linear-gradient(135deg,#2B1416,#3a1a1d)", animation: "waRise .45s ease .18s both, waPulse 2.4s .8s infinite", textAlign: "start" }}
+              className="wa-sos cursor-pointer w-full mt-3.5 rounded-[20px] px-[18px] py-4 text-white flex items-center gap-[14px]"
+              style={{ textAlign: "start" }}
             >
               <span className="w-[42px] h-[42px] rounded-xl bg-[#E5484D] flex items-center justify-center shrink-0">
                 <Droplet className="w-[22px] h-[22px]" fill="white" stroke="none" />

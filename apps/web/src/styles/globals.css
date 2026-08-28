@@ -218,10 +218,73 @@ html[lang="ar"] body {
 }
 
 /* The live dot on the splash: a slow breath, not a blink. Anything faster
-   reads as an alarm on a screen whose subject is already urgent enough. */
-@keyframes waPulse {
+   reads as an alarm on a screen whose subject is already urgent enough.
+   Named waPing rather than waPulse because it was waPulse, and a second
+   definition of that name replaced the ring pulse the urgent cards were
+   asking for — leaving them scaling to 2.2x and fading out instead. */
+@keyframes waPing {
   0%, 100% { transform: scale(1); opacity: .7; }
   50%      { transform: scale(2.2); opacity: 0; }
+}
+
+/*
+ * The urgent-request card.
+ *
+ * Static until a pointer is actually on it. The screen's subject is urgent
+ * enough without something moving at the edge of vision, and there is no hover
+ * on a phone, so on the device most donors use it never moves at all.
+ *
+ * The sweep is a transform on a pseudo-element rather than an animated
+ * background-position: it stays on the compositor, and percentage background
+ * positions do not translate cleanly enough to loop without a seam.
+ */
+.wa-sos {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #2B1416, #3a1a1d);
+  transition: box-shadow .35s ease;
+}
+
+.wa-sos > * {
+  position: relative;
+  z-index: 1;
+}
+
+.wa-sos::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 20%,
+    rgba(229, 72, 77, .10) 35%,
+    rgba(229, 72, 77, .55) 50%,
+    rgba(229, 72, 77, .10) 65%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+}
+
+@media (hover: hover) {
+  .wa-sos:hover {
+    box-shadow: 0 0 26px -6px rgba(229, 72, 77, .6);
+  }
+  .wa-sos:hover::after {
+    opacity: 1;
+    animation: waSosSweep 1.9s linear infinite;
+  }
+  /* The light travels with the reading direction. */
+  [dir="rtl"] .wa-sos:hover::after {
+    animation-direction: reverse;
+  }
+}
+
+@keyframes waSosSweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
 }
 
 /* Whole-screen entrance played on every route change (keyed wrapper in App.tsx). */

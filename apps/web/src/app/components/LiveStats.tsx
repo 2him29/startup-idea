@@ -49,7 +49,7 @@ export function LiveStats() {
         <span className="relative flex w-2 h-2">
           <span
             className="absolute inline-flex w-full h-full rounded-full opacity-70"
-            style={{ background: "#12B76A", animation: "waPulse 2s ease-in-out infinite" }}
+            style={{ background: "#12B76A", animation: "waPing 2s ease-in-out infinite" }}
           />
           <span className="relative inline-flex w-2 h-2 rounded-full" style={{ background: "#12B76A" }} />
         </span>
