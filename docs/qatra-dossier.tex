@@ -278,12 +278,30 @@ certificates) is permitted precisely because it cannot be exchanged.
 The production database is hosted in AWS \texttt{us-east-1}. Algerian patients'
 names, blood types and telephone numbers therefore rest on servers outside
 Algeria. Four files in the repository carry a \texttt{TODO(compliance)} marker
-recording this.
+recording this. It is a launch gate, and it is the question a well-informed
+panel asks first.
 
-This is a decision to be taken deliberately, and the options are known: a
-European region shortens the answer, and domestic hosting removes the question
-entirely. It is a launch gate, not a demonstration gate, but it is the question
-a well-informed panel will ask.
+The answer is that nothing prevents it being solved, and this can be checked
+rather than taken on trust. The backend is standard PostgreSQL. Across all
+twenty-six migrations there is not a single \texttt{create extension}
+statement, and no dependency on any proprietary service --- no hosted-only
+networking, secrets or storage calls. The one platform-specific thing the
+schema uses is \texttt{auth.uid()}, which belongs to GoTrue, an open-source
+component that runs the same way in a self-hosted deployment. The client is
+handed its address at startup by injection rather than reading it from a
+bundler's environment, so pointing the application at an instance hosted in
+Algeria is a configuration change and a migration run, not a rewrite.
+
+Two pieces would still need attention on that path, and are named here rather
+than discovered later: the push-notification worker is a Deno function and
+would need somewhere to run, and the demonstration OTP provider must be
+replaced by a real SMS route before any number is trusted.
+
+The distinction worth drawing is between a system that has not yet moved and
+one that cannot. A product built on a proprietary mobile backend cannot be
+hosted domestically at all, whatever its owner decides. This one is a Postgres
+database and a static web application; where it runs is an operational choice
+that can be made by whoever ends up accountable for the data.
 
 % ===========================================================================
 \section{How the loop closes}
@@ -386,12 +404,12 @@ whose type is unrecorded is asked rather than refused.
 \midrule
 \texttt{verify:db} & 188 & RLS against real PostgreSQL, as several users \\
 \texttt{test:unit} & 14 & Blood compatibility both directions; pledge arithmetic \\
-Playwright & 32 & End-to-end journeys, three languages, two viewports \\
+Playwright & 48 & End-to-end journeys, three languages, two viewports \\
 \midrule
 Migrations & 26 & Applied in filename order \\
 Screens & 24 & \\
 Components & 41 & \\
-Translated strings & 387 & Each in all three languages, enforced by the type system \\
+Translated strings & 388 & Each in all three languages, enforced by the type system \\
 \bottomrule
 \end{tabularx}
 \end{center}
