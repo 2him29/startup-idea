@@ -52,6 +52,12 @@ docs/**/*.out
 docs/**/*.toc
 docs/**/*.synctex.gz
 
+# The built dossier lives in docs/build/ and is tracked there. A compile
+# started from an editor writes it beside the .tex instead, and a single
+# pass leaves every cross-reference as "??" — a copy that looks finished,
+# sorts first alphabetically, and is the one somebody would attach.
+/docs/*.pdf
+
 # Installers. The TeX toolchain that builds the dossier is a local prerequisite,
 # not a project asset — and GitHub rejects any push carrying a file over 100 MB,
 # so one stray `git add -A` blocks every commit behind it.
