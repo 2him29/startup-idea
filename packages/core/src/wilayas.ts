@@ -76,3 +76,40 @@ export function wilayaLabel(frName: string | null | undefined, lang: Lang): stri
   if (!w) return frName;
   return w[lang];
 }
+
+/**
+ * Whether a hospital's name already tells you which wilaya it is in.
+ *
+ * "CHU Frantz Fanon – Blida" followed by "Blida" reads as a stutter, so the
+ * card drops the second one. "Clinique El Amel" says nothing about where it is,
+ * so there the wilaya is the useful half.
+ *
+ * Two things make this more than a substring test.
+ *
+ * Accents: a wilaya is stored as "Béjaïa" and a hospital will as often be typed
+ * "Bejaia". Both are folded before comparing.
+ *
+ * Word boundaries: "Croissant-Rouge Algérien" contains the letters of "Alger",
+ * and an `includes` would hide the wilaya from every request in the capital on
+ * the strength of an adjective.
+ */
+export function nameStatesWilaya(
+  name: string | null | undefined,
+  wilaya: string | null | undefined
+): boolean {
+  if (!name || !wilaya) return false;
+
+  const fold = (s: string) =>
+    s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+  const needle = fold(wilaya);
+  if (!needle) return false;
+
+  // Escaped: several wilayas are multi-word, and one day one will arrive with
+  // a character the regex engine cares about.
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(
+    `(^|[^\\p{L}\\p{N}])${escaped}([^\\p{L}\\p{N}]|$)`,
+    "u"
+  ).test(fold(name));
+}

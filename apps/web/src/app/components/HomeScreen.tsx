@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Droplet, Users, ShieldCheck, ChevronRight, Calendar, PlayCircle, Moon, HeartHandshake, Share2, Building2 } from "lucide-react";
-import { RESERVE, RESERVE_STATUS, isPatientModelEnabled, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, wilayaLabel, shareToWhatsApp, type Profile } from "@weare/core";
+import { RESERVE, RESERVE_STATUS, isPatientModelEnabled, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, wilayaLabel, nameStatesWilaya, shareToWhatsApp, type Profile } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LiveStats } from "./LiveStats";
 import { LangSwitcher } from "./LangSwitcher";
@@ -293,7 +293,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
                 <span className="block text-[11px] font-extrabold tracking-[1px]" style={{ color: "#F4677E" }}>{t.sosLabel}</span>
                 <span className="block text-[15px] font-bold mt-px">{t.sosTitle.replace("{bloodType}", urgentRequest.bloodType)}</span>
                 <span className="block text-xs opacity-85 mt-px truncate">
-                  {urgentRequest.hospital} · {wilayaLabel(urgentRequest.wilaya, lang)} · {urgentRequest.units} {t.units}
+                  {urgentRequest.hospital} · {nameStatesWilaya(urgentRequest.hospital, urgentRequest.wilaya) ? "" : `${wilayaLabel(urgentRequest.wilaya, lang)} · `}{urgentRequest.units} {t.units}
                 </span>
               </span>
               <button

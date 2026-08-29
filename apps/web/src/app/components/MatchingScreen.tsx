@@ -3,7 +3,7 @@ import { ArrowLeft, Check, MapPin, Droplet } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, useResponses, wilayaLabel, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
+import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, useResponses, wilayaLabel, nameStatesWilaya, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { getDefaultWilaya } from "../prefs";
@@ -196,7 +196,9 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                         >
                           {urgencyLabel(r.urgency, t)}
                         </span>
-                        <span className="text-[11px]" style={{ color: "#6B7C88" }}>{wilayaLabel(r.wilaya, lang)}</span>
+                        {!nameStatesWilaya(r.hospital, r.wilaya) && (
+                          <span className="text-[11px]" style={{ color: "#6B7C88" }}>{wilayaLabel(r.wilaya, lang)}</span>
+                        )}
                       </div>
                       {/* Same badge as the list below. A pin and a card are two
                           views of one request, so trust that shows in one and
@@ -250,9 +252,18 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                   </span>
                   <div>
                     <div className="text-[15.5px] font-bold" style={{ color: "#0B2432" }}>{r.hospital}</div>
+                    {/* "CHU Frantz Fanon – Blida" followed by "Blida" is a
+                        stutter, so the second one goes — and the pin with it,
+                        since a location marker in front of a timestamp points
+                        at nothing. */}
                     <div className="flex items-center gap-1 mt-0.5 text-[12.5px]" style={{ color: "#8496A0" }}>
-                      <MapPin className="w-[13px] h-[13px]" />
-                      {wilayaLabel(r.wilaya, lang)} · {formatRelativeTime(r.createdAt, lang)}
+                      {!nameStatesWilaya(r.hospital, r.wilaya) && (
+                        <>
+                          <MapPin className="w-[13px] h-[13px]" />
+                          {wilayaLabel(r.wilaya, lang)} ·{" "}
+                        </>
+                      )}
+                      {formatRelativeTime(r.createdAt, lang)}
                     </div>
                     {r.verifiedByName && (
                       <div className="mt-1.5">
