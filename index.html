@@ -8,13 +8,32 @@
       <title>Qatra · قطرة</title>
       <link rel="icon" type="image/png" href="/startup-idea/favicon.png" />
 
+      <!--
+        Installable on a home screen, which is what makes notifications work
+        on the device most donors have. Web Push runs in an installed PWA on
+        Android without Firebase, a Play Store listing, or an APK the user has
+        to allow from "unknown sources".
+
+        Vite rewrites absolute paths in this file to sit under the deployment
+        base, so /manifest.webmanifest becomes /startup-idea/manifest.webmanifest
+        on Pages. It does NOT rewrite paths inside the manifest itself, which
+        is copied verbatim from public/ — the paths in there are relative for
+        that reason, and resolve against the manifest's own URL.
+      -->
+      <link rel="manifest" href="/startup-idea/manifest.webmanifest" />
+      <meta name="theme-color" content="#FFF7F6" />
+      <link rel="apple-touch-icon" href="/startup-idea/icon-192.png" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      <meta name="apple-mobile-web-app-title" content="Qatra" />
+
       <meta name="robots" content="noindex, nofollow" />
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
       <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
       
-      <script type="module" crossorigin src="/startup-idea/assets/index-NphCnK4c.js"></script>
+      <script type="module" crossorigin src="/startup-idea/assets/index-CsFNK9y7.js"></script>
       <link rel="stylesheet" crossorigin href="/startup-idea/assets/index-DrxIsZtq.css">
     </head>
 
