@@ -18,6 +18,24 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
 
+/*
+ * Present so the app can be installed to a home screen, and deliberately empty.
+ *
+ * Chrome has long wanted a fetch handler before it will treat a site as
+ * installable, and being installable is the whole point here: Web Push works
+ * in an installed progressive web app on Android with no Firebase project, no
+ * Play Store listing and no APK anybody has to allow from "unknown sources".
+ *
+ * It does not call respondWith, so every request goes to the network exactly as
+ * it would without a service worker. That is the point. The note at the top of
+ * this file stands — an offline cache that served a blood request closed hours
+ * ago could send a donor to a hospital for nothing, and nothing here caches
+ * anything.
+ */
+self.addEventListener("fetch", () => {
+  // No respondWith: the browser handles it.
+});
+
 self.addEventListener("push", (event) => {
   /*
    * A push with no readable payload still gets a notification.

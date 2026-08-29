@@ -99,6 +99,29 @@ function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
  * `navigator.serviceWorker.ready` is the wait that matters — it resolves only
  * with an active worker.
  */
+/**
+ * Register the worker at startup, before anyone has opted into anything.
+ *
+ * This used to happen only inside enablePush(), which put it the wrong way
+ * round: a browser will not offer to install a site to the home screen until a
+ * service worker is registered, so the app was only installable *after* the
+ * user turned notifications on — and turning them on is the thing you would
+ * rather they did from an installed app.
+ *
+ * Registering asks for no permission and subscribes to nothing. The push
+ * subscription still happens only in enablePush(), on an explicit tap.
+ */
+export async function registerServiceWorker(swUrl: string): Promise<void> {
+  if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+  try {
+    const existing = await navigator.serviceWorker.getRegistration();
+    if (!existing) await navigator.serviceWorker.register(swUrl);
+  } catch (err) {
+    // An unreachable or rejected worker costs installability, not the app.
+    console.error("Service worker registration failed", err);
+  }
+}
+
 async function ensureWorker(swUrl: string): Promise<ServiceWorkerRegistration> {
   const existing = await navigator.serviceWorker.getRegistration();
   if (!existing) await navigator.serviceWorker.register(swUrl);
