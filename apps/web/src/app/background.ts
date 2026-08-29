@@ -30,21 +30,29 @@
  *
  * The tile is seamless: the star sits at the centre, and a quarter-diamond at
  * each corner meets its three neighbours to complete a whole one.
+ *
+ * Strength is a parameter because the two surfaces need different answers.
+ * Content screens cover most of the lattice with opaque cards, so it can hold
+ * its own there; the splash puts a paragraph directly on top of it, and at the
+ * same strength the stars read through the one sentence that has to land.
  */
-const TILE = [
-  "<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'>",
-  "<g fill='none' stroke='#E5484D' stroke-opacity='0.13' stroke-width='1'>",
-  "<rect x='18' y='18' width='28' height='28'/>",
-  "<rect x='18' y='18' width='28' height='28' transform='rotate(45 32 32)'/>",
-  "<rect x='-7' y='-7' width='14' height='14' transform='rotate(45 0 0)'/>",
-  "<rect x='57' y='-7' width='14' height='14' transform='rotate(45 64 0)'/>",
-  "<rect x='-7' y='57' width='14' height='14' transform='rotate(45 0 64)'/>",
-  "<rect x='57' y='57' width='14' height='14' transform='rotate(45 64 64)'/>",
-  "</g></svg>",
-].join("");
+function zellige(strokeOpacity: number): string {
+  const tile = [
+    "<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'>",
+    `<g fill='none' stroke='#E5484D' stroke-opacity='${strokeOpacity}' stroke-width='1'>`,
+    "<rect x='18' y='18' width='28' height='28'/>",
+    "<rect x='18' y='18' width='28' height='28' transform='rotate(45 32 32)'/>",
+    "<rect x='-7' y='-7' width='14' height='14' transform='rotate(45 0 0)'/>",
+    "<rect x='57' y='-7' width='14' height='14' transform='rotate(45 64 0)'/>",
+    "<rect x='-7' y='57' width='14' height='14' transform='rotate(45 0 64)'/>",
+    "<rect x='57' y='57' width='14' height='14' transform='rotate(45 64 64)'/>",
+    "</g></svg>",
+  ].join("");
+  return `url("data:image/svg+xml,${encodeURIComponent(tile)}")`;
+}
 
-/** The lattice on its own, for surfaces that supply their own colour beneath. */
-export const ZELLIGE = `url("data:image/svg+xml,${encodeURIComponent(TILE)}")`;
+/** The lattice at content strength, for surfaces that supply their own colour. */
+export const ZELLIGE = zellige(0.13);
 
 /**
  * The standard screen background.
@@ -59,9 +67,10 @@ export const SCREEN_BG =
 /**
  * The splash, which keeps its own warmer radial wash.
  *
- * It is the first thing anyone sees and the one screen with no cards over
- * it, so the lattice is the whole texture rather than a hint behind
- * something else.
+ * It is the first thing anyone sees and the one screen with no cards over it,
+ * so the lattice is the whole texture rather than a hint behind something else
+ * — and also the one screen where body text sits straight on it. Softer for
+ * that reason: at content strength the stars read through the sentence.
  */
 export const SPLASH_BG =
-  `${ZELLIGE} repeat, radial-gradient(130% 90% at 50% -10%, #FFE1E0 0%, #FFF3F2 40%, #F4FBFC 100%)`;
+  `${zellige(0.09)} repeat, radial-gradient(130% 90% at 50% -10%, #FFE1E0 0%, #FFF3F2 40%, #F4FBFC 100%)`;
