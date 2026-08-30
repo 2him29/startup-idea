@@ -444,8 +444,11 @@ async function checkRls() {
   });
 
   await check("no client role can read the outbox", async () => {
+    // Refused by the table grant now, not by an empty result: the outbox is
+    // written by SECURITY DEFINER triggers and drained by the service role, so
+    // no signed-in role needs to reach it at all.
     for (const who of [ids.donor, ids.member, ids.admin, ids.family]) {
-      await asUser(who, () => expectRows("select 1 from notification_outbox", [], 0));
+      await asUser(who, () => expectDenied("select 1 from notification_outbox"));
     }
   });
 
@@ -547,11 +550,24 @@ async function checkRls() {
     }));
   await check("user cannot read another's consent", () =>
     asUser(ids.outsider, () => expectRows("select 1 from consent_records where user_id=$1", [ids.donor], 0)));
-  await check("consent rows cannot be deleted (evidence preserved)", () =>
+  await check("consent rows cannot be deleted (evidence preserved)", async () => {
+    await client.query("insert into consent_records (user_id,purpose,consent_version) values ($1,'health_data','v1')", [ids.donor]);
+    await asUser(ids.donor, () => expectDenied("delete from consent_records where user_id=$1", [ids.donor]));
+    // Verified out here: a refused statement aborts the transaction asUser
+    // opened, so nothing else can be asked inside it.
+    const left = await client.query("select count(*)::int n from consent_records where user_id=$1", [ids.donor]);
+    if (left.rows[0].n === 0) throw new Error("the consent row did not survive");
+  });
+
+  // Withdrawing is an update, and must still work — a consent that cannot be
+  // withdrawn is not consent. The first draft of 20260831120000 revoked UPDATE
+  // alongside DELETE and took this with it.
+  await check("a donor can still withdraw their own consent", () =>
     asUser(ids.donor, async () => {
-      await client.query("insert into consent_records (user_id,purpose,consent_version) values ($1,'health_data','v1')", [ids.donor]);
-      const r = await client.query("delete from consent_records where user_id=$1", [ids.donor]);
-      if (r.rowCount !== 0) throw new Error("a consent row was deleted");
+      const r = await client.query(
+        "update consent_records set revoked_at = now() where user_id = auth.uid() and revoked_at is null"
+      );
+      if (r.rowCount === 0) throw new Error("the donor could not withdraw their own consent");
     }));
   await check("user cannot resolve their own data request", () =>
     asUser(ids.donor, async () => {
@@ -708,11 +724,11 @@ async function checkDonorSearch() {
    * erase its own reads could erase the fact that it read, which is precisely
    * what a data subject would be asking about.
    */
-  await check("nobody can delete a reveal record", () =>
-    asUser(coordinator, async () => {
-      const r = await client.query("delete from donor_contact_reveals where donor_id=$1", [sharing]);
-      if (r.rowCount !== 0) throw new Error("a reveal record was deleted");
-    }));
+  await check("nobody can delete a reveal record", async () => {
+    await asUser(coordinator, () => expectDenied("delete from donor_contact_reveals where donor_id=$1", [sharing]));
+    const left = await client.query("select count(*)::int n from donor_contact_reveals where donor_id=$1", [sharing]);
+    if (left.rows[0].n === 0) throw new Error("the audit row did not survive");
+  });
   await check("a donor who did not opt in is listed WITHOUT their number", () =>
     asUser(coordinator, async () => {
       const r = await client.query("select phone, shares_phone from search_donors('Blida') where id=$1", [private_]);
@@ -1183,6 +1199,70 @@ async function checkGrants() {
          and has_function_privilege('anon', p.oid, 'EXECUTE')`
     );
     if (r.rows[0].n === 0) throw new Error("describe_invite is closed to anon; invite links cannot work");
+  });
+
+  /*
+   * The outer door, asserted as a grant rather than as a behaviour.
+   *
+   * Every one of these is refused by RLS as well, which is why nothing ever
+   * leaked. The grant is what decides whether an anonymous request is turned
+   * away at the door or travels into a policy predicate written for signed-in
+   * callers and fails there — and testing the policy proves only that the
+   * second layer works.
+   *
+   * The four public tables are listed explicitly rather than by omission: they
+   * carry a hospital's name, a committee's name and when a drive is, and the
+   * signed-out splash genuinely reads the first of them.
+   */
+  const anonMayRead = ["blood_requests", "hospitals", "associations", "blood_drives"];
+  const anonMayNotTouch = [
+    "association_members", "association_invites", "association_invite_redemptions",
+    "compensations", "consent_records", "data_subject_requests",
+    "donor_contact_reveals", "donor_profiles", "notification_outbox",
+    "patients", "platform_admins", "profiles", "push_subscriptions",
+    "request_responses",
+  ];
+
+  for (const t of anonMayNotTouch) {
+    await check(`anon cannot read ${t}`, async () => {
+      const r = await client.query("select has_table_privilege('anon', $1, 'SELECT') ok", [t]);
+      if (r.rows[0].ok) throw new Error(`anon still holds SELECT on ${t}`);
+    });
+  }
+
+  for (const t of [...anonMayRead, ...anonMayNotTouch]) {
+    await check(`anon cannot write ${t}`, async () => {
+      const r = await client.query(
+        "select has_table_privilege('anon', $1, 'INSERT') i, has_table_privilege('anon', $1, 'UPDATE') u, has_table_privilege('anon', $1, 'DELETE') d",
+        [t]
+      );
+      const { i, u, d } = r.rows[0];
+      if (i || u || d) throw new Error(`anon can write ${t}: insert=${i} update=${u} delete=${d}`);
+    });
+  }
+
+  for (const t of anonMayRead) {
+    await check(`anon keeps SELECT on ${t}, which the signed-out app needs`, async () => {
+      const r = await client.query("select has_table_privilege('anon', $1, 'SELECT') ok", [t]);
+      if (!r.rows[0].ok) throw new Error(`${t} is no longer readable signed out`);
+    });
+  }
+
+  /* Evidence stays evidence: appended to, never rewritten or removed. */
+  await check("authenticated cannot delete a consent record", async () => {
+    const r = await client.query("select has_table_privilege('authenticated','consent_records','DELETE') ok");
+    if (r.rows[0].ok) throw new Error("consent records can be deleted");
+  });
+  await check("authenticated can still withdraw consent by update", async () => {
+    const r = await client.query("select has_table_privilege('authenticated','consent_records','UPDATE') ok");
+    if (!r.rows[0].ok) throw new Error("consent cannot be withdrawn — revoking UPDATE removes the donor's right to");
+  });
+  await check("authenticated cannot write the reveal log at all", async () => {
+    const r = await client.query(
+      "select has_table_privilege('authenticated','donor_contact_reveals','INSERT') i, has_table_privilege('authenticated','donor_contact_reveals','UPDATE') u, has_table_privilege('authenticated','donor_contact_reveals','DELETE') d"
+    );
+    const { i, u, d } = r.rows[0];
+    if (i || u || d) throw new Error("the audit log is writable by its subject");
   });
 
   /* A SECURITY DEFINER view hides that property at the call site. The counts
