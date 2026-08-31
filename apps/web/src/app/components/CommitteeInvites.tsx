@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { ArrowLeft, Link2, Copy, Check, Share2, X, Users, Plus } from "lucide-react";
+import { ArrowLeft, Link2, Copy, Check, Share2, X, Users, Plus, QrCode } from "lucide-react";
 import {
   useMyMemberships,
   useAssociationInvites,
@@ -14,6 +14,7 @@ import {
 import { useI18n } from "../i18n/LangContext";
 import { SCREEN_BG } from "../background";
 import { RequestCardSkeleton } from "./Skeletons";
+import { InviteQr } from "./InviteQr";
 
 interface CommitteeInvitesProps {
   onBack: () => void;
@@ -46,6 +47,8 @@ export function CommitteeInvites({ onBack }: CommitteeInvitesProps) {
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  // The invite currently held up to a room, if any.
+  const [showing, setShowing] = useState<AssociationInvite | null>(null);
 
   // One message, from either source. Kept as a string rather than testing
   // `failure || error` inline: the hook reports its error as `unknown`, which
@@ -258,6 +261,15 @@ export function CommitteeInvites({ onBack }: CommitteeInvitesProps) {
               {/* WhatsApp, because that is how a committee already reaches its
                   donors — the same reason the request share button exists. */}
               <button
+                onClick={() => setShowing(invite)}
+                data-testid="show-invite-qr"
+                aria-label={t.invitesShowQr}
+                className="cursor-pointer w-[42px] h-[42px] rounded-xl border bg-white flex items-center justify-center shrink-0"
+                style={{ borderColor: "rgba(11,36,50,0.12)" }}
+              >
+                <QrCode className="w-4 h-4" style={{ color: "#0B2432" }} />
+              </button>
+              <button
                 onClick={() =>
                   shareToWhatsApp(
                     `${t.inviteJoinTitle.replace("{association}", association.name)}\n${inviteUrl(invite.code)}`
@@ -283,6 +295,13 @@ export function CommitteeInvites({ onBack }: CommitteeInvitesProps) {
             </div>
           </div>
         ))
+      )}
+      {showing && (
+        <InviteQr
+          code={showing.code}
+          associationName={association.name}
+          onClose={() => setShowing(null)}
+        />
       )}
     </div>
   );

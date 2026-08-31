@@ -337,6 +337,34 @@ button.cursor-pointer:active {
   transform: scale(.96);
 }
 
+/*
+ * Printing an invite.
+ *
+ * The only thing in this application anyone has a reason to put on paper: a
+ * committee taping the code to a table at a blood drive. Everything else on
+ * screen — the navigation, the lattice, the buttons — is hidden rather than
+ * restyled, so what comes out of the printer is the committee's name, the
+ * pattern, the code and the address, on white.
+ */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .invite-qr-sheet,
+  .invite-qr-sheet * {
+    visibility: visible;
+  }
+  .invite-qr-sheet {
+    position: absolute;
+    inset: 0;
+    background: #fff !important;
+  }
+  /* Controls are for the screen; paper cannot be tapped. */
+  .no-print {
+    display: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

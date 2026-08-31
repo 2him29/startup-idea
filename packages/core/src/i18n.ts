@@ -152,6 +152,7 @@ export interface Strings {
   invitesCreate: string; invitesLabelPlaceholder: string; invitesNone: string; invitesJoined: string;
   invitesCopy: string; invitesCopied: string; invitesRevoke: string; invitesAdminOnly: string;
   invitesRevoked: string; invitesExpired: string; invitesFull: string;
+  invitesShowQr: string; invitesQrLead: string; invitesQrPrint: string;
   inviteJoinTitle: string; inviteJoinBody: string; inviteInvalidTitle: string;
   inviteInvalidBody: string; inviteAccepted: string;
   staleTitle: string; staleBody: string;
@@ -356,6 +357,8 @@ export const I18N: Record<Lang, Strings> = {
     invitesRevoke: "Withdraw",
     invitesAdminOnly: "Only a committee administrator can create invite links.",
     invitesRevoked: "Withdrawn", invitesExpired: "Expired", invitesFull: "Limit reached",
+    invitesShowQr: "Show code", invitesQrLead: "Scan to join this committee's donor list",
+    invitesQrPrint: "Print this page",
     inviteJoinTitle: "{association} invited you",
     inviteJoinBody: "Create your account to join their donor list.",
     inviteInvalidTitle: "This link is no longer active",
@@ -579,6 +582,8 @@ export const I18N: Record<Lang, Strings> = {
     invitesRevoke: "Retirer",
     invitesAdminOnly: "Seul un administrateur du comité peut créer des liens d'invitation.",
     invitesRevoked: "Retiré", invitesExpired: "Expiré", invitesFull: "Limite atteinte",
+    invitesShowQr: "Afficher le code", invitesQrLead: "Scannez pour rejoindre la liste de donneurs de ce comité",
+    invitesQrPrint: "Imprimer cette page",
     inviteJoinTitle: "{association} vous invite",
     inviteJoinBody: "Créez votre compte pour rejoindre leur liste de donneurs.",
     inviteInvalidTitle: "Ce lien n'est plus actif",
@@ -802,6 +807,8 @@ export const I18N: Record<Lang, Strings> = {
     invitesRevoke: "سحب",
     invitesAdminOnly: "يمكن لمسؤول اللجنة وحده إنشاء روابط الدعوة.",
     invitesRevoked: "مسحوب", invitesExpired: "منتهٍ", invitesFull: "بلغ الحد",
+    invitesShowQr: "إظهار الرمز", invitesQrLead: "امسح للانضمام إلى قائمة متبرعي هذه اللجنة",
+    invitesQrPrint: "اطبع هذه الصفحة",
     inviteJoinTitle: "{association} تدعوك",
     inviteJoinBody: "أنشئ حسابك للانضمام إلى قائمة متبرعيهم.",
     inviteInvalidTitle: "هذا الرابط لم يعد فعّالاً",
