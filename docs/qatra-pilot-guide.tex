@@ -1,0 +1,316 @@
+% Qatra — Getting the First Committee
+%
+% Compile with XeLaTeX (Arabic in the title):
+%   xelatex -output-directory=build docs/qatra-pilot-guide.tex
+%
+% A companion to the dossier, and deliberately a different document. The
+% dossier is for the person being presented to. This is for the person walking
+% into a room to ask for something.
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{parskip}
+
+\definecolor{qatraRed}{HTML}{E5484D}
+\definecolor{qatraNavy}{HTML}{0B2432}
+\definecolor{qatraTeal}{HTML}{0E8BA8}
+\definecolor{qatraGrey}{HTML}{5A6B75}
+\definecolor{qatraGreen}{HTML}{12B76A}
+\definecolor{qatraAmber}{HTML}{F5871F}
+\definecolor{sayBg}{HTML}{F4FAFB}
+\definecolor{rule}{HTML}{DCE4E7}
+
+\setmainfont{Segoe UI}
+\newfontfamily\arabicfont[Script=Arabic]{Segoe UI}
+\newcommand{\ar}[1]{{\arabicfont #1}}
+
+\titleformat{\section}{\Large\bfseries\color{qatraNavy}}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{qatraTeal}}{\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.4em}{0.6em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{qatraGrey}Qatra — Getting the First Committee}
+\fancyhead[R]{\small\color{qatraGrey}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\note}[1]{{\small\color{qatraGrey}\textit{#1}}}
+
+% Something to actually say out loud. Built from a saved box rather than
+% mdframed, which patches the same table internals bidi does.
+\newsavebox{\saybox}
+\newenvironment{say}
+  {\par\medskip\noindent\begin{lrbox}{\saybox}%
+   \begin{minipage}{\dimexpr\textwidth-2\fboxsep-2pt}\itshape\vspace{4pt}}
+  {\vspace{4pt}\end{minipage}\end{lrbox}%
+   \fcolorbox{rule}{sayBg}{\usebox{\saybox}}\par\medskip}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{3cm}
+{\Huge\bfseries\color{qatraNavy} Qatra \ar{قطرة}}\\[0.5em]
+{\Large\color{qatraRed} Getting the First Committee}\\[2em]
+{\large\color{qatraGrey} One committee. Twenty donors. One afternoon.}\\[3em]
+\note{A companion to the technical dossier, and a different kind of document.\\
+The dossier is written for the person being presented to.\\
+This one is written for the person walking into a room to ask for something.}\\[2em]
+{\small\color{qatraGrey} 1 September 2026}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ===========================================================================
+\section{What the problem actually is}
+
+Everything else is finished. The loop closes, the law is respected, the tests
+pass, the site is live and installable. The one thing missing cannot be built:
+\textbf{nobody uses it}.
+
+A panel will ask. The answer today is \emph{nobody yet}, and that answer is
+survivable exactly once — if it is followed immediately by what is being done
+about it. This document is what is being done about it.
+
+\subsection{Why twenty is the right number}
+
+Not because twenty is impressive. Because twenty is the smallest number that
+turns every architectural claim in the dossier into evidence.
+
+With twenty real donors in one wilaya, a request posted at nine in the evening
+reaches people who can actually answer it. Without them, the same request
+reaches nobody and proves nothing. The application does not become true at a
+thousand users. It becomes true at the first one who receives a notification
+and goes.
+
+\subsection{Why it is not as hard as it sounds}
+
+You are not recruiting twenty strangers. You are asking one person who
+\emph{already has a list} to point it at something. The Croissant-Rouge
+committees, the university clubs and the scout groups have been organising
+blood donation in Algeria for decades. None of them lacks donors. What they
+lack is a way to reach the right ones on a Tuesday night.
+
+% ===========================================================================
+\section{Who to ask, easiest first}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}rlX@{}}
+\toprule
+& \textbf{Who} & \textbf{Why them} \\
+\midrule
+1 & A university blood-donation club &
+If you are a student this is the shortest distance. Clubs run drives with the
+Croissant-Rouge already, the president has a group of donors on their phone,
+and nobody has to ask a head office for permission. \\
+2 & A local Croissant-Rouge committee &
+Carries the most weight in front of a panel, because the name is the one the
+whole argument rests on. Slower: somebody must be willing to say yes on the
+organisation's behalf. \\
+3 & Scouts or a mosque association &
+Long histories with donation drives. Real lists, real trust, little
+bureaucracy. \\
+4 & A Facebook blood group &
+By far the most donors, and the least institutional weight. Useful for numbers,
+weak as a story. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\note{Start at the top of that list, not the bottom. A university club that says
+yes this week is worth more than a wilaya committee that might say yes next
+month — and the club is a reference when you go and ask the committee.}
+
+% ===========================================================================
+\section{Where to go: a blood drive}
+
+This is the single highest-yield place in the country for what you need, and
+the reason is simple. \textbf{Everyone at a blood drive has already said yes.}
+They are willing, they are present, and they are standing still.
+
+You get the committee and the donors in the same room on the same afternoon.
+Nowhere else does that.
+
+\subsection{What to bring}
+
+\begin{itemize}[leftmargin=1.4em]
+  \item A phone with the app installed to the home screen, signed in.
+  \item The invite code shown full screen --- \textbf{Committee $\rightarrow$
+        Invite your donors $\rightarrow$ the QR button}. Hold it up, or hand
+        the phone over.
+  \item The same page printed on A4, taped to the table. The print button on
+        that screen produces exactly this sheet and nothing else.
+  \item Nothing to sign, no forms, no laptop.
+\end{itemize}
+
+\note{The code has no letter O, no digit 0, no I and no 1 --- it was designed to
+be read aloud across a table when somebody's camera will not focus.}
+
+% ===========================================================================
+\section{What to say}
+
+\subsection{The opening}
+
+Do not begin with the application. Begin with the thing they already know is
+broken.
+
+\begin{say}
+``When you need O negative on a Thursday night, what do you actually do?''
+\end{say}
+
+Let them answer. They will describe ringing round, or posting on Facebook, or a
+WhatsApp group that half the members have muted. That answer is the product's
+whole reason to exist, and it is better coming from them.
+
+\subsection{The ask, which must be small}
+
+The mistake is asking somebody to adopt a platform. Ask for an afternoon.
+
+\begin{say}
+``Can I put a code on your table for one afternoon? The people who scan it
+become a list you can call --- and the app knows their blood type and the date
+they are allowed to give again.''
+\end{say}
+
+They commit nothing. They install nothing. They keep the list.
+
+\subsection{What is in it for them, said plainly}
+
+\begin{say}
+``Next time you need a specific type, you press one button. Only donors in your
+wilaya, only compatible types, only the ones eligible today --- and never the
+family who posted the request. Then you see who is coming.''
+\end{say}
+
+That last sentence is the one that lands. Nothing they use now tells them who is
+coming.
+
+% ===========================================================================
+\section{The questions you will be asked}
+
+Answer these plainly. The weak answers are the defensive ones.
+
+\begin{description}[leftmargin=0em, style=unboxed]
+
+\item[``Who are you?''] A student who built this, alone, and is looking for one
+committee to try it. Do not inflate this. Nobody is offended by a student with
+something that works; several people are offended by a student pretending to be
+a company.
+
+\item[``Is this official? Approved by the Agence Nationale du Sang?''] No, and
+say so immediately. It is built to the law --- consent recorded per purpose,
+every contact reveal logged, no payment to donors ever --- but nobody has
+approved it, and an introduction to the ANS is one of the two things being
+asked for. Claiming an endorsement you do not have is the one mistake that
+cannot be recovered from.
+
+\item[``What happens to our donors' phone numbers?''] They stay with the donor.
+Search shows a masked number; opening one is a deliberate act, restricted to
+members of an association in that wilaya, and every opening is written to a log
+the donor can read and \emph{nobody} can delete. You can show them this on the
+phone.
+
+\item[``Are you taking our list?''] No, and this is worth being precise about.
+There is no upload. Each donor signs up themselves and consents themselves; the
+code only records that they came through your committee. If they walk away
+tomorrow, the list is still theirs, because it was never yours to take.
+
+\item[``We already have a Facebook group.''] So does everyone, and it works
+until it does not. A group post reaches whoever is scrolling, cannot tell A+
+from O$-$, does not know who gave blood six weeks ago and cannot be closed when
+the need is met. This does all four.
+
+\item[``Who pays for this?''] Nobody, today. Donor payment is excluded by
+Algerian law and by the design --- there is no charge to a donor and there never
+will be. Long term it is paid for by the bodies that coordinate donation, or by
+public funding. Say that it is unsolved rather than inventing a business model
+in front of somebody who will remember.
+
+\item[``What if it stops working?''] Then they are exactly where they are now,
+with a phone and a list. Nothing they do today is taken away.
+
+\end{description}
+
+% ===========================================================================
+\section{On the day: the mechanics}
+
+Ten minutes, and none of it needs a laptop.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}rX@{}}
+\toprule
+& \textbf{Step} \\
+\midrule
+1 & The committee's representative signs up in the app like anyone else. \\
+2 & They apply as an association: \textbf{Committee $\rightarrow$ Apply}.
+     Name, type, wilaya. \\
+3 & You verify them. You are the platform administrator, and verification is
+     restricted to that role on purpose --- a badge anybody could issue is not
+     a badge. \\
+4 & They open \textbf{Committee $\rightarrow$ Invite your donors} and create
+     a link. Give it a name they will recognise later, like the date of the
+     drive. \\
+5 & Press the QR button. Hold up the phone, or print the sheet and tape it
+     down. \\
+6 & Each donor scans, signs up, chooses their blood type, and is on the list.
+     The count on the committee's screen goes up as it happens. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\note{Creating a link is restricted to an administrator of that association,
+because it publishes a standing invitation under the committee's name.
+Volunteers can see everything and create nothing.}
+
+% ===========================================================================
+\section{What success looks like}
+
+In order, and the second matters more than the first.
+
+\begin{enumerate}[leftmargin=1.4em]
+  \item \textbf{Twenty donors on one committee's list.} The count is on their
+        screen; no spreadsheet needed.
+  \item \textbf{One real request, answered.} A family posts, compatible donors
+        are notified, somebody says they are coming, and the committee watches
+        it happen. That is the entire product, and once it has happened once it
+        has been proven.
+  \item \textbf{A number you did not have before.} The committee screen reports
+        how many requests reached a donor and how long the first one took.
+        Today, on the demonstration data, it reads \emph{1 of 4, 38 hours}. In a
+        real wilaya with real donors it should read minutes --- and if it does
+        not, that is worth knowing more than any feature.
+\end{enumerate}
+
+% ===========================================================================
+\section{What not to do}
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Do not promise a partnership you do not have.} Not with the
+        Croissant-Rouge, not with the ANS, not with a hospital. One checkable
+        exaggeration discredits every honest figure you have.
+  \item \textbf{Do not ask them to install anything.} A link, scanned, opening
+        in a browser. Anything heavier and half the room stops.
+  \item \textbf{Do not demonstrate the sign-up with a real phone number that is
+        not yours.} The demonstration build accepts one fixed verification
+        code, which means anybody can claim any number. Use your own.
+  \item \textbf{Do not collect names on paper ``to enter later''.} The entire
+        argument is that nobody uploads anybody. Breaking that at the first
+        drive would be worse than getting no donors at all.
+\end{itemize}
+
+\vfill
+\note{Companion document: \emph{Qatra --- Technical and Strategic Dossier},
+which carries the evidence, the regulatory position and the demonstration
+script. Repository: \url{https://github.com/2him29/startup-idea} ---
+demonstration at \url{https://2him29.github.io/startup-idea/}}
+
+\end{document}
