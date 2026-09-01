@@ -14,6 +14,16 @@
 \usepackage[margin=2.4cm]{geometry}
 \usepackage{xcolor}
 \usepackage{booktabs}
+% Pinned, and it has to be.
+%
+% bidi -- pulled in by polyglossia for the Arabic -- patches tabular through
+% array-xetex-bidi.def, and that patch calls \\UseMathForPositioningText.
+% Current array no longer defines it; only the dated 2024-06-01 rollback does.
+% Without this line every table in the document fails with 'Undefined control
+% sequence' at \\end{tabularx}, and the build stops after two pages.
+%
+% tabularx loads array itself, so the pin must come first.
+\usepackage{array}[=2024-06-01]
 \usepackage{tabularx}
 \usepackage{enumitem}
 \usepackage{titlesec}
@@ -475,6 +485,25 @@ layer it does not have. The compliance architecture is what makes that
 partnership possible: an institution can only lend its name to a system that
 handles health data properly.
 
+This design rested on an assumption --- that associations are the right partner
+for reaching donors --- and the assumption turns out to be the agency's own
+published practice. The ANS maintains a page naming the associations it
+collects blood with: the F\'ed\'eration Alg\'erienne des Donneurs de Sang, whose
+wilaya committees exist for precisely this purpose, the Scouts Musulmans
+Alg\'eriens, the Croissant-Rouge Alg\'erien, and a dozen others including Irchad
+wa Islah, the Rotary and Lions clubs and the UNJA. Several of those
+partnerships carry dates on the page and run back to 2015.
+
+An association hosting a collection is therefore ordinary rather than
+exceptional. What Qatra adds is not the partnership --- that already exists ---
+but memory: which donors, which types, and the date each becomes eligible
+again.
+
+\note{The same site publishes a national directory of 165 transfusion
+structures across all 58 wilayas with telephone numbers, and a per-wilaya
+mobile-collection programme. Both are reachable over \texttt{http}; the
+\texttt{https} certificate had expired when this was checked.}
+
 % ===========================================================================
 
 % ===========================================================================
@@ -686,6 +715,12 @@ actually needed and cannot be built:
   \item \ar{بنك الدم الجزائري} SangDz on Google Play:
         \url{https://play.google.com/store/apps/details?id=com.blood.sangdz}
   \item Nabdz emergency grid: \url{https://nabdz.com/en/blood-donation}
+  \item ANS association partnerships:
+        \url{http://www.ans.dz/associations-donneur-sang/}
+  \item ANS national directory of fixed collection centres:
+        \url{http://www.ans.dz/centres-collectes-fixes/}
+  \item ANS mobile collection programme:
+        \url{http://www.ans.dz/programme-de-collectes-mobiles/}
 \end{itemize}
 
 \vfill
