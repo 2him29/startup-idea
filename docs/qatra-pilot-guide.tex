@@ -13,6 +13,11 @@
 \usepackage[margin=2.4cm]{geometry}
 \usepackage{xcolor}
 \usepackage{booktabs}
+% Ahead of tabularx, which loads array itself — placed after it, this pin
+% does nothing. bidi (via polyglossia) patches tabular with a call to
+% \\UseMathForPositioningText, which only array's 2024-06-01 rollback still
+% defines. Without it every table fails with 'Undefined control sequence'.
+\usepackage{array}[=2024-06-01]
 \usepackage{tabularx}
 \usepackage{enumitem}
 \usepackage{titlesec}
@@ -29,9 +34,20 @@
 \definecolor{sayBg}{HTML}{F4FAFB}
 \definecolor{rule}{HTML}{DCE4E7}
 
+% polyglossia, not just an Arabic font: XeTeX shapes Arabic letters
+% correctly on its own but does not reorder words, so a multi-word phrase
+% in a left-to-right paragraph comes out backwards. The scripts below are
+% sentences, not single words.
+\usepackage{polyglossia}
+\setmainlanguage{english}
+\setotherlanguage{arabic}
 \setmainfont{Segoe UI}
 \newfontfamily\arabicfont[Script=Arabic]{Segoe UI}
-\newcommand{\ar}[1]{{\arabicfont #1}}
+% Upright, always. The quote boxes are italic and Segoe UI's italic face
+% carries no Arabic, so the letters came out as empty boxes. Arabic has no
+% italic tradition either — slanting it would be wrong even if the glyphs
+% existed.
+\newcommand{\ar}[1]{{\upshape\textarabic{#1}}}
 
 \titleformat{\section}{\Large\bfseries\color{qatraNavy}}{\thesection.}{0.6em}{}
 \titleformat{\subsection}{\large\bfseries\color{qatraTeal}}{\thesubsection}{0.6em}{}
@@ -164,8 +180,8 @@ expired certificate, so a browser may refuse it.
 \midrule
 \texttt{/centres-collectes-fixes/} &
 A national directory: 165 transfusion structures across all 58 wilayas, each
-with a telephone number. In Blida: CWTS CHU Blida 025 30 96 11, PTS EPH Meftah
-025 33 60 04, BS EPH Boufarik 025 47 14 10. \\
+with a telephone number. Nearest to Draria: CTS CHU Dou\'era 023 12 46 35, CTS
+CHU Beni Messous 023 11 32 23, CTS CHU Mustapha 021 23 66 64. \\
 \texttt{/programme-de-collectes-mobiles/} &
 A mobile-collection programme published per wilaya. Dated 2025 at the time of
 writing, so check whether the year has turned over before relying on it. \\
@@ -323,6 +339,76 @@ Ten minutes, and none of it needs a laptop.
 \note{Creating a link is restricted to an administrator of that association,
 because it publishes a standing invitation under the committee's name.
 Volunteers can see everything and create nothing.}
+
+% ===========================================================================
+\section{Three calls to make this week}
+
+Everything up to here is preparation. These are the calls, written out, because
+the hard part is not knowing what to say --- it is saying it the first time.
+
+Each one asks a small, real question. None of them opens by pitching.
+
+\subsection{Call one: your nearest transfusion centre}
+
+CTS CHU Dou\'era, \textbf{023 12 46 35}. A few minutes from Draria, and they know
+which associations collect there.
+
+\begin{say}
+``Bonjour, je suis \'etudiant \`a Draria. Je travaille sur un projet autour du don
+de sang et je voudrais savoir quelles associations organisent des collectes chez
+vous, et s'il y en a une pr\'evue prochainement. Est-ce que vous pourriez
+m'orienter ?''
+\end{say}
+
+\begin{say}
+\ar{السلام عليكم. أنا طالب من الدرارية، أعمل على مشروع حول التبرع بالدم. أردت أن أسأل: ما هي الجمعيات التي تنظّم حملات التبرع عندكم، وهل هناك حملة قادمة قريبًا؟}
+\end{say}
+
+\note{You are not selling anything on this call. You are finding out who the
+local associations are --- which is the list you actually need, and which is not
+published anywhere.}
+
+\subsection{Call two: the ANS}
+
+\textbf{023 53 32 79}. Tixeraine, Bir Khadem --- a few kilometres from you, but
+call before going.
+
+\begin{say}
+``Bonjour, je suis \'etudiant \`a Draria. Je cherche le programme des collectes
+mobiles pour la wilaya d'Alger. Le site affiche encore l'ann\'ee 2025 --- est-ce
+qu'il existe une version \`a jour, ou une page o\`u les collectes sont annonc\'ees ?''
+\end{say}
+
+\note{A question they can answer in one sentence, about a page they publish
+themselves. If the conversation opens up, then say what you are building --- not
+before.}
+
+\subsection{Call three: a mosque or a local association}
+
+You already know one works: a collection ran in Baba Hassen during Ramadan,
+after the tarawih. Mosque collections recur, and Ramadan and the summer are
+precisely when the ANS says donations fall.
+
+\begin{say}
+\ar{السلام عليكم ورحمة الله. أنا طالب من الدرارية. رأيت حملة للتبرع بالدم هنا في رمضان، وقد طوّرت تطبيقًا يساعد على الوصول إلى المتبرعين حين تُطلب فصيلة معيّنة.}
+
+\ar{طلبي بسيط: هل يمكنني وضع رمز استجابة سريعة على الطاولة في الحملة القادمة؟ من يمسحه يصبح ضمن قائمة يمكنكم الاتصال بها عند الحاجة، والقائمة تبقى عندكم.}
+\end{say}
+
+\begin{say}
+``Je suis \'etudiant \`a Draria. J'ai vu qu'une collecte a eu lieu ici pendant le
+Ramadan. J'ai d\'evelopp\'e une application qui aide \`a joindre les donneurs quand
+un groupe sanguin pr\'ecis est n\'ecessaire. Est-ce que je peux poser un QR code
+sur la table lors de la prochaine collecte ? Ceux qui le scannent deviennent une
+liste que vous pouvez appeler --- et la liste reste chez vous.''
+\end{say}
+
+\subsection{If they ask what it costs}
+
+\begin{say}
+``Rien. Ni pour vous, ni pour les donneurs. Le don de sang est b\'en\'evole et le
+restera --- c'est la loi, et c'est aussi le principe de l'application.''
+\end{say}
 
 % ===========================================================================
 \section{What success looks like}
