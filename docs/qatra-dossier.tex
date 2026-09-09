@@ -81,7 +81,7 @@ Section~\ref{sec:notbuilt}, which exists to say what is missing.
 \end{minipage}
 
 \vfill
-{\color{qatraGrey}Yacine Omar Fodhil \\ 24 August 2026}
+{\color{qatraGrey}Yacine Omar Fodhil \\ 9 September 2026}
 \end{titlepage}
 
 \tableofcontents
@@ -153,7 +153,9 @@ their type this evening. That is the gap this product occupies.
 \section{Competitive landscape}
 
 \note{Install counts and ratings retrieved from Google Play on 24 August 2026.
-Platform claims verified against the operators' own sites on the same date.}
+Platform claims verified against the operators' own sites on the same date,
+except the SangDz figures, re-checked against that operator's own statistics
+page on 9 September 2026.}
 
 \begin{center}
 \begin{tabularx}{\textwidth}{@{}lllX@{}}
@@ -161,7 +163,8 @@ Platform claims verified against the operators' own sites on the same date.}
 \textbf{Product} & \textbf{Installs} & \textbf{Rating} & \textbf{Observation} \\
 \midrule
 \ar{بنك الدم الجزائري} (Nabil\_Soft) & 10K+ & 4.7 / 130 & Market leader. \textbf{Contains ads.} \\
-\ar{بنك الدم الجزائري} (SangDz) & 1K+ & — & Solo developer based in France. \\
+\ar{بنك الدم الجزائري} (SangDz) & 1K+ & — & \textbf{Web registry of 7\,498
+donors} — see below. One operator, Mostaganem. \\
 Sadaka \ar{صدقة} & 1K+ & — & — \\
 Nabdz & — & — & Best-designed. 2 requests, 3 donors live. \\
 ONSC / Ministry platforms & — & — & Announced June 2025. No public address. \\
@@ -171,7 +174,18 @@ ONSC / Ministry platforms & — & — & Announced June 2025. No public address. 
 
 Approximately \textbf{12\,000 installs across every blood application in
 Algeria}, in a country of 45 million with the continent's highest donation rate.
-The field is not crowded; it is empty.
+
+That number counts installs, and installs are the wrong measure to rest a claim
+on. SangDz reports \textbf{7\,498 registered donors} on its website — roughly
+seven times its install count, because the registry is the site, not the app.
+Anyone who opens that page during a meeting will see it, so this dossier states
+it first.
+
+The correction sharpens the claim rather than weakening it. The field is not
+empty of donors; somebody has already collected several thousand of them. It is
+empty of the thing that turns a donor into a transfusion: not one product in the
+table verifies a request, and not one closes the loop between a family asking
+and a donor arriving. The gap is not the list. It is everything after the list.
 
 \subsection{The announced national platforms have no front door}
 
@@ -222,6 +236,54 @@ term of service.
 Nabdz is the best-built of them — 58 wilayas, urgency tiers, a pledge mechanic
 comparable to Qatra's response counter. Its live public grid currently shows two
 requests and three donors, one of the requests titled \textbf{``Test Patient''}.
+
+\subsection{SangDz: the one competitor with real people in it}
+\label{sec:sangdz}
+
+Nabdz is empty and the market leader is a portfolio item. SangDz is neither, and
+it deserves the section the others do not.
+
+It is a \textbf{donor registry}. The product is one control — choose a blood
+group, then wilaya, daïra, commune, and search. Its own statistics page reports
+7\,498 registered donors, weighted as Algeria is: 2\,589 O+, 1\,854 A+, and 94
+AB$-$. Nuxt, French and Arabic, with an Android application alongside. Its About
+page is candid about what stands behind it: \emph{``Le site n'est affilié à
+aucune organisation, association ou autre entité''} — no affiliation with any
+organisation or association — and it is run by one person.
+
+\textbf{This is a real asset and should be described as one.} Several thousand
+donors is the half of a two-sided product that code cannot produce. Qatra does
+not have it, and no amount of engineering substitutes for it.
+
+But a registry answers one question, and it is not the question a family asks at
+two in the morning. Four gaps follow from the model, not from the execution:
+
+\begin{enumerate}[leftmargin=1.4em]
+  \item \textbf{Nobody vouches for anything.} A registry lists people who once
+        said yes. It has no request to verify, so it cannot verify one. Qatra's
+        association vouching exists precisely at the point a registry has no
+        opinion.
+  \item \textbf{There is no request, so there is no loop.} Nothing is posted,
+        nothing is answered, and no family ever learns who is coming. The search
+        ends at a name and a number; what happens next is a phone call the
+        platform never sees and cannot count.
+  \item \textbf{A searchable directory of blood types is the harder position
+        under Loi 18-07.} Blood type is health data. Qatra masks a number until
+        it is deliberately opened, logs every opening in a record the donor can
+        read, and records consent per purpose with the version of the text
+        shown. A directory built to be searched has made the opposite choice,
+        and it made it before the question was being asked.
+  \item \textbf{One operator, no institution.} SangDz says so itself. Qatra's
+        route runs through the associations that already organise donation, so
+        the two are not competing for the same partner — which also means the
+        7\,498 are not defended by anybody's mandate.
+\end{enumerate}
+
+\textbf{Where it is ahead, and this dossier says so plainly:} SangDz searches to
+\textbf{commune}. Qatra stores wilaya alone. In a country where one wilaya can
+be the size of a small nation, ``a donor in your commune'' is a better answer
+than ``a donor in your wilaya'' to the only question being asked. That is a
+schema decision, not a strategy, and Section~\ref{sec:notbuilt} carries it.
 
 % ===========================================================================
 \section{Regulatory position}
@@ -453,7 +515,9 @@ another fails the build.
 \midrule
 \none & Native push for the Capacitor Android build (needs FCM) \\
 \none & Android build refreshed against the current application \\
-\none & Pagination beyond a 200-request cap per wilaya \\
+\none & Pagination beyond the 200-request caps, national and per wilaya \\
+\none & \textbf{Location below wilaya.} SangDz searches to daïra and commune
+(Section~\ref{sec:sangdz}); Qatra stores the wilaya alone \\
 \none & Any integration with a national registry or hospital system \\
 \bottomrule
 \end{tabularx}
