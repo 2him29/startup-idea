@@ -85,13 +85,27 @@ function requestColumns(): string {
   return isPatientModelEnabled() ? PATIENT_MODEL_COLUMNS : LEGACY_COLUMNS;
 }
 
+/**
+ * How many requests the national feed will render at once.
+ *
+ * The same reasoning as WILAYA_REQUEST_LIMIT below, and it applies here with
+ * more force rather than less: this query is not scoped to a wilaya at all, so
+ * its natural size is every open request in the country. Newest-first means the
+ * ceiling cuts the oldest, which is the right end to lose — a request nobody
+ * has answered for weeks is the least useful row on a donor's screen, and the
+ * stale nudge in the committee console exists precisely because those
+ * accumulate.
+ */
+export const FEED_REQUEST_LIMIT = 200;
+
 /** Open blood requests, newest first — backs the Find screen, the hospital dashboard, and the association console. */
 export async function fetchBloodRequests(): Promise<BloodRequest[]> {
   const { data, error } = await getSupabase()
     .from("blood_requests")
     .select(requestColumns())
     .eq("status", "open")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(FEED_REQUEST_LIMIT);
 
   if (error) throw error;
   return (data as unknown as BloodRequestRow[]).map(toBloodRequest);
