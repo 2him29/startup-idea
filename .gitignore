@@ -9,7 +9,9 @@ Thumbs.db
 .claude/
 
 # Design handoff bundles dropped into the repo for reference -- not app code.
-/Health Service Mobile App/
+# Was "/Health Service Mobile App/" until the project folder was renamed to
+# QATRA; the rule has to name the directory exactly, so it moves with it.
+/design-handoff/
 
 # Editor settings stay local
 .vscode/
