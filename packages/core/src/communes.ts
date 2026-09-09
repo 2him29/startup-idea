@@ -724,22 +724,52 @@ export function wilayaCode(frName: string | null | undefined): string | null {
   return WILAYAS.find((w) => w.fr === frName)?.code ?? null;
 }
 
+/*
+ * Both lookups below are memoised, and the reason is measured rather than
+ * theoretical.
+ *
+ * These are called from render: a picker asks for a wilaya's communes twice
+ * per pass (once to decide whether to show the control, once to fill it), and
+ * communeLabel runs once per donor row. Rebuilding and re-sorting the arrays
+ * every time, and scanning all 1541 rows for every label, was enough to slow
+ * the donor-search screen from ~3s to ~9s in the e2e suite and to make one
+ * test time out. The data is a frozen constant, so caching it is free.
+ */
+const dairaCache = new Map<string, Daira[]>();
+
 /** Daïras of one wilaya, given its canonical French name. Empty for an unknown wilaya. */
 export function dairasForWilaya(frName: string | null | undefined): Daira[] {
   const code = wilayaCode(frName);
   if (!code) return [];
-  return (RAW[code] ?? []).map(([fr, ar, communes]) => ({
+
+  const cached = dairaCache.get(code);
+  if (cached) return cached;
+
+  const built = (RAW[code] ?? []).map(([fr, ar, communes]) => ({
     fr,
     ar,
     communes: communes.map(([cfr, car]) => ({ fr: cfr, ar: car })),
   }));
+  dairaCache.set(code, built);
+  return built;
 }
+
+const communeCache = new Map<string, Commune[]>();
 
 /** Every commune of one wilaya, flattened and sorted by French name. */
 export function communesForWilaya(frName: string | null | undefined): Commune[] {
-  return dairasForWilaya(frName)
+  const code = wilayaCode(frName);
+  if (!code) return [];
+
+  const cached = communeCache.get(code);
+  if (cached) return cached;
+
+  const built = dairasForWilaya(frName)
     .flatMap((d) => d.communes)
+    .slice()
     .sort((a, b) => a.fr.localeCompare(b.fr, "fr"));
+  communeCache.set(code, built);
+  return built;
 }
 
 /** Communes of one daïra within a wilaya. */
@@ -759,15 +789,31 @@ export function communesForDaira(
  * more likely to be a real place spelled differently than a mistake, and
  * blanking it would lose what the user typed.
  */
+let labelIndex: Map<string, string> | null = null;
+
 export function communeLabel(frName: string | null | undefined, lang: Lang): string {
   if (!frName) return "—";
-  for (const dairas of Object.values(RAW)) {
-    for (const [, , communes] of dairas) {
-      const hit = communes.find(([cfr]) => cfr === frName);
-      if (hit) return lang === "ar" ? hit[1] : hit[0];
+
+  // Built once, on the first label anyone asks for, rather than at module load:
+  // the majority of screens never render a commune name and should not pay for
+  // an index over 1541 rows to find that out.
+  if (!labelIndex) {
+    labelIndex = new Map();
+    for (const dairas of Object.values(RAW)) {
+      for (const [, , communes] of dairas) {
+        // First spelling wins. A handful of commune names recur across
+        // wilayas; their Arabic form is the same, so which row supplies it
+        // does not matter.
+        for (const [cfr, car] of communes) {
+          if (!labelIndex.has(cfr)) labelIndex.set(cfr, car);
+        }
+      }
     }
   }
-  return frName;
+
+  const ar = labelIndex.get(frName);
+  if (ar === undefined) return frName;
+  return lang === "ar" ? ar : frName;
 }
 
 /** Whether a commune name belongs to the wilaya it is stored against. */

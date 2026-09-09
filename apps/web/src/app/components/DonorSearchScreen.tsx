@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, Eye, Phone, PhoneOff, ShieldAlert, ShieldCheck, ShieldQuestion, Clock, Droplet } from "lucide-react";
-import { revealDonorContact, searchDonors, useMyMemberships, wilayaLabel, type DonorSearchResult, errorMessage} from "@weare/core";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ChevronDown, Eye, Phone, PhoneOff, ShieldAlert, ShieldCheck, ShieldQuestion, Clock, Droplet } from "lucide-react";
+import { revealDonorContact, searchDonors, useMyMemberships, wilayaLabel, communesForWilaya, communeLabel, type DonorSearchResult, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { SCREEN_BG } from "../background";
 import { BloodType } from "./BloodType";
@@ -37,6 +37,12 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
   const active = verifying[activeIndex]?.association ?? null;
 
   const [bloodType, setBloodType] = useState<string | null>(null);
+  const [commune, setCommune] = useState<string | null>(null);
+  // Once per wilaya, not twice per render.
+  const communeOptions = useMemo(
+    () => (active ? communesForWilaya(active.wilaya) : []),
+    [active]
+  );
   const [includeCooldown, setIncludeCooldown] = useState(false);
   const [donors, setDonors] = useState<DonorSearchResult[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,6 +93,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
       wilaya: active.wilaya,
       bloodType: bloodType ?? undefined,
       includeIneligible: includeCooldown,
+      commune: commune ?? undefined,
     })
       .then((rows) => {
         if (!cancelled) setDonors(rows);
@@ -100,7 +107,14 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
     return () => {
       cancelled = true;
     };
-  }, [active, bloodType, includeCooldown, t.donorSearchDenied]);
+  }, [active, bloodType, includeCooldown, commune, t.donorSearchDenied]);
+
+  // A commune belongs to the wilaya it was chosen in. Switching association
+  // switches wilaya, and a stale commune from the previous one would order the
+  // results by a place that is not in them.
+  useEffect(() => {
+    setCommune(null);
+  }, [activeIndex]);
 
   const shell = (children: React.ReactNode) => (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: SCREEN_BG }}>
@@ -204,6 +218,41 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
         })}
       </div>
 
+      {/*
+        Commune orders the list; it never shortens it.
+
+        The hint says so out loud, because a control that looks like every
+        other filter on this screen will be read as one, and a coordinator who
+        believes it filters would conclude there is nobody in Ouled Yaïch when
+        the list simply continues past the people who are.
+      */}
+      {communeOptions.length > 0 && (
+        <div className="mb-3">
+          <div className="relative">
+            <select
+              value={commune ?? ""}
+              onChange={(e) => setCommune(e.target.value || null)}
+              className="w-full h-11 rounded-[13px] border px-3.5 text-[13.5px] outline-none appearance-none bg-white"
+              style={{ borderColor: "rgba(11,36,50,0.1)", color: "#0B2432", textAlign: "start" }}
+            >
+              <option value="">{t.communeAny}</option>
+              {communeOptions.map((c) => (
+                <option key={c.fr} value={c.fr}>{lang === "ar" ? c.ar : c.fr}</option>
+              ))}
+            </select>
+            <ChevronDown
+              className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ insetInlineEnd: "14px", color: "#8496A0" }}
+            />
+          </div>
+          {commune && (
+            <div className="text-[11.5px] mt-1.5 leading-relaxed" style={{ color: "#8496A0", textAlign: "start" }}>
+              {t.communeHint}
+            </div>
+          )}
+        </div>
+      )}
+
       <button
         onClick={() => setIncludeCooldown((v) => !v)}
         className="cursor-pointer w-full flex items-center gap-3 rounded-2xl px-4 py-3 mb-4 border bg-white"
@@ -256,9 +305,22 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
                   <Droplet className="w-5 h-5" fill="white" stroke="none" />
                 </span>
                 <div className="min-w-0">
-                  <div className="text-[15px] font-bold truncate" style={{ color: "#0B2432" }}>{donor.fullName}</div>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <div className="text-[15px] font-bold truncate" style={{ color: "#0B2432" }}>{donor.fullName}</div>
+                    {/* Says why this donor is at the top, rather than leaving a
+                        volunteer to infer it from the order. */}
+                    {donor.sameCommune && (
+                      <span
+                        className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full shrink-0"
+                        style={{ background: "#EAF6EF", color: "#0E7A4B" }}
+                      >
+                        {t.sameCommune}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-[12.5px]" style={{ color: "#8496A0" }}>
-                    <BloodType value={donor.bloodType} /> · {wilayaLabel(donor.wilaya, lang)}
+                    <BloodType value={donor.bloodType} /> ·{" "}
+                    {donor.commune ? communeLabel(donor.commune, lang) : wilayaLabel(donor.wilaya, lang)}
                   </div>
                 </div>
               </div>

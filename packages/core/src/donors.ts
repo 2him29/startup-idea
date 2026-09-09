@@ -17,6 +17,8 @@ export interface DonorSearchResult {
   fullName: string;
   bloodType: string;
   wilaya: string | null;
+  /** The donor's commune, or null for anyone who has not set one. */
+  commune: string | null;
   /**
    * The number, MASKED: "05 •• •• •• 56". Null unless the donor opted into
    * contact sharing — see `sharesPhone`.
@@ -30,6 +32,8 @@ export interface DonorSearchResult {
   daysUntilEligible: number;
   /** Whether this donor has agreed to be phoned directly by associations. */
   sharesPhone: boolean;
+  /** True when a commune was searched for and this donor is in it. */
+  sameCommune: boolean;
 }
 
 interface DonorSearchRow {
@@ -37,10 +41,12 @@ interface DonorSearchRow {
   full_name: string;
   blood_type: string;
   wilaya: string | null;
+  commune: string | null;
   phone: string | null;
   is_eligible: boolean;
   days_until_eligible: number;
   shares_phone: boolean;
+  same_commune: boolean;
 }
 
 export const ELIGIBILITY_INTERVAL_DAYS = 90;
@@ -63,11 +69,22 @@ export async function searchDonors(params: {
   wilaya: string;
   bloodType?: string;
   includeIneligible?: boolean;
+  /**
+   * Orders the results; never narrows them.
+   *
+   * Passing a commune moves the donors in it to the top and marks them, and
+   * changes nothing else about who comes back. Filtering here would mean a
+   * commune with no registered donor returning an empty screen while a
+   * compatible donor sits ten minutes away across a boundary that means
+   * nothing to a car — see 20260909120000.
+   */
+  commune?: string;
 }): Promise<DonorSearchResult[]> {
   const { data, error } = await getSupabase().rpc("search_donors", {
     p_wilaya: params.wilaya,
     p_blood_type: params.bloodType ?? null,
     p_include_ineligible: params.includeIneligible ?? false,
+    p_commune: params.commune ?? null,
   });
   if (error) throw error;
 
@@ -76,10 +93,12 @@ export async function searchDonors(params: {
     fullName: row.full_name,
     bloodType: row.blood_type,
     wilaya: row.wilaya,
+    commune: row.commune ?? null,
     phone: row.phone,
     isEligible: row.is_eligible,
     daysUntilEligible: row.days_until_eligible,
     sharesPhone: row.shares_phone,
+    sameCommune: row.same_commune ?? false,
   }));
 }
 

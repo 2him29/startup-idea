@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Check, ChevronDown } from "lucide-react";
 import {
   getDonorProfile,
@@ -6,6 +6,7 @@ import {
   updateOwnedHospital,
   upsertDonorProfile,
   WILAYAS,
+  communesForWilaya,
   type Profile,
   errorMessage,
 } from "@weare/core";
@@ -29,6 +30,8 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
   const [fullName, setFullName] = useState(profile?.fullName ?? "");
   const [phone, setPhone] = useState(profile?.phone ?? "");
   const [wilaya, setWilaya] = useState(profile?.wilaya ?? "");
+  const [commune, setCommune] = useState(profile?.commune ?? "");
+  const communeOptions = useMemo(() => communesForWilaya(wilaya), [wilaya]);
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
   const [selectedBlood, setSelectedBlood] = useState("A+");
@@ -68,6 +71,7 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
         fullName: fullName.trim(),
         phone: phone.trim() || null,
         wilaya: wilaya || null,
+        commune: commune || null,
       });
       if (isDonor) {
         await upsertDonorProfile({
@@ -135,7 +139,7 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
             <div className="relative mb-3.5">
               <select
                 value={wilaya}
-                onChange={(e) => setWilaya(e.target.value)}
+                onChange={(e) => { setWilaya(e.target.value); setCommune(""); }}
                 className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none appearance-none"
                 style={{ ...inputStyle, textAlign: "start" }}
               >
@@ -151,6 +155,36 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
                 style={{ insetInlineEnd: "14px", color: "#8496A0" }}
               />
             </div>
+
+            {/*
+              Optional, and only once a wilaya is chosen.
+
+              A donor who leaves it blank stays exactly as findable as before:
+              the search returns everyone in the wilaya either way, and the
+              commune only decides who a committee sees first.
+            */}
+            {communeOptions.length > 0 && (
+              <>
+                <label className={labelCls} style={labelStyle}>{t.communeField}</label>
+                <div className="relative mb-3.5">
+                  <select
+                    value={commune}
+                    onChange={(e) => setCommune(e.target.value)}
+                    className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none appearance-none"
+                    style={{ ...inputStyle, textAlign: "start" }}
+                  >
+                    <option value="">—</option>
+                    {communeOptions.map((c) => (
+                      <option key={c.fr} value={c.fr}>{lang === "ar" ? c.ar : c.fr}</option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none"
+                    style={{ insetInlineEnd: "14px", color: "#8496A0" }}
+                  />
+                </div>
+              </>
+            )}
 
             {isDonor && (
               <>
