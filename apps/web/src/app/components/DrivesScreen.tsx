@@ -10,7 +10,7 @@ interface DrivesScreenProps {
 export function DrivesScreen({ onBack }: DrivesScreenProps) {
   const { t, lang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
-  const { drives } = useBloodDrives();
+  const { drives, isFallback } = useBloodDrives();
 
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: SCREEN_BG }}>
@@ -23,7 +23,15 @@ export function DrivesScreen({ onBack }: DrivesScreenProps) {
           <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432", transform: chevronFlip }} />
         </button>
         <div>
-          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{t.drivesTitle}</div>
+          <div className="flex items-center gap-2">
+            <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{t.drivesTitle}</div>
+            {/* A drive names a place and a date somebody could turn up to. */}
+            {isFallback && (
+              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: "rgba(11,36,50,0.06)", color: "#8496A0" }}>
+                {t.sampleData}
+              </span>
+            )}
+          </div>
           <div className="text-[12.5px]" style={{ color: "#8496A0" }}>{t.drivesSub}</div>
         </div>
       </div>

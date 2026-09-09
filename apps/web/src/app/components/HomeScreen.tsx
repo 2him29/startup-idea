@@ -35,7 +35,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
   const [demoLoading, setDemoLoading] = useState<"donor" | "hospital" | "patient" | null>(null);
   const [demoError, setDemoError] = useState<string | null>(null);
   const [ramadanMode] = useState(() => getBoolPref("ramadan", isRamadanNow()));
-  const { requests: bloodRequests } = useBloodRequests();
+  const { requests: bloodRequests, isFallback } = useBloodRequests();
   const { donorProfile } = useDonorProfile();
   const urgentRequest = bloodRequests.find((r) => r.urgency === "Critical") ?? bloodRequests[0];
 
@@ -290,30 +290,42 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
                 <Droplet className="w-[22px] h-[22px]" fill="white" stroke="none" />
               </span>
               <span className="flex-1 min-w-0">
-                <span className="block text-[11px] font-extrabold tracking-[1px]" style={{ color: "#F4677E" }}>{t.sosLabel}</span>
+                <span className="block text-[11px] font-extrabold tracking-[1px]" style={{ color: "#F4677E" }}>
+                  {t.sosLabel}
+                  {isFallback && <span className="ms-1.5 opacity-80">· {t.sampleData}</span>}
+                </span>
                 <span className="block text-[15px] font-bold mt-px">{t.sosTitle.replace("{bloodType}", urgentRequest.bloodType)}</span>
                 <span className="block text-xs opacity-85 mt-px truncate">
                   {urgentRequest.hospital} · {nameStatesWilaya(urgentRequest.hospital, urgentRequest.wilaya) ? "" : `${wilayaLabel(urgentRequest.wilaya, lang)} · `}{urgentRequest.units} {t.units}
                 </span>
               </span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  shareToWhatsApp(
-                    formatShareMessage(t, {
-                      hospital: urgentRequest.hospital,
-                      bloodType: urgentRequest.bloodType,
-                      wilaya: wilayaLabel(urgentRequest.wilaya, lang),
-                      units: urgentRequest.units,
-                      verifiedByName: urgentRequest.verifiedByName,
-                    })
-                  );
-                }}
-                aria-label={t.shareLabel}
-                className="cursor-pointer w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0 border-none"
-              >
-                <Share2 className="w-4 h-4 text-white" strokeWidth={2.2} />
-              </button>
+              {/* No sharing a placeholder.
+                  The label above keeps a sample request honest inside the app,
+                  but a share leaves it: the message names a hospital, a blood
+                  type and — via verifiedByName — an association that vouched,
+                  and it arrives in WhatsApp with none of this screen's context.
+                  A fabricated appeal forwarded under a real organisation's name
+                  is not something a label can catch up with. */}
+              {!isFallback && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    shareToWhatsApp(
+                      formatShareMessage(t, {
+                        hospital: urgentRequest.hospital,
+                        bloodType: urgentRequest.bloodType,
+                        wilaya: wilayaLabel(urgentRequest.wilaya, lang),
+                        units: urgentRequest.units,
+                        verifiedByName: urgentRequest.verifiedByName,
+                      })
+                    );
+                  }}
+                  aria-label={t.shareLabel}
+                  className="cursor-pointer w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0 border-none"
+                >
+                  <Share2 className="w-4 h-4 text-white" strokeWidth={2.2} />
+                </button>
+              )}
               <span className="text-xs font-extrabold bg-[#E5484D] px-[11px] py-1.5 rounded-full shrink-0">{t.respond}</span>
             </div>
           )}

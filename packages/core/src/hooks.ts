@@ -15,16 +15,31 @@ import { isPhoneVerified } from "./otp";
  * Live open requests from Supabase, shared by the Find screen and the
  * hospital dashboard. Falls back to the static mock list on error (e.g. no
  * env configured yet) so screens still render something sensible.
+ *
+ * isFallback says whether what you are holding is that mock list, and callers
+ * displaying requests are expected to say so on screen.
+ *
+ * The fallback rows name real hospitals at their real coordinates, carry a
+ * timestamp computed from now() so they never look stale, and two of them
+ * credit a real organisation with having vouched. Rendered unlabelled, they
+ * are indistinguishable from a live plea for blood, and the cost of believing
+ * one is a person driving to a hospital for a patient who does not exist.
+ * invites.ts already refuses to invent a committee's codes for the same
+ * reason; a request deserves it more than a code does.
  */
 export function useBloodRequests() {
   const [requests, setRequests] = useState<BloodRequest[]>(fallbackRequests);
+  const [isFallback, setIsFallback] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     fetchBloodRequests()
       .then((data) => {
-        if (!cancelled) setRequests(data);
+        if (!cancelled) {
+          setRequests(data);
+          setIsFallback(false);
+        }
       })
       .catch((err) => {
         console.error("Failed to fetch blood requests, using fallback data", err);
@@ -41,9 +56,10 @@ export function useBloodRequests() {
   const refresh = async () => {
     const data = await fetchBloodRequests();
     setRequests(data);
+    setIsFallback(false);
   };
 
-  return { requests, loading, refresh };
+  return { requests, loading, isFallback, refresh };
 }
 
 /**
@@ -99,13 +115,19 @@ export function useSession() {
  */
 export function useHospitals() {
   const [hospitals, setHospitals] = useState<Hospital[]>(fallbackHospitals);
+  const [isFallback, setIsFallback] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     fetchHospitals()
       .then((data) => {
-        if (!cancelled && data.length > 0) setHospitals(data);
+        // An empty live result keeps the fallback on screen, so it is still
+        // the fallback — only a non-empty response clears the flag.
+        if (!cancelled && data.length > 0) {
+          setHospitals(data);
+          setIsFallback(false);
+        }
       })
       .catch((err) => {
         console.error("Failed to fetch hospitals, using fallback data", err);
@@ -118,7 +140,7 @@ export function useHospitals() {
     };
   }, []);
 
-  return { hospitals, loading };
+  return { hospitals, loading, isFallback };
 }
 
 /** The signed-in donor's medical details (blood type, vitals, last donation). */
@@ -314,13 +336,17 @@ export function usePhoneVerified() {
 /** Upcoming community blood drives for the Drives screen. Mirrors useBloodRequests's fallback pattern. */
 export function useBloodDrives() {
   const [drives, setDrives] = useState<BloodDrive[]>(fallbackDrives);
+  const [isFallback, setIsFallback] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     fetchBloodDrives()
       .then((data) => {
-        if (!cancelled) setDrives(data);
+        if (!cancelled) {
+          setDrives(data);
+          setIsFallback(false);
+        }
       })
       .catch((err) => {
         console.error("Failed to fetch blood drives, using fallback data", err);
@@ -333,7 +359,7 @@ export function useBloodDrives() {
     };
   }, []);
 
-  return { drives, loading };
+  return { drives, loading, isFallback };
 }
 
 /** A request open longer than this reads as stale on the committee hub. */

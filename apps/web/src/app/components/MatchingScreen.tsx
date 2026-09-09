@@ -39,7 +39,7 @@ function urgencyIcon(color: string, count: number) {
 export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScreenProps) {
   const { t, lang, dir } = useI18n();
   const accent = userType === "hospital" ? "#0E8BA8" : "#E5484D";
-  const { requests: allRequests, loading } = useBloodRequests();
+  const { requests: allRequests, loading, isFallback } = useBloodRequests();
   // Keyed off every request on screen, so the counts and the donor's own
   // commitments arrive in one pass rather than per card.
   const { goingTo, counts } = useResponses(allRequests.map((r) => r.id));
@@ -115,7 +115,17 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
           <ArrowLeft className="w-5 h-5" style={{ color: "#0B2432", transform: chevronFlip }} />
         </button>
         <div>
-          <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{t.urgentRequests}</div>
+          <div className="flex items-center gap-2">
+            <div className="text-xl font-extrabold" style={{ color: "#0B2432" }}>{t.urgentRequests}</div>
+            {/* Say so when these are the static rows rather than live ones.
+                They name real hospitals at real coordinates and look freshly
+                posted, so unlabelled they read as real pleas for blood. */}
+            {isFallback && (
+              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: "rgba(11,36,50,0.06)", color: "#8496A0" }}>
+                {t.sampleData}
+              </span>
+            )}
+          </div>
           <div className="text-[12.5px]" style={{ color: "#8496A0" }}>{t.sortedDistance} · {bloodRequests.length} {t.nearby}</div>
         </div>
       </div>
