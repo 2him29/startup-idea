@@ -79,6 +79,14 @@ The e2e suite reads that flag from `apps/web/.env` itself, so the app and the te
 
 **Phone verification needs `VITE_DEMO_OTP=true` anywhere without Twilio.** The default OTP provider goes through Supabase phone auth. Without an SMS provider there is no way to obtain a verified number, and posting a request requires one — so the entire patient flow is untestable and undemoable unless this flag is set. `demoOtpProvider` accepts one fixed code (`000000`) and sends nothing. It is opt-in and exact-match for the same reason the patient-model flag is, and **must be off in production**: with it on, anyone can claim any number, which is the precise trust verification exists to create.
 
+**`npm run verify:db` can leave an orphaned Postgres behind, and it breaks the *next* run.** The embedded cluster's child process sometimes survives teardown even though `.pgdata` is deleted, and the following run then dies in `initdb` with *"pre-existing shared memory block is still in use"* — which reads like a problem with Postgres on this machine and is not one. Clear it before re-running, matching on the path so a real system Postgres is never touched:
+
+```powershell
+Get-CimInstance Win32_Process -Filter "Name = 'postgres.exe'" |
+  Where-Object { $_.CommandLine -like '*embedded-postgres*' } |
+  ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+```
+
 **`npm run verify:db` initialises its cluster as UTF-8 explicitly.** `initdb` otherwise takes the encoding from the host locale — WIN1252 on these machines — and a migration containing any character outside it aborts with *"has no equivalent in encoding WIN1252"*, which reads like a SQL error and is not one. A NUMERO SIGN inside a comment was enough. Don't remove the `initdbFlags`.
 
 **Verification is an admin act; donor search is not.** `can_verify_in_wilaya()` requires `role = 'admin'` — vouching publishes an attestation under the association's name, so it belongs to whoever may bind the association. Donor search uses `is_association_in_wilaya()` instead, which any member passes. These were one predicate until `20260820120000`, and narrowing it without splitting it locked volunteers out of donor search — `verify:db` caught that, seven assertions deep.
