@@ -385,6 +385,13 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+[functions.send-push]
+# Off on purpose, and written down so a redeploy does not quietly turn it on.
+# verify_jwt accepts any signed project JWT, the public anon key included, so
+# it cannot express "a signed-in user". The function checks that itself: see
+# callerIsAllowed() in supabase/functions/send-push/index.ts.
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

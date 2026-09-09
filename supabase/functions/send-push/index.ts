@@ -5,10 +5,12 @@
  * endpoints across users — an endpoint plus its keys is a capability, not a
  * preference.
  *
- * Invoke it on a schedule (pg_cron every minute) or immediately after a write.
- * Either way it is idempotent-ish by lease: claim_notifications() hands each
- * row to one worker for five minutes, so a second invocation overlapping the
- * first does not send twice.
+ * Today the browser is the only thing that runs it: drainNotifications() calls
+ * it right after a request is posted or answered, and no scheduler exists on
+ * either project. A scheduler (pg_cron every minute, say) would bound how long
+ * a notification can wait after a failed call; it must send the service-role
+ * key. Overlapping calls are safe by lease: claim_notifications() hands each
+ * row to one worker for five minutes, so a second call does not send twice.
  */
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
@@ -174,19 +176,91 @@ async function handleOne(job: { id: string; kind: string; request_id: string }):
   return delivered;
 }
 
-Deno.serve(async () => {
+/** Constant-time compare, so a wrong token cannot be narrowed one byte at a time. */
+function tokensMatch(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+/**
+ * Who may drain the queue: a signed-in user, or the service role. Never an
+ * anonymous request.
+ *
+ * The browser is the caller that matters. drainNotifications() invokes this
+ * after every posted request and every response, and it is the only thing that
+ * does: no scheduler exists on either project (pg_cron is not installed). A
+ * check that admitted only the service role would therefore stop notifications
+ * outright, because a browser never holds that key.
+ *
+ * verify_jwt is off for this function (see supabase/config.toml) because it
+ * cannot draw this line: it accepts any signed project JWT, and the public anon
+ * key is one. So the check lives here. The service-role key is compared in
+ * constant time; anything else is handed to Auth, which confirms the token is
+ * real, unexpired and belongs to a user. The anon key has no user, and fails.
+ *
+ * What an open endpoint allowed was modest, and worth stating precisely: anyone
+ * could trigger drains and spend invocations. It could not cancel a
+ * notification, because a row that sends is marked done on its first claim.
+ * Anyone can still create an account, so this raises the bar rather than
+ * closing the door. That is proportionate to the risk, and it keeps the app
+ * working.
+ */
+async function callerIsAllowed(req: Request): Promise<boolean> {
+  const token = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  if (!token) return false;
+  if (tokensMatch(token, SERVICE_ROLE)) return true;
+  const { data, error } = await db.auth.getUser(token);
+  return !error && Boolean(data?.user);
+}
+
+/**
+ * CORS, because the caller is a web page on another origin.
+ *
+ * Without these headers a browser sends its pre-check, gets an answer that does
+ * not name the page, and never makes the real call. In the 24 hours before they
+ * were added, staging logged only OPTIONS requests to this function and not one
+ * POST.
+ */
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+function json(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...CORS_HEADERS, "content-type": "application/json" },
+  });
+}
+
+Deno.serve(async (req) => {
+  // The pre-check is answered here and nothing more. Without this line it
+  // would run the whole handler: no auth header, and a drain.
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: CORS_HEADERS });
+  }
+
+  // Before the secret check below, so an anonymous caller learns nothing about
+  // which secrets this deployment is missing.
+  if (!(await callerIsAllowed(req))) {
+    return json({ error: "Sign in to trigger notifications." }, 401);
+  }
+
   if (missing.length > 0) {
-    return new Response(
-      JSON.stringify({
+    return json(
+      {
         error: `Missing secret(s): ${missing.join(", ")}`,
         hint: "supabase secrets set VAPID_PUBLIC_KEY=... VAPID_PRIVATE_KEY=... (or Dashboard > Edge Functions > Secrets). Nothing is claimed until they are set, so no notification is lost.",
-      }),
-      { status: 503, headers: { "content-type": "application/json" } }
+      },
+      503
     );
   }
 
   const { data: jobs, error } = await db.rpc("claim_notifications", { p_limit: 20 });
-  if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  if (error) return json({ error: error.message }, 500);
 
   const claimed = (jobs ?? []) as { id: string; kind: string; request_id: string }[];
   let sent = 0;
@@ -209,7 +283,5 @@ Deno.serve(async () => {
     }
   }
 
-  return new Response(JSON.stringify({ claimed: claimed.length, delivered: sent }), {
-    headers: { "content-type": "application/json" },
-  });
+  return json({ claimed: claimed.length, delivered: sent });
 });

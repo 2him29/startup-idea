@@ -209,19 +209,23 @@ export async function disablePush(): Promise<void> {
 /**
  * Nudge the worker to drain the outbox now.
  *
- * Notifications are queued by database triggers and sent by an edge function.
- * In production that function runs on a schedule; calling it here as well
- * makes the gap between "a request was posted" and "a phone buzzes" a second
- * rather than up to a minute — which is the difference between a demo that
- * lands and one that needs explaining.
+ * Notifications are queued by database triggers and sent by the send-push edge
+ * function, and today this call is the only thing that runs it: no scheduler
+ * exists on either project (pg_cron is not installed). Called right after a
+ * post or a response, it makes the gap between "a request was posted" and "a
+ * phone buzzes" about a second.
  *
- * Deliberately fire-and-forget. The queue is durable: if this call fails, is
- * blocked, or the tab closes mid-flight, the scheduled run still sends it. So
- * a failure here is a delay, never a loss, and must not surface as an error on
- * a screen the user is trying to leave.
+ * Signed-in callers only, on both ends: this returns early without a session,
+ * and the function refuses anonymous requests with 401.
  *
- * Safe to expose: the function takes no input, returns only counts, and sends
- * exactly what the triggers already decided should be sent.
+ * Deliberately fire-and-forget. The queue is durable, so if this call fails or
+ * the tab closes mid-flight the row stays queued. But with no scheduler, the
+ * next attempt comes only when someone else posts or responds: a delay rather
+ * than a loss, and not a bounded one. A scheduler calling the function with the
+ * service-role key is what would bound it.
+ *
+ * The function takes no input, returns only counts, and sends exactly what the
+ * triggers already decided should be sent.
  */
 export async function drainNotifications(): Promise<void> {
   try {
