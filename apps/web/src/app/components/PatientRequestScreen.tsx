@@ -8,7 +8,7 @@ import {
   useHospitals,
   WILAYAS,
   wilayaLabel,
-  communesForWilaya,
+  useCommunes,
   type Urgency,
   errorMessage,
 } from "@weare/core";
@@ -70,7 +70,8 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
   const [bloodType, setBloodType] = useState("O+");
   const [wilaya, setWilaya] = useState("Alger");
   const [commune, setCommune] = useState("");
-  const communeOptions = useMemo(() => communesForWilaya(wilaya), [wilaya]);
+  const communes = useCommunes();
+  const communeOptions = useMemo(() => (communes ? communes.communesForWilaya(wilaya) : []), [communes, wilaya]);
   const [units, setUnits] = useState(2);
   const [urgency, setUrgency] = useState<Urgency>("High");
   const [hospitalName, setHospitalName] = useState("");

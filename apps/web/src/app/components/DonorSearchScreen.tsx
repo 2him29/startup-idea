@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ChevronDown, Eye, Phone, PhoneOff, ShieldAlert, ShieldCheck, ShieldQuestion, Clock, Droplet } from "lucide-react";
-import { revealDonorContact, searchDonors, useMyMemberships, wilayaLabel, communesForWilaya, communeLabel, type DonorSearchResult, errorMessage} from "@weare/core";
+import { revealDonorContact, searchDonors, useMyMemberships, wilayaLabel, useCommunes, type DonorSearchResult, errorMessage} from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { SCREEN_BG } from "../background";
 import { BloodType } from "./BloodType";
@@ -38,10 +38,11 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
 
   const [bloodType, setBloodType] = useState<string | null>(null);
   const [commune, setCommune] = useState<string | null>(null);
-  // Once per wilaya, not twice per render.
+  // Fetched only for someone who can search at all; then once per wilaya.
+  const communes = useCommunes(Boolean(active));
   const communeOptions = useMemo(
-    () => (active ? communesForWilaya(active.wilaya) : []),
-    [active]
+    () => (active && communes ? communes.communesForWilaya(active.wilaya) : []),
+    [active, communes]
   );
   const [includeCooldown, setIncludeCooldown] = useState(false);
   const [donors, setDonors] = useState<DonorSearchResult[]>([]);
@@ -321,7 +322,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
                   </div>
                   <div className="text-[12.5px]" style={{ color: "#8496A0" }}>
                     <BloodType value={donor.bloodType} /> ·{" "}
-                    {donor.commune ? communeLabel(donor.commune, lang) : wilayaLabel(donor.wilaya, lang)}
+                    {donor.commune ? (communes ? communes.communeLabel(donor.commune, lang) : donor.commune) : wilayaLabel(donor.wilaya, lang)}
                   </div>
                 </div>
               </div>

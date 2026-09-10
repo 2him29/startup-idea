@@ -6,7 +6,7 @@ import {
   updateOwnedHospital,
   upsertDonorProfile,
   WILAYAS,
-  communesForWilaya,
+  useCommunes,
   type Profile,
   errorMessage,
 } from "@weare/core";
@@ -31,7 +31,8 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
   const [phone, setPhone] = useState(profile?.phone ?? "");
   const [wilaya, setWilaya] = useState(profile?.wilaya ?? "");
   const [commune, setCommune] = useState(profile?.commune ?? "");
-  const communeOptions = useMemo(() => communesForWilaya(wilaya), [wilaya]);
+  const communes = useCommunes();
+  const communeOptions = useMemo(() => (communes ? communes.communesForWilaya(wilaya) : []), [communes, wilaya]);
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
   const [selectedBlood, setSelectedBlood] = useState("A+");

@@ -7,7 +7,10 @@ export * from "./hooks";
 export * from "./i18n";
 export * from "./reserve";
 export * from "./wilayas";
-export * from "./communes";
+// The commune data is loaded on demand and deliberately not re-exported:
+// a re-export would put it back in the main bundle. See communesLoader.ts.
+export type { Commune, Daira } from "./communes";
+export * from "./communesLoader";
 export * from "./share";
 export * from "./drives";
 export * from "./featureFlags";

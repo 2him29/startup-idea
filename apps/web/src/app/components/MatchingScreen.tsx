@@ -3,7 +3,7 @@ import { ArrowLeft, Check, MapPin, Droplet } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, useResponses, useDonorProfile, canDonate, communeLabel, wilayaLabel, nameStatesWilaya, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
+import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, useResponses, useDonorProfile, canDonate, useCommunes, wilayaLabel, nameStatesWilaya, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { getDefaultWilaya } from "../prefs";
@@ -62,6 +62,9 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
     new Set(inWilaya.map((r) => r.commune).filter((c): c is string => !!c))
   ).sort((a, b) => a.localeCompare(b, "fr"));
   const effectiveCommune = selectedCommune && communesPresent.includes(selectedCommune) ? selectedCommune : null;
+  // Labels matter only once the dropdown shows, so the list is fetched only
+  // then, not on every visit to the busiest screen in the app.
+  const communes = useCommunes(communesPresent.length > 1);
   const inCommune = effectiveCommune ? inWilaya.filter((r) => r.commune === effectiveCommune) : inWilaya;
 
   /*
@@ -194,7 +197,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
           >
             <option value="">{t.allCommunes}</option>
             {communesPresent.map((c) => (
-              <option key={c} value={c}>{communeLabel(c, lang)}</option>
+              <option key={c} value={c}>{communes ? communes.communeLabel(c, lang) : c}</option>
             ))}
           </select>
         </div>
