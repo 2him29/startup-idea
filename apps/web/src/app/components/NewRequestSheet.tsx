@@ -105,6 +105,7 @@ export function NewRequestSheet({ onClose, onPublished }: NewRequestSheetProps) 
               <button
                 type="button"
                 onClick={() => setUnits((u) => Math.max(1, u - 1))}
+                aria-label={t.fewerUnits}
                 className="cursor-pointer w-8 h-8 rounded-lg border-none flex items-center justify-center"
                 style={{ background: "#EAF0F2", color: "#0B2432" }}
               >
@@ -114,6 +115,7 @@ export function NewRequestSheet({ onClose, onPublished }: NewRequestSheetProps) 
               <button
                 type="button"
                 onClick={() => setUnits((u) => Math.min(10, u + 1))}
+                aria-label={t.moreUnits}
                 className="cursor-pointer w-8 h-8 rounded-lg border-none flex items-center justify-center"
                 style={{ background: "#EAF0F2", color: "#0B2432" }}
               >

@@ -47,6 +47,7 @@ export function HospitalsScreen({ onBack }: HospitalsScreenProps) {
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={onBack}
+          aria-label={t.backLabel}
           className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
           style={{ borderColor: "rgba(11,36,50,0.08)" }}
         >

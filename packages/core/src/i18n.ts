@@ -62,6 +62,8 @@ export interface Strings {
   downloadCertificate: string; certTitle: string; certIntro: string; certBody: string; certThanks: string;
   phoneLabel: string; wilayaField: string; lastDonationLabel: string;
   communeField: string; communeAny: string; communeHint: string; sameCommune: string;
+  /** Accessible name for the icon-only back button that heads almost every screen. */
+  backLabel: string; fewerUnits: string; moreUnits: string;
   preferencesLabel: string; ramadanToggle: string; defaultWilayaLabel: string; allWilayas: string;
   aboutLabel: string; versionLabel: string;
   daysLeft: string; offlineBanner: string;
@@ -216,7 +218,7 @@ export const I18N: Record<Lang, Strings> = {
     certBody: "donated blood on {date} at {location} ({type}, {units} unit(s)).",
     certThanks: "Thank you for this life-saving contribution.",
     phoneLabel: "Phone number", wilayaField: "Wilaya", lastDonationLabel: "Last donation date",
-    communeField: "Commune", communeAny: "Anywhere in the wilaya",
+    communeField: "Commune", communeAny: "Anywhere in the wilaya", backLabel: "Back", fewerUnits: "One unit fewer", moreUnits: "One unit more",
     communeHint: "Donors nearby are shown first. Nobody in the wilaya is hidden.",
     sameCommune: "Same commune",
     preferencesLabel: "Preferences", ramadanToggle: "Ramadan mode (night donation banner)",
@@ -444,7 +446,7 @@ export const I18N: Record<Lang, Strings> = {
     certBody: "a donné son sang le {date} à {location} ({type}, {units} unité(s)).",
     certThanks: "Merci pour cette contribution qui sauve des vies.",
     phoneLabel: "Numéro de téléphone", wilayaField: "Wilaya", lastDonationLabel: "Date du dernier don",
-    communeField: "Commune", communeAny: "Partout dans la wilaya",
+    communeField: "Commune", communeAny: "Partout dans la wilaya", backLabel: "Retour", fewerUnits: "Une unité de moins", moreUnits: "Une unité de plus",
     communeHint: "Les donneurs les plus proches apparaissent en premier. Personne dans la wilaya n'est masqué.",
     sameCommune: "Même commune",
     preferencesLabel: "Préférences", ramadanToggle: "Mode Ramadan (bannière don de nuit)",
@@ -672,7 +674,7 @@ export const I18N: Record<Lang, Strings> = {
     certBody: "تبرّع بالدم بتاريخ {date} في {location} ({type}، {units} وحدة/وحدات).",
     certThanks: "شكراً لهذه المساهمة التي تنقذ الأرواح.",
     phoneLabel: "رقم الهاتف", wilayaField: "الولاية", lastDonationLabel: "تاريخ آخر تبرع",
-    communeField: "البلدية", communeAny: "كامل الولاية",
+    communeField: "البلدية", communeAny: "كامل الولاية", backLabel: "رجوع", fewerUnits: "وحدة أقل", moreUnits: "وحدة أكثر",
     communeHint: "المتبرعون الأقرب يظهرون أولاً. لا يُخفى أحد في الولاية.",
     sameCommune: "نفس البلدية",
     preferencesLabel: "التفضيلات", ramadanToggle: "وضع رمضان (لافتة التبرع الليلي)",

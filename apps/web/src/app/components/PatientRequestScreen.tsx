@@ -173,6 +173,7 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={onBack}
+          aria-label={t.backLabel}
           className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
           style={{ borderColor: "rgba(11,36,50,0.08)" }}
         >
@@ -326,6 +327,7 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
             <button
               type="button"
               onClick={() => setUnits((u) => Math.max(1, u - 1))}
+              aria-label={t.fewerUnits}
               className="cursor-pointer w-8 h-8 rounded-lg border-none flex items-center justify-center"
               style={{ background: "#EAF0F2", color: "#0B2432" }}
             >
@@ -335,6 +337,7 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
             <button
               type="button"
               onClick={() => setUnits((u) => Math.min(10, u + 1))}
+              aria-label={t.moreUnits}
               className="cursor-pointer w-8 h-8 rounded-lg border-none flex items-center justify-center"
               style={{ background: "#EAF0F2", color: "#0B2432" }}
             >

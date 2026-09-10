@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Phone, Clock, AlertTriangle, Info, Share2, Check, X } from "lucide-react";
+import { ArrowLeft, Clock, AlertTriangle, Info, Share2, Check, X } from "lucide-react";
 import {
   urgencyLabel,
   wilayaLabel,
@@ -79,6 +79,7 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={onBack}
+          aria-label={t.backLabel}
           className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
           style={{ borderColor: "rgba(11,36,50,0.08)" }}
         >
@@ -169,13 +170,18 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
         </div>
       </div>
 
+      {/*
+        There was a call button here. It had no onClick — it rendered, it took
+        a tap, and it did nothing.
+
+        It is not restored, because the action it implied is one this product
+        deliberately does not offer. A number is reached through
+        reveal_donor_contact(): consent is checked, the whole number is handed
+        over once, and the opening is written to a log the donor can read. A
+        button that dials from a request card would be the same act with none
+        of that, and on the screen where a stranger is looking at a patient.
+      */}
       <div className="mt-[18px] flex gap-[11px]">
-        <button
-          className="cursor-pointer w-14 h-[54px] shrink-0 rounded-2xl border-[1.5px] bg-white flex items-center justify-center"
-          style={{ borderColor: "rgba(11,36,50,0.12)" }}
-        >
-          <Phone className="w-[21px] h-[21px]" style={{ color: "#0B2432" }} />
-        </button>
         <button
           onClick={() =>
             shareToWhatsApp(

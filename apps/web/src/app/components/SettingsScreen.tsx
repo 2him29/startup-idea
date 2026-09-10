@@ -48,6 +48,15 @@ function PrefToggleRow({
           setOn(next);
           setBoolPref(prefKey, next);
         }}
+        /*
+         * role=switch with aria-checked, and the visible label repeated as the
+         * accessible name. The <span> carrying that label is a sibling, not a
+         * <label for>, so without this a screen reader reaches a control that
+         * announces "button" -- neither what it toggles nor whether it is on.
+         */
+        role="switch"
+        aria-checked={on}
+        aria-label={label}
         className="cursor-pointer w-11 h-[26px] rounded-full relative transition-colors shrink-0"
         style={{ background: on ? "#12B76A" : "#D6DEE2" }}
       >
@@ -142,6 +151,7 @@ export function SettingsScreen({ onBack, onNavigate }: SettingsScreenProps) {
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={onBack}
+          aria-label={t.backLabel}
           className="cursor-pointer w-[42px] h-[42px] rounded-[13px] border bg-white flex items-center justify-center"
           style={{ borderColor: "rgba(11,36,50,0.08)" }}
         >

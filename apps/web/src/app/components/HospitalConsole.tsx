@@ -104,6 +104,7 @@ export function HospitalConsole({ onBack }: HospitalConsoleProps) {
       >
         <button
           onClick={onBack}
+          aria-label={t.backLabel}
           className="cursor-pointer border-none bg-transparent flex items-center gap-2.5 px-2 mb-[26px]"
           style={{ textAlign: "start" }}
         >
