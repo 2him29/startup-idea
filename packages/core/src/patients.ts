@@ -48,6 +48,14 @@ export interface PatientRequestInput {
   patientName: string;
   bloodType: string;
   wilaya: string;
+  /**
+   * Optional, and never a gate on posting.
+   *
+   * It narrows nothing on its own — the request stays visible to the whole
+   * wilaya. It lets a donor sort by what is actually near them, which in Alger
+   * or Tamanrasset is a different question from "same wilaya".
+   */
+  commune?: string | null;
   units: number;
   urgency: Urgency;
   hospitalName?: string;
@@ -126,6 +134,7 @@ export async function createPatientRequest(input: PatientRequestInput): Promise<
       units: input.units,
       urgency: input.urgency,
       wilaya: input.wilaya,
+      commune: input.commune || null,
       hospital_name: input.hospitalName?.trim() || null,
       hospital_id: input.hospitalId ?? null,
     })

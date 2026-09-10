@@ -3,7 +3,7 @@ import { ArrowLeft, Check, MapPin, Droplet } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, useResponses, wilayaLabel, nameStatesWilaya, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
+import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, useResponses, useDonorProfile, canDonate, communeLabel, wilayaLabel, nameStatesWilaya, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { getDefaultWilaya } from "../prefs";
@@ -50,7 +50,37 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
   // The saved preference may name a wilaya with no open requests right now --
   // fall back to showing everything rather than an empty list.
   const effectiveWilaya = selectedWilaya && wilayasPresent.includes(selectedWilaya) ? selectedWilaya : null;
-  const bloodRequests = effectiveWilaya ? allRequests.filter((r) => r.wilaya === effectiveWilaya) : allRequests;
+  const inWilaya = effectiveWilaya ? allRequests.filter((r) => r.wilaya === effectiveWilaya) : allRequests;
+
+  /*
+   * Communes offered are the ones that actually have an open request, not all
+   * 1541 — the same rule the wilaya pills already follow. A dropdown of places
+   * with nothing in them is a list of dead ends.
+   */
+  const [selectedCommune, setSelectedCommune] = useState<string | null>(null);
+  const communesPresent = Array.from(
+    new Set(inWilaya.map((r) => r.commune).filter((c): c is string => !!c))
+  ).sort((a, b) => a.localeCompare(b, "fr"));
+  const effectiveCommune = selectedCommune && communesPresent.includes(selectedCommune) ? selectedCommune : null;
+  const inCommune = effectiveCommune ? inWilaya.filter((r) => r.commune === effectiveCommune) : inWilaya;
+
+  /*
+   * "I can donate", and it is off by default.
+   *
+   * The 8x8 table is definitive: an A+ donor cannot give to an O- patient, and
+   * showing that request as if they might is the kind of wrong this app cannot
+   * afford. But hiding it by default would be wrong too — RequestDetail already
+   * says that incompatibility is not a dead end, because sharing a request is a
+   * real contribution. So the filter is offered, never assumed, and the empty
+   * state says the same thing rather than reading as "nobody needs you".
+   */
+  const { donorProfile } = useDonorProfile();
+  const myType = donorProfile?.bloodType ?? null;
+  const [onlyCanHelp, setOnlyCanHelp] = useState(false);
+  const canHelpCount = myType ? inCommune.filter((r) => canDonate(myType, r.bloodType)).length : 0;
+  const bloodRequests = onlyCanHelp && myType
+    ? inCommune.filter((r) => canDonate(myType, r.bloodType))
+    : inCommune;
 
   const mappable = bloodRequests.filter(
     (r): r is BloodRequest & { hospitalLat: number; hospitalLng: number } =>
@@ -138,7 +168,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
             return (
               <button
                 key={w ?? "all"}
-                onClick={() => setSelectedWilaya(w)}
+                onClick={() => { setSelectedWilaya(w); setSelectedCommune(null); }}
                 className="cursor-pointer text-[12.5px] font-bold px-3.5 py-2 rounded-full border"
                 style={
                   active
@@ -150,6 +180,44 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
               </button>
             );
           })}
+        </div>
+      )}
+
+      {communesPresent.length > 1 && (
+        <div className="mb-3">
+          <select
+            value={effectiveCommune ?? ""}
+            onChange={(e) => setSelectedCommune(e.target.value || null)}
+            aria-label={t.communeField}
+            className="w-full h-11 rounded-[13px] border px-3.5 text-[13.5px] outline-none appearance-none bg-white"
+            style={{ borderColor: "rgba(11,36,50,0.1)", color: "#0B2432", textAlign: "start" }}
+          >
+            <option value="">{t.allCommunes}</option>
+            {communesPresent.map((c) => (
+              <option key={c} value={c}>{communeLabel(c, lang)}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {myType && (
+        <div className="flex items-center gap-2 mb-3.5">
+          <button
+            onClick={() => setOnlyCanHelp((v) => !v)}
+            aria-pressed={onlyCanHelp}
+            className="cursor-pointer text-[12.5px] font-bold px-3.5 py-2 rounded-full border"
+            style={onlyCanHelp
+              ? { background: "#12B76A", color: "#fff", borderColor: "#12B76A" }
+              : { background: "#fff", color: "#5A6B75", borderColor: "rgba(11,36,50,0.1)" }}
+          >
+            {t.canHelpFilter} · {canHelpCount}
+          </button>
+        </div>
+      )}
+
+      {onlyCanHelp && bloodRequests.length === 0 && (
+        <div className="bg-white border rounded-[20px] p-5 mb-3.5 text-[13px]" style={{ borderColor: "rgba(11,36,50,0.06)", color: "#6B7C88", textAlign: "start" }}>
+          {t.canHelpNone}
         </div>
       )}
 

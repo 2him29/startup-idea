@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowLeft, ChevronDown, Minus, Plus, Plus as PlusIcon, ShieldAlert } from "lucide-react";
 import {
   createPatientRequest,
@@ -8,6 +8,7 @@ import {
   useHospitals,
   WILAYAS,
   wilayaLabel,
+  communesForWilaya,
   type Urgency,
   errorMessage,
 } from "@weare/core";
@@ -21,6 +22,8 @@ export interface RequestDraft {
   patientName: string;
   bloodType: string;
   wilaya: string;
+  /** Optional. Narrows nothing; it lets donors sort by what is actually near them. */
+  commune: string;
   units: number;
   urgency: Urgency;
   hospitalName: string;
@@ -66,6 +69,8 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
   const [patientName, setPatientName] = useState("");
   const [bloodType, setBloodType] = useState("O+");
   const [wilaya, setWilaya] = useState("Alger");
+  const [commune, setCommune] = useState("");
+  const communeOptions = useMemo(() => communesForWilaya(wilaya), [wilaya]);
   const [units, setUnits] = useState(2);
   const [urgency, setUrgency] = useState<Urgency>("High");
   const [hospitalName, setHospitalName] = useState("");
@@ -130,6 +135,7 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
     patientName,
     bloodType,
     wilaya,
+    commune,
     units,
     urgency,
     hospitalName,
@@ -248,7 +254,7 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
           <div className="relative mb-4">
             <select
               value={wilaya}
-              onChange={(e) => setWilaya(e.target.value)}
+              onChange={(e) => { setWilaya(e.target.value); setCommune(""); }}
               required
               className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none appearance-none"
               style={{ ...inputStyle, textAlign: "start" }}
@@ -261,6 +267,32 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
             </select>
             <ChevronDown className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none" style={{ insetInlineEnd: "14px", color: "#8496A0" }} />
           </div>
+
+          {/*
+            Optional, and said so. A family typing this at 2am must never be
+            stopped by a field; the request reaches the whole wilaya either way.
+          */}
+          {communeOptions.length > 0 && (
+            <>
+              <label className="block text-[12.5px] font-bold mb-1.5 mt-3.5" style={{ color: "#5A6B75", textAlign: "start" }}>
+                {t.communeField}
+              </label>
+              <div className="relative">
+                <select
+                  value={commune}
+                  onChange={(e) => setCommune(e.target.value)}
+                  className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none appearance-none"
+                  style={{ ...inputStyle, textAlign: "start" }}
+                >
+                  <option value="">{t.communeAny}</option>
+                  {communeOptions.map((c) => (
+                    <option key={c.fr} value={c.fr}>{lang === "ar" ? c.ar : c.fr}</option>
+                  ))}
+                </select>
+                <ChevronDown className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none" style={{ insetInlineEnd: "14px", color: "#8496A0" }} />
+              </div>
+            </>
+          )}
           {/*
             Said before the hospital field, not after it.
 

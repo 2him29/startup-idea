@@ -312,6 +312,54 @@ test.describe("patient/association model", () => {
     await expect(page.getByText("Your A+ type is a direct match.")).toHaveCount(0);
   });
 
+  /**
+   * The find screen's compatibility filter, checked against a chart written
+   * here rather than imported from the app.
+   *
+   * canDonate() has unit tests, and they say nothing about whether the screen
+   * calls it with the right arguments or renders what it returns. That gap is
+   * the whole reason this exists: the filter is the one control in the product
+   * where a wrong answer sends somebody to a hospital that cannot use their
+   * blood.
+   *
+   * The demo donor is O+, which gives to the four positive types and to
+   * nothing negative.
+   */
+  test("'I can donate' hides exactly the types this donor cannot give to", async ({ page }) => {
+    const O_POSITIVE_GIVES_TO = ["O+", "A+", "B+", "AB+"];
+
+    await gotoFresh(page);
+    await demoLogin(page, "donor");
+    await clickNav(page, "Find");
+    // The header renders before the rows do. Waiting on it alone reads an
+    // empty list while the skeletons are still up, and every assertion below
+    // then passes for the wrong reason.
+    await page.getByTestId("request-card").first().waitFor({ state: "visible", timeout: 20_000 });
+
+    const typesOnScreen = async (): Promise<string[]> => {
+      const text = (await page.getByTestId("request-card").allInnerTexts()).join(" ");
+      return [...new Set(text.match(/\b(?:AB|A|B|O)[+-]/g) ?? [])];
+    };
+
+    const before = await typesOnScreen();
+    // Only meaningful if the unfiltered list actually contains something the
+    // donor cannot give to; otherwise the assertion below passes vacuously.
+    expect(before.some((bt) => !O_POSITIVE_GIVES_TO.includes(bt))).toBe(true);
+
+    const filter = page.getByRole("button", { name: new RegExp(t("en").canHelpFilter, "i") }).first();
+    await expect(filter).toBeVisible();
+    await filter.click();
+    await expect(filter).toHaveAttribute("aria-pressed", "true");
+
+    const after = await typesOnScreen();
+    for (const bt of after) {
+      expect(O_POSITIVE_GIVES_TO, `an O+ donor cannot give to ${bt}`).toContain(bt);
+    }
+
+    // And it is a filter, not a wipe: something compatible is still listed.
+    expect(after.length).toBeGreaterThan(0);
+  });
+
   test("donor sees the verified badge on the find screen", async ({ page }) => {
     await gotoFresh(page);
     await demoLogin(page, "donor");

@@ -16,6 +16,7 @@ interface BloodRequestRow {
   hospitals: { name: string; latitude: number | null; longitude: number | null; wilaya: string | null } | null;
   patient_record_id?: string | null;
   wilaya?: string | null;
+  commune?: string | null;
   hospital_name?: string | null;
   verified_at?: string | null;
   verifier?: { name: string } | null;
@@ -41,6 +42,7 @@ function toBloodRequest(row: BloodRequestRow): BloodRequest {
     hospitalLat: row.hospitals?.latitude ?? null,
     hospitalLng: row.hospitals?.longitude ?? null,
     wilaya: row.wilaya ?? row.hospitals?.wilaya ?? null,
+    commune: row.commune ?? null,
     verifiedByName: row.verifier?.name ?? null,
     verifiedAt: row.verified_at ?? null,
     // Only ever populated by the console query, and only for callers RLS lets
@@ -67,7 +69,7 @@ const LEGACY_COLUMNS = `
 
 const PATIENT_MODEL_COLUMNS = `
   id, patient_id, patient_record_id, blood_type, units, urgency, created_at,
-  wilaya, hospital_name, verified_at,
+  wilaya, commune, hospital_name, verified_at,
   hospitals(name, latitude, longitude, wilaya),
   verifier:associations!blood_requests_verified_by_fkey(name)
 `;

@@ -64,6 +64,7 @@ export interface Strings {
   communeField: string; communeAny: string; communeHint: string; sameCommune: string;
   /** Accessible name for the icon-only back button that heads almost every screen. */
   backLabel: string; fewerUnits: string; moreUnits: string;
+  canHelpFilter: string; canHelpNone: string; allCommunes: string;
   preferencesLabel: string; ramadanToggle: string; defaultWilayaLabel: string; allWilayas: string;
   aboutLabel: string; versionLabel: string;
   daysLeft: string; offlineBanner: string;
@@ -219,6 +220,7 @@ export const I18N: Record<Lang, Strings> = {
     certThanks: "Thank you for this life-saving contribution.",
     phoneLabel: "Phone number", wilayaField: "Wilaya", lastDonationLabel: "Last donation date",
     communeField: "Commune", communeAny: "Anywhere in the wilaya", backLabel: "Back", fewerUnits: "One unit fewer", moreUnits: "One unit more",
+    canHelpFilter: "I can donate", canHelpNone: "No open request here needs your type right now. Sharing one still helps.", allCommunes: "All communes",
     communeHint: "Donors nearby are shown first. Nobody in the wilaya is hidden.",
     sameCommune: "Same commune",
     preferencesLabel: "Preferences", ramadanToggle: "Ramadan mode (night donation banner)",
@@ -447,6 +449,7 @@ export const I18N: Record<Lang, Strings> = {
     certThanks: "Merci pour cette contribution qui sauve des vies.",
     phoneLabel: "Numéro de téléphone", wilayaField: "Wilaya", lastDonationLabel: "Date du dernier don",
     communeField: "Commune", communeAny: "Partout dans la wilaya", backLabel: "Retour", fewerUnits: "Une unité de moins", moreUnits: "Une unité de plus",
+    canHelpFilter: "Je peux donner", canHelpNone: "Aucune demande ouverte ici ne correspond à votre groupe pour le moment. La partager aide quand même.", allCommunes: "Toutes les communes",
     communeHint: "Les donneurs les plus proches apparaissent en premier. Personne dans la wilaya n'est masqué.",
     sameCommune: "Même commune",
     preferencesLabel: "Préférences", ramadanToggle: "Mode Ramadan (bannière don de nuit)",
@@ -675,6 +678,7 @@ export const I18N: Record<Lang, Strings> = {
     certThanks: "شكراً لهذه المساهمة التي تنقذ الأرواح.",
     phoneLabel: "رقم الهاتف", wilayaField: "الولاية", lastDonationLabel: "تاريخ آخر تبرع",
     communeField: "البلدية", communeAny: "كامل الولاية", backLabel: "رجوع", fewerUnits: "وحدة أقل", moreUnits: "وحدة أكثر",
+    canHelpFilter: "يمكنني التبرع", canHelpNone: "لا يوجد طلب مفتوح هنا يحتاج فصيلتك حالياً. مشاركته تساعد رغم ذلك.", allCommunes: "كل البلديات",
     communeHint: "المتبرعون الأقرب يظهرون أولاً. لا يُخفى أحد في الولاية.",
     sameCommune: "نفس البلدية",
     preferencesLabel: "التفضيلات", ramadanToggle: "وضع رمضان (لافتة التبرع الليلي)",

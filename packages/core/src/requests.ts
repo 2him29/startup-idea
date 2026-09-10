@@ -18,6 +18,12 @@ export interface BloodRequest {
   /** Set on patient-authored requests; null on legacy hospital-authored ones. */
   patientRecordId: string | null;
   /**
+   * Where the patient is, below the wilaya. Optional and often null: it is
+   * absent on every request posted before 20260909120000, and a family is
+   * never required to give one.
+   */
+  commune?: string | null;
+  /**
    * The patient's name, for the association console only.
    *
    * Null everywhere else — the donor-facing query does not ask for it, and RLS
