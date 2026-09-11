@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { HomeScreen } from "./components/HomeScreen";
 import { AuthScreen } from "./components/AuthScreen";
 import { DonorRegistration } from "./components/DonorRegistration";
@@ -79,6 +79,22 @@ export default function App() {
   useEffect(() => {
     if (profile) setUserType(profile.role);
   }, [profile]);
+
+  /*
+   * Every screen opens at its top.
+   *
+   * With no router, nothing reset the scroll position between screens, so a
+   * screen opened from halfway down the last one arrived halfway down itself,
+   * with its title and back button above the fold. userType is in the list
+   * because signing in swaps the splash for Home without changing
+   * currentScreen. Phones scroll the window; from md up the content column
+   * scrolls on its own, so both are reset.
+   */
+  const scrollColumn = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+    scrollColumn.current?.scrollTo(0, 0);
+  }, [currentScreen, userType]);
 
   const handleNavigate = (screen: string) => {
     setCurrentScreen(screen);
@@ -377,7 +393,7 @@ export default function App() {
           there is no router to give it one of its own. */}
       <InviteBanner />
       {!isConsole && <Sidebar activeScreen={currentScreen} onNavigate={handleNavigate} userType={userType} />}
-      <div className="max-w-md mx-auto h-full relative md:max-w-none md:mx-0 md:flex-1 md:h-screen md:overflow-y-auto">
+      <div ref={scrollColumn} className="max-w-md mx-auto h-full relative md:max-w-none md:mx-0 md:flex-1 md:h-screen md:overflow-y-auto">
         <ScreenTransition key={currentScreen}>
           {isFullBleed ? screen : <div className="md:px-10 md:py-8">{screen}</div>}
         </ScreenTransition>
