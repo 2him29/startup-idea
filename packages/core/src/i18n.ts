@@ -57,11 +57,11 @@ export interface Strings {
   pledging: string; genericError: string;
   saveChanges: string; changesSaved: string; languageLabel: string;
   shareMessage: string; shareLabel: string;
-  drivesTitle: string; drivesSub: string;
+  drivesTitle: string; drivesSub: string; drivesEmptyTitle: string; drivesEmptyBody: string;
   urgencyHeader: string; printLabel: string; exportLabel: string;
   downloadCertificate: string; certTitle: string; certIntro: string; certBody: string; certThanks: string;
   phoneLabel: string; wilayaField: string; lastDonationLabel: string;
-  communeField: string; communeAny: string; communeHint: string; sameCommune: string;
+  communeField: string; communeAny: string; communeHint: string; sameCommune: string; communeChoose: string;
   /** Accessible name for the icon-only back button that heads almost every screen. */
   backLabel: string; fewerUnits: string; moreUnits: string;
   canHelpFilter: string; canHelpNone: string; allCommunes: string;
@@ -155,7 +155,7 @@ export interface Strings {
   invitesCard: string; invitesCardSub: string; invitesTitle: string; invitesIntro: string;
   invitesCreate: string; invitesLabelPlaceholder: string; invitesNone: string; invitesJoined: string;
   invitesCopy: string; invitesCopied: string; invitesRevoke: string; invitesAdminOnly: string;
-  invitesRevoked: string; invitesExpired: string; invitesFull: string;
+  invitesRevoked: string; invitesExpired: string; invitesFull: string; invitesInactive: string;
   invitesShowQr: string; invitesQrLead: string; invitesQrPrint: string;
   inviteJoinTitle: string; inviteJoinBody: string; inviteInvalidTitle: string;
   inviteInvalidBody: string; inviteAccepted: string;
@@ -212,6 +212,8 @@ export const I18N: Record<Lang, Strings> = {
     shareMessage: "Urgent: {bloodType} blood needed at {hospital}, {wilaya} ({units} units). Every donor counts — please share.",
     shareLabel: "Share",
     drivesTitle: "Blood drives", drivesSub: "Community donation events near you",
+    drivesEmptyTitle: "No drives scheduled right now",
+    drivesEmptyBody: "Upcoming drives will appear here once they are listed. Until then, Hospitals & blood centers shows where you can give near you.",
     urgencyHeader: "Urgency", printLabel: "Print", exportLabel: "Export CSV",
     downloadCertificate: "Download certificate",
     certTitle: "Certificate of Blood Donation",
@@ -219,7 +221,7 @@ export const I18N: Record<Lang, Strings> = {
     certBody: "donated blood on {date} at {location} ({type}, {units} unit(s)).",
     certThanks: "Thank you for this life-saving contribution.",
     phoneLabel: "Phone number", wilayaField: "Wilaya", lastDonationLabel: "Last donation date",
-    communeField: "Commune", communeAny: "Anywhere in the wilaya", backLabel: "Back", fewerUnits: "One unit fewer", moreUnits: "One unit more",
+    communeField: "Commune", communeAny: "Anywhere in the wilaya", communeChoose: "Choose your commune (optional)", backLabel: "Back", fewerUnits: "One unit fewer", moreUnits: "One unit more",
     canHelpFilter: "I can donate", canHelpNone: "No open request here needs your type right now. Sharing one still helps.", allCommunes: "All communes",
     communeHint: "Donors nearby are shown first. Nobody in the wilaya is hidden.",
     sameCommune: "Same commune",
@@ -364,7 +366,7 @@ export const I18N: Record<Lang, Strings> = {
     invitesJoined: "{count} joined", invitesCopy: "Copy link", invitesCopied: "Copied",
     invitesRevoke: "Withdraw",
     invitesAdminOnly: "Only a committee administrator can create invite links.",
-    invitesRevoked: "Withdrawn", invitesExpired: "Expired", invitesFull: "Limit reached",
+    invitesRevoked: "Withdrawn", invitesExpired: "Expired", invitesFull: "Limit reached", invitesInactive: "No longer active",
     invitesShowQr: "Show code", invitesQrLead: "Scan to join this committee's donor list",
     invitesQrPrint: "Print this page",
     inviteJoinTitle: "{association} invited you",
@@ -441,6 +443,8 @@ export const I18N: Record<Lang, Strings> = {
     shareMessage: "Urgent : don de sang {bloodType} nécessaire à {hospital}, {wilaya} ({units} unités). Chaque donneur compte — merci de partager.",
     shareLabel: "Partager",
     drivesTitle: "Collectes de sang", drivesSub: "Événements de don organisés près de chez vous",
+    drivesEmptyTitle: "Aucune collecte prévue pour le moment",
+    drivesEmptyBody: "Les prochaines collectes apparaîtront ici dès qu'elles seront annoncées. D'ici là, l'écran Hôpitaux et centres de sang indique où donner près de chez vous.",
     urgencyHeader: "Urgence", printLabel: "Imprimer", exportLabel: "Exporter en CSV",
     downloadCertificate: "Télécharger l'attestation",
     certTitle: "Attestation de don de sang",
@@ -448,7 +452,7 @@ export const I18N: Record<Lang, Strings> = {
     certBody: "a donné son sang le {date} à {location} ({type}, {units} unité(s)).",
     certThanks: "Merci pour cette contribution qui sauve des vies.",
     phoneLabel: "Numéro de téléphone", wilayaField: "Wilaya", lastDonationLabel: "Date du dernier don",
-    communeField: "Commune", communeAny: "Partout dans la wilaya", backLabel: "Retour", fewerUnits: "Une unité de moins", moreUnits: "Une unité de plus",
+    communeField: "Commune", communeAny: "Partout dans la wilaya", communeChoose: "Choisissez votre commune (facultatif)", backLabel: "Retour", fewerUnits: "Une unité de moins", moreUnits: "Une unité de plus",
     canHelpFilter: "Je peux donner", canHelpNone: "Aucune demande ouverte ici ne correspond à votre groupe pour le moment. La partager aide quand même.", allCommunes: "Toutes les communes",
     communeHint: "Les donneurs les plus proches apparaissent en premier. Personne dans la wilaya n'est masqué.",
     sameCommune: "Même commune",
@@ -593,7 +597,7 @@ export const I18N: Record<Lang, Strings> = {
     invitesJoined: "{count} inscrit(s)", invitesCopy: "Copier le lien", invitesCopied: "Copié",
     invitesRevoke: "Retirer",
     invitesAdminOnly: "Seul un administrateur du comité peut créer des liens d'invitation.",
-    invitesRevoked: "Retiré", invitesExpired: "Expiré", invitesFull: "Limite atteinte",
+    invitesRevoked: "Retiré", invitesExpired: "Expiré", invitesFull: "Limite atteinte", invitesInactive: "Plus actifs",
     invitesShowQr: "Afficher le code", invitesQrLead: "Scannez pour rejoindre la liste de donneurs de ce comité",
     invitesQrPrint: "Imprimer cette page",
     inviteJoinTitle: "{association} vous invite",
@@ -670,6 +674,8 @@ export const I18N: Record<Lang, Strings> = {
     shareMessage: "عاجل: مطلوب دم من فصيلة {bloodType} في {hospital}، {wilaya} ({units} وحدات). كل متبرع يهم — الرجاء المشاركة.",
     shareLabel: "مشاركة",
     drivesTitle: "حملات التبرع", drivesSub: "فعاليات تبرع مجتمعية بالقرب منك",
+    drivesEmptyTitle: "لا توجد حملات تبرع مبرمجة حاليًا",
+    drivesEmptyBody: "ستظهر هنا حملات التبرع القادمة فور الإعلان عنها. إلى ذلك الحين، تعرض شاشة «المستشفيات ومراكز الدم» أماكن التبرع القريبة منك.",
     urgencyHeader: "الحالة", printLabel: "طباعة", exportLabel: "تصدير CSV",
     downloadCertificate: "تحميل الشهادة",
     certTitle: "شهادة التبرع بالدم",
@@ -677,7 +683,7 @@ export const I18N: Record<Lang, Strings> = {
     certBody: "تبرّع بالدم بتاريخ {date} في {location} ({type}، {units} وحدة/وحدات).",
     certThanks: "شكراً لهذه المساهمة التي تنقذ الأرواح.",
     phoneLabel: "رقم الهاتف", wilayaField: "الولاية", lastDonationLabel: "تاريخ آخر تبرع",
-    communeField: "البلدية", communeAny: "كامل الولاية", backLabel: "رجوع", fewerUnits: "وحدة أقل", moreUnits: "وحدة أكثر",
+    communeField: "البلدية", communeAny: "كامل الولاية", communeChoose: "اختر بلديتك (اختياري)", backLabel: "رجوع", fewerUnits: "وحدة أقل", moreUnits: "وحدة أكثر",
     canHelpFilter: "يمكنني التبرع", canHelpNone: "لا يوجد طلب مفتوح هنا يحتاج فصيلتك حالياً. مشاركته تساعد رغم ذلك.", allCommunes: "كل البلديات",
     communeHint: "المتبرعون الأقرب يظهرون أولاً. لا يُخفى أحد في الولاية.",
     sameCommune: "نفس البلدية",
@@ -822,7 +828,7 @@ export const I18N: Record<Lang, Strings> = {
     invitesJoined: "انضم {count}", invitesCopy: "نسخ الرابط", invitesCopied: "تم النسخ",
     invitesRevoke: "سحب",
     invitesAdminOnly: "يمكن لمسؤول اللجنة وحده إنشاء روابط الدعوة.",
-    invitesRevoked: "مسحوب", invitesExpired: "منتهٍ", invitesFull: "بلغ الحد",
+    invitesRevoked: "مسحوب", invitesExpired: "منتهٍ", invitesFull: "بلغ الحد", invitesInactive: "لم تعد نشطة",
     invitesShowQr: "إظهار الرمز", invitesQrLead: "امسح للانضمام إلى قائمة متبرعي هذه اللجنة",
     invitesQrPrint: "اطبع هذه الصفحة",
     inviteJoinTitle: "{association} تدعوك",

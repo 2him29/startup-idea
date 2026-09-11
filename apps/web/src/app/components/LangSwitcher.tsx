@@ -18,7 +18,9 @@ export function LangSwitcher({ className = "" }: { className?: string }) {
             key={l}
             type="button"
             onClick={() => setLang(l)}
-            className="cursor-pointer border-none px-3 py-1.5 rounded-[10px] text-[12.5px] font-bold"
+            // A fixed height with the label centred in it: at its own line
+            // height, the Arabic letter sat lower than EN and FR.
+            className="cursor-pointer border-none h-[30px] min-w-[38px] px-3 rounded-[10px] text-[12.5px] font-bold leading-none flex items-center justify-center"
             style={{
               background: active ? "#0B2432" : "transparent",
               color: active ? "#fff" : "#5A6B75",

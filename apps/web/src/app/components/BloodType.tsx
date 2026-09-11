@@ -22,3 +22,17 @@ export function BloodType({ value, className, style }: { value: string; classNam
     </span>
   );
 }
+
+/**
+ * A translated sentence with blood groups in it.
+ *
+ * Filling "{bloodType}" with .replace() hands the paragraph a plain string, and
+ * the sign is reordered exactly as described above: "طلب +O حرج". Splitting the
+ * template on its placeholders lets each group go in as a BloodType instead.
+ */
+export function withBloodTypes(template: string, values: Record<string, string>): React.ReactNode[] {
+  return template.split(/(\{\w+\})/).map((part, i) => {
+    const key = part.slice(1, -1);
+    return part.startsWith("{") && key in values ? <BloodType key={i} value={values[key]} /> : part;
+  });
+}

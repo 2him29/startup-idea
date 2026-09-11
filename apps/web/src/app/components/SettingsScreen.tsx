@@ -193,7 +193,7 @@ export function SettingsScreen({ onBack, onNavigate }: SettingsScreenProps) {
                 setWilaya(e.target.value);
                 setDefaultWilaya(e.target.value || null);
               }}
-              className="w-full h-11 rounded-[13px] border-[1.5px] px-3.5 text-[14px] outline-none appearance-none"
+              className="w-full h-11 rounded-[13px] border-[1.5px] ps-3.5 pe-10 text-[14px] outline-none appearance-none"
               style={{ borderColor: "rgba(11,36,50,0.1)", background: "#F7FAFB", color: "#0B2432", textAlign: "start" }}
             >
               <option value="">{t.allWilayas}</option>
@@ -232,7 +232,9 @@ export function SettingsScreen({ onBack, onNavigate }: SettingsScreenProps) {
       <SectionTitle>{t.aboutLabel}</SectionTitle>
       <div className="bg-white border rounded-2xl overflow-hidden px-[15px] py-[15px] flex items-center justify-between" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
         <span className="text-sm font-semibold" style={{ color: "#0B2432" }}>{t.versionLabel}</span>
-        <span className="text-sm" style={{ color: "#8496A0" }}>Qatra · قطرة 1.0.0</span>
+        {/* The Arabic name is isolated. Unisolated, "1.0.0" joined its
+            right-to-left run and printed in front of it. */}
+        <span className="text-sm" dir="ltr" style={{ color: "#8496A0" }}>Qatra · <bdi>قطرة</bdi> · 1.0.0</span>
       </div>
     </div>
   );

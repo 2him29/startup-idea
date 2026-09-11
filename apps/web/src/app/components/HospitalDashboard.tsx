@@ -4,6 +4,7 @@ import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, formatRelativ
 import { useI18n } from "../i18n/LangContext";
 import { SCREEN_BG } from "../background";
 import { RequestCardSkeleton } from "./Skeletons";
+import { BloodType } from "./BloodType";
 import { NewRequestSheet } from "./NewRequestSheet";
 
 interface HospitalDashboardProps {
@@ -99,7 +100,7 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
                 </span>
               </div>
               <div className="mt-[13px] flex items-center gap-2.5">
-                <span className="font-extrabold text-[13px] px-[11px] py-1.5 rounded-[11px]" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
+                <BloodType value={r.bloodType} className="font-extrabold text-[13px] px-[11px] py-1.5 rounded-[11px]" style={{ color: "#E5484D", background: "#FFECEC" }} />
                 <span className="text-[12.5px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>
                 <span className="ms-auto text-[12.5px]" style={{ color: "#8496A0" }}>{formatRelativeTime(r.createdAt, lang)}</span>
               </div>

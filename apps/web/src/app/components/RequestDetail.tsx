@@ -14,7 +14,7 @@ import {
 } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { SCREEN_BG } from "../background";
-import { BloodType } from "./BloodType";
+import { BloodType, withBloodTypes } from "./BloodType";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { PledgeBar } from "./PledgeBar";
 
@@ -92,25 +92,35 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
         className="rounded-3xl p-[22px] text-white shadow-[0_22px_40px_-22px_rgba(229,72,77,0.8)]"
         style={{ background: "linear-gradient(135deg,#E5484D,#F4677E)" }}
       >
-        <div className="flex justify-between items-start">
-          <div>
+        <div className="flex justify-between items-start gap-3">
+          <div className="min-w-0">
             <div className="text-[12.5px] opacity-90 font-semibold">{t.requestedBy}</div>
             <div className="text-[21px] font-extrabold tracking-[-0.3px]">{request.hospital}</div>
           </div>
-          <span className="text-[11.5px] font-extrabold px-3 py-1.5 rounded-full bg-white/[0.22] border border-white/40">{urgencyLabel(request.urgency, t)}</span>
+          <span className="shrink-0 text-[11.5px] font-extrabold px-3 py-1.5 rounded-full bg-white/[0.22] border border-white/40">{urgencyLabel(request.urgency, t)}</span>
         </div>
-        <div className="mt-5 flex gap-2.5">
-          <div className="flex-1 bg-white/[0.16] rounded-2xl p-3 text-center">
-            <BloodType value={request.bloodType} className="text-[22px] font-extrabold" />
-            <div className="text-[11px] opacity-90">{t.bloodType}</div>
+        {/* One shape for all three tiles: the value is centred in whatever
+            height is left and the caption sits on the bottom edge. The wilaya
+            used to be nudged down with padding to look level with the other
+            two, and its caption still ended up higher than theirs. */}
+        <div className="mt-5 grid grid-cols-3 gap-2.5">
+          <div className="bg-white/[0.16] rounded-2xl px-2 py-3 flex flex-col items-center text-center">
+            <div className="flex-1 min-h-[30px] flex items-center justify-center">
+              <BloodType value={request.bloodType} className="text-[22px] font-extrabold leading-none" />
+            </div>
+            <div className="mt-1 text-[11px] opacity-90">{t.bloodType}</div>
           </div>
-          <div className="flex-1 bg-white/[0.16] rounded-2xl p-3 text-center">
-            <div className="text-[22px] font-extrabold">{request.units}</div>
-            <div className="text-[11px] opacity-90">{t.unitsNeeded}</div>
+          <div className="bg-white/[0.16] rounded-2xl px-2 py-3 flex flex-col items-center text-center">
+            <div className="flex-1 min-h-[30px] flex items-center justify-center">
+              <span className="text-[22px] font-extrabold leading-none">{request.units}</span>
+            </div>
+            <div className="mt-1 text-[11px] opacity-90">{t.unitsNeeded}</div>
           </div>
-          <div className="flex-1 bg-white/[0.16] rounded-2xl p-3 text-center">
-            <div className="text-[15px] font-extrabold leading-[1.3] pt-[5px]">{wilayaLabel(request.wilaya, lang)}</div>
-            <div className="text-[11px] opacity-90 mt-[3px]">{t.wilaya}</div>
+          <div className="bg-white/[0.16] rounded-2xl px-2 py-3 flex flex-col items-center text-center">
+            <div className="flex-1 min-h-[30px] flex items-center justify-center">
+              <span className="text-[15px] font-extrabold leading-tight" style={{ overflowWrap: "anywhere" }}>{wilayaLabel(request.wilaya, lang)}</span>
+            </div>
+            <div className="mt-1 text-[11px] opacity-90">{t.wilaya}</div>
           </div>
         </div>
       </div>
@@ -161,9 +171,10 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
               <div className="text-xs" style={{ color: "#8496A0" }}>
                 {match === "unknown"
                   ? t.matchUnknown
-                  : (match === "exact" ? t.matchExact : match === "compatible" ? t.matchCompatible : t.matchIncompatible)
-                      .replace("{donor}", donorProfile?.bloodType ?? "")
-                      .replace("{recipient}", request.bloodType)}
+                  : withBloodTypes(
+                      match === "exact" ? t.matchExact : match === "compatible" ? t.matchCompatible : t.matchIncompatible,
+                      { donor: donorProfile?.bloodType ?? "", recipient: request.bloodType }
+                    )}
               </div>
             </div>
           </div>

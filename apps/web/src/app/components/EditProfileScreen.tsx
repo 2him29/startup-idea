@@ -142,7 +142,7 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
               <select
                 value={wilaya}
                 onChange={(e) => { setWilaya(e.target.value); setCommune(""); }}
-                className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none appearance-none"
+                className="w-full h-12 rounded-[13px] border-[1.5px] ps-3.5 pe-10 text-[15px] outline-none appearance-none"
                 style={{ ...inputStyle, textAlign: "start" }}
               >
                 <option value="">—</option>
@@ -172,10 +172,12 @@ export function EditProfileScreen({ onBack, userType, profile, onSaved }: EditPr
                   <select
                     value={commune}
                     onChange={(e) => setCommune(e.target.value)}
-                    className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none appearance-none"
+                    className="w-full h-12 rounded-[13px] border-[1.5px] ps-3.5 pe-10 text-[15px] outline-none appearance-none"
                     style={{ ...inputStyle, textAlign: "start" }}
                   >
-                    <option value="">—</option>
+                    {/* A bare dash read as a broken field rather than an
+                        empty one. It says what to do, and that it can wait. */}
+                    <option value="">{t.communeChoose}</option>
                     {communeOptions.map((c) => (
                       <option key={c.fr} value={c.fr}>{lang === "ar" ? c.ar : c.fr}</option>
                     ))}

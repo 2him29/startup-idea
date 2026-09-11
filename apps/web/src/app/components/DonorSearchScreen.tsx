@@ -202,19 +202,21 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
         </div>
       </div>
 
-      <div className="flex gap-2 mb-3 flex-wrap">
+      {/* One row that scrolls sideways on a phone. Wrapped, the nine chips
+          broke six over three and read as two unrelated groups. */}
+      <div className="no-scrollbar -mx-5 px-5 flex gap-2 mb-3 overflow-x-auto md:mx-0 md:px-0 md:flex-wrap md:overflow-visible">
         {[null, ...bloodTypes].map((b) => {
           const isActive = bloodType === b;
           return (
             <button
               key={b ?? "all"}
               onClick={() => setBloodType(b)}
-              className="cursor-pointer text-[12.5px] font-bold px-3 py-1.5 rounded-full border"
+              className="cursor-pointer shrink-0 whitespace-nowrap text-[12.5px] font-bold px-3 py-1.5 rounded-full border"
               style={isActive
                 ? { background: "#E5484D", color: "#fff", borderColor: "#E5484D" }
                 : { background: "#fff", color: "#5A6B75", borderColor: "rgba(11,36,50,0.1)" }}
             >
-              {b ?? t.allTypesLabel}
+              {b ? <BloodType value={b} /> : t.allTypesLabel}
             </button>
           );
         })}
@@ -234,7 +236,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
             <select
               value={commune ?? ""}
               onChange={(e) => setCommune(e.target.value || null)}
-              className="w-full h-11 rounded-[13px] border px-3.5 text-[13.5px] outline-none appearance-none bg-white"
+              className="w-full h-11 rounded-[13px] border ps-3.5 pe-10 text-[13.5px] outline-none appearance-none bg-white"
               style={{ borderColor: "rgba(11,36,50,0.1)", color: "#0B2432", textAlign: "start" }}
             >
               <option value="">{t.communeAny}</option>
@@ -289,7 +291,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
           <div
             key={donor.id}
             data-testid="donor-row"
-            className="border rounded-[20px] p-4 bg-white shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
+            className="border rounded-[20px] p-4 bg-white shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)] flex flex-col"
             style={{
               borderColor: "rgba(11,36,50,0.06)",
               animation: "waRise .4s ease both",
@@ -338,12 +340,15 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
               </span>
             </div>
 
+            {/* On the card's bottom edge, so two cards side by side end level
+                however much their headers say. */}
+            <div className="mt-auto pt-3.5">
             {donor.sharesPhone && donor.phone ? (
               revealed[donor.id] ? (
                 <>
                   <a
                     href={`tel:${revealed[donor.id]}`}
-                    className="mt-3.5 w-full h-[46px] rounded-2xl flex items-center justify-center gap-2 text-[14px] font-extrabold no-underline"
+                    className="w-full h-[46px] rounded-2xl flex items-center justify-center gap-2 text-[14px] font-extrabold no-underline"
                     style={{ background: "linear-gradient(135deg,#0E8BA8,#23A6C4)", color: "#fff" }}
                   >
                     <Phone className="w-[17px] h-[17px]" />
@@ -371,7 +376,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
                   onClick={() => handleReveal(donor.id)}
                   disabled={revealing === donor.id}
                   data-testid="reveal-number"
-                  className="cursor-pointer disabled:opacity-60 mt-3.5 w-full h-[46px] rounded-2xl flex items-center justify-center gap-2 text-[14px] font-extrabold border-[1.5px] bg-white"
+                  className="cursor-pointer disabled:opacity-60 w-full h-[46px] rounded-2xl flex items-center justify-center gap-2 text-[14px] font-extrabold border-[1.5px] bg-white"
                   style={{ borderColor: "rgba(14,139,168,0.35)", color: "#0E8BA8" }}
                 >
                   <Eye className="w-[17px] h-[17px]" />
@@ -381,7 +386,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
               )
             ) : (
               <div
-                className="mt-3.5 flex items-start gap-2.5 rounded-2xl px-3.5 py-3"
+                className="flex items-start gap-2.5 rounded-2xl px-3.5 py-3"
                 style={{ background: "#F7FAFB", border: "1px solid rgba(11,36,50,0.06)" }}
               >
                 <PhoneOff className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#8496A0" }} />
@@ -391,6 +396,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
                 </div>
               </div>
             )}
+            </div>
           </div>
         ))}
       </div>

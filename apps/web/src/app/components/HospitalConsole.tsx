@@ -6,6 +6,7 @@ import { useBloodRequests, urgencyStyle, urgencyLabel, unitsLabel, RESERVE, RESE
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { useI18n } from "../i18n/LangContext";
 import { RequestRowSkeleton } from "./Skeletons";
+import { BloodType } from "./BloodType";
 import { NotificationsBell } from "./NotificationsBell";
 import { NewRequestSheet } from "./NewRequestSheet";
 import { useToast } from "./Toast";
@@ -310,7 +311,7 @@ function RequestsCard({
                 <div className="text-[13.5px] font-bold truncate" style={{ color: "#0B2432" }}>{r.patientId}</div>
                 <div className="text-xs truncate" style={{ color: "#8496A0" }}>{r.hospital}</div>
               </div>
-              <span className="font-extrabold text-[12.5px] px-2.5 py-1.5 rounded-[9px]" style={{ color: "#E5484D", background: "#FFECEC" }}>{r.bloodType}</span>
+              <BloodType value={r.bloodType} className="font-extrabold text-[12.5px] px-2.5 py-1.5 rounded-[9px]" style={{ color: "#E5484D", background: "#FFECEC" }} />
               <span className="text-xs font-semibold w-14 text-center" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>
               <span className="text-[11px] font-extrabold px-2.5 py-1.5 rounded-full whitespace-nowrap" style={{ background: badge.bg, color: badge.fg }}>
                 {urgencyLabel(r.urgency, t)}

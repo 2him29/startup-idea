@@ -3,6 +3,7 @@ import { useDonorProfile, computeEligibility, useResponses, formatRelativeTime, 
 import { useI18n } from "../i18n/LangContext";
 import { useCountUp } from "../useCountUp";
 import { SCREEN_BG } from "../background";
+import { BloodType } from "./BloodType";
 
 interface ProfileScreenProps {
   onBack: () => void;
@@ -56,11 +57,11 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
         >
           {initials(displayName)}
         </span>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="text-xl font-extrabold">{displayName}</div>
-          <div className="text-[13px] opacity-90">{displayEmail}</div>
+          <div className="text-[13px] opacity-90 truncate">{displayEmail}</div>
           <span className="inline-block mt-2 text-xs font-extrabold bg-white/[0.22] border border-white/35 px-[11px] py-1 rounded-full">
-            {t.bloodType} {donorProfile?.bloodType ?? "A+"}
+            {t.bloodType} <BloodType value={donorProfile?.bloodType ?? "A+"} />
           </span>
         </div>
       </div>
@@ -91,9 +92,13 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
           <div className="text-[12.5px] opacity-90">{t.nextEligible}</div>
           <div className="text-[17px] font-extrabold">{nextEligibleText}</div>
         </div>
-        <span className="text-xs font-extrabold bg-white/[0.22] px-[11px] py-1.5 rounded-full">
-          {eligibility.eligible ? t.ready : `${eligibility.daysLeft} ${t.daysLeft}`}
-        </span>
+        {/* Only while waiting. Once eligible, the line beside it already says
+            "Ready", and the pill said it a second time. */}
+        {!eligibility.eligible && (
+          <span className="shrink-0 text-xs font-extrabold bg-white/[0.22] px-[11px] py-1.5 rounded-full">
+            {eligibility.daysLeft} {t.daysLeft}
+          </span>
+        )}
       </div>
 
       <div className="mt-5 text-[15px] font-extrabold mb-[11px]" style={{ color: "#0B2432" }}>{t.history}</div>
@@ -123,25 +128,40 @@ export function ProfileScreen({ onBack, onNavigate, profile, onSignOut }: Profil
         )}
       </div>
 
-      <div className="mt-5 flex flex-col gap-0.5">
-        <button onClick={() => onNavigate("edit-profile")} className="cursor-pointer w-full text-start border-none bg-transparent py-[15px] px-1 flex items-center gap-[13px]">
-          <User className="w-5 h-5" style={{ color: "#E5484D" }} />
+      {/* In a card like every other group on the screen, with the icons in the
+          same tinted squares Settings uses. Loose on the background, these rows
+          started and ended at different edges from the cards above them. */}
+      <div className="mt-5 bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+        <button
+          onClick={() => onNavigate("edit-profile")}
+          className="cursor-pointer w-full border-none bg-transparent px-[15px] py-3.5 flex items-center gap-3"
+          style={{ borderBottom: "1px solid rgba(11,36,50,0.05)", textAlign: "start" }}
+        >
+          <span className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: "#FFECEC" }}>
+            <User className="w-[17px] h-[17px]" style={{ color: "#E5484D" }} />
+          </span>
           <span className="flex-1 text-[15px] font-semibold" style={{ color: "#0B2432" }}>{t.editProfile}</span>
-          <ChevronRight className="w-[18px] h-[18px]" style={{ color: "#C0CCD2", transform: chevronFlip }} />
-        </button>
-        <button onClick={() => onNavigate("settings")} className="cursor-pointer w-full text-start border-none bg-transparent py-[15px] px-1 flex items-center gap-[13px]">
-          <Settings className="w-5 h-5" style={{ color: "#E5484D" }} />
-          <span className="flex-1 text-[15px] font-semibold" style={{ color: "#0B2432" }}>{t.settingsLabel}</span>
-          <ChevronRight className="w-[18px] h-[18px]" style={{ color: "#C0CCD2", transform: chevronFlip }} />
+          <ChevronRight className="w-[18px] h-[18px] shrink-0" style={{ color: "#C0CCD2", transform: chevronFlip }} />
         </button>
         <button
-          onClick={onSignOut}
-          className="cursor-pointer w-full text-start border-none bg-transparent py-[15px] px-1 text-[15px] font-bold"
-          style={{ color: "#E5484D" }}
+          onClick={() => onNavigate("settings")}
+          className="cursor-pointer w-full border-none bg-transparent px-[15px] py-3.5 flex items-center gap-3"
+          style={{ textAlign: "start" }}
         >
-          {t.signOut}
+          <span className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: "#FFECEC" }}>
+            <Settings className="w-[17px] h-[17px]" style={{ color: "#E5484D" }} />
+          </span>
+          <span className="flex-1 text-[15px] font-semibold" style={{ color: "#0B2432" }}>{t.settingsLabel}</span>
+          <ChevronRight className="w-[18px] h-[18px] shrink-0" style={{ color: "#C0CCD2", transform: chevronFlip }} />
         </button>
       </div>
+      <button
+        onClick={onSignOut}
+        className="cursor-pointer mt-3 w-full h-[50px] rounded-2xl border bg-white text-[15px] font-bold"
+        style={{ color: "#E5484D", borderColor: "rgba(229,72,77,0.25)" }}
+      >
+        {t.signOut}
+      </button>
     </div>
   );
 }

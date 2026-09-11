@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Check, MapPin, Droplet } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, MapPin, Droplet } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -187,12 +187,12 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
       )}
 
       {communesPresent.length > 1 && (
-        <div className="mb-3">
+        <div className="relative mb-3">
           <select
             value={effectiveCommune ?? ""}
             onChange={(e) => setSelectedCommune(e.target.value || null)}
             aria-label={t.communeField}
-            className="w-full h-11 rounded-[13px] border px-3.5 text-[13.5px] outline-none appearance-none bg-white"
+            className="w-full h-11 rounded-[13px] border ps-3.5 pe-10 text-[13.5px] outline-none appearance-none bg-white"
             style={{ borderColor: "rgba(11,36,50,0.1)", color: "#0B2432", textAlign: "start" }}
           >
             <option value="">{t.allCommunes}</option>
@@ -200,6 +200,12 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
               <option key={c} value={c}>{communes ? communes.communeLabel(c, lang) : c}</option>
             ))}
           </select>
+          {/* appearance-none removes the browser's own arrow and nothing had
+              replaced it, so this read as a text box rather than a choice. */}
+          <ChevronDown
+            className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ insetInlineEnd: "14px", color: "#8496A0" }}
+          />
         </div>
       )}
 
@@ -321,18 +327,21 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
               key={r.id}
               data-testid="request-card"
               onClick={() => onOpenDetail(r)}
-              className="cursor-pointer text-left w-full border rounded-[20px] p-4 bg-white shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)]"
+              // A column, with the footer on the bottom edge. A button centres
+              // its content vertically, so in a row of two the shorter card sat
+              // lower than its neighbour and the footers did not line up.
+              className="cursor-pointer text-left w-full border rounded-[20px] p-4 bg-white shadow-[0_10px_22px_-18px_rgba(11,36,50,0.55)] flex flex-col"
               style={{ borderColor: "rgba(11,36,50,0.06)", animation: "waRise .4s ease both", textAlign: "start" }}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-[13px]">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-[13px] min-w-0">
                   <span
                     className="w-12 h-12 rounded-[15px] flex items-center justify-center shrink-0 shadow-[0_8px_16px_-8px_rgba(229,72,77,0.7)]"
                     style={{ background: "linear-gradient(135deg,#E5484D,#F4677E)" }}
                   >
                     <Droplet className="w-6 h-6" fill="white" stroke="none" />
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-[15.5px] font-bold" style={{ color: "#0B2432" }}>{r.hospital}</div>
                     {/* "CHU Frantz Fanon – Blida" followed by "Blida" is a
                         stutter, so the second one goes — and the pin with it,
@@ -366,11 +375,11 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                     ) : null}
                   </div>
                 </div>
-                <span className="text-[11.5px] font-extrabold px-[11px] py-1.5 rounded-full" style={{ background: badge.bg, color: badge.fg }}>
+                <span className="shrink-0 text-[11.5px] font-extrabold px-[11px] py-1.5 rounded-full" style={{ background: badge.bg, color: badge.fg }}>
                   {urgencyLabel(r.urgency, t)}
                 </span>
               </div>
-              <div className="mt-3.5 flex items-center gap-2.5">
+              <div className="mt-auto pt-3.5 flex items-center gap-2.5">
                 <BloodType value={r.bloodType} className="font-extrabold text-sm px-3 py-1.5 rounded-xl" style={{ color: "#E5484D", background: "#FFECEC" }} />
                 <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>
                 <span className="ms-auto text-[13px] font-extrabold" style={{ color: accent }}>{t.view} →</span>

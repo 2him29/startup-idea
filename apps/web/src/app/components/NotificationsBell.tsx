@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Bell, Droplet, CheckCircle2 } from "lucide-react";
 import { urgencyStyle, urgencyLabel, type BloodRequest, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
+import { BloodType } from "./BloodType";
 
 interface NotificationsBellProps {
   requests: BloodRequest[];
@@ -78,7 +79,7 @@ export function NotificationsBell({ requests, onOpen, size = 44 }: Notifications
                   </span>
                   <span className="flex-1 min-w-0">
                     <span className="block text-[13px] font-bold truncate" style={{ color: "#0B2432" }}>
-                      {r.bloodType} · {r.hospital}
+                      <BloodType value={r.bloodType} /> · {r.hospital}
                     </span>
                     <span className="block text-[11.5px]" style={{ color: "#8496A0" }}>{formatRelativeTime(r.createdAt, lang)}</span>
                   </span>

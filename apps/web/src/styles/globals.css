@@ -316,6 +316,14 @@ html[lang="ar"] body {
   to { opacity: 1; }
 }
 
+/* A row of chips that scrolls sideways under a finger without drawing a bar. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Shimmer placeholder shown while live data is loading. */
 @keyframes waShimmer {
   from { background-position: 200% 0; }

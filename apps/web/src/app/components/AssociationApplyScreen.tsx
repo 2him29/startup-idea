@@ -114,7 +114,7 @@ export function AssociationApplyScreen({ onBack, onApplied }: AssociationApplySc
               value={wilaya}
               onChange={(e) => setWilaya(e.target.value)}
               required
-              className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none appearance-none"
+              className="w-full h-12 rounded-[13px] border-[1.5px] ps-3.5 pe-10 text-[15px] outline-none appearance-none"
               style={{ ...inputStyle, textAlign: "start" }}
             >
               {WILAYAS.map((w) => (

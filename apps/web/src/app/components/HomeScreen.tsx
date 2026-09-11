@@ -4,6 +4,7 @@ import { RESERVE, RESERVE_STATUS, isPatientModelEnabled, useBloodRequests, useDo
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LiveStats } from "./LiveStats";
 import { LangSwitcher } from "./LangSwitcher";
+import { BloodType, withBloodTypes } from "./BloodType";
 import { NotificationsBell } from "./NotificationsBell";
 import { useI18n } from "../i18n/LangContext";
 import { getBoolPref, isRamadanNow, getDefaultWilaya } from "../prefs";
@@ -93,7 +94,9 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
         className="flex flex-col min-h-screen p-6 pb-8 md:p-12"
         style={{ background: SPLASH_BG }}
       >
-        <div className="flex justify-center md:justify-end">
+        {/* At the end on phones too. Centred, it sat directly on top of the
+            logo with no space between them. */}
+        <div className="flex justify-end mb-4 md:mb-0">
           <LangSwitcher />
         </div>
         <div className="flex-1 flex flex-col items-center justify-center text-center">
@@ -207,8 +210,10 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
   return (
     <div className="min-h-screen px-5 pt-2 pb-[130px]" style={{ background: SCREEN_BG }}>
       {/* header */}
-      <div className="flex items-center justify-between mb-[18px]">
-        <div className="flex items-center gap-2.5">
+      {/* From md up the sidebar already carries the logo, and a second one at
+          the top of the page read as a stutter. The bell stays, at the end. */}
+      <div className="flex items-center justify-between md:justify-end mb-[18px]">
+        <div className="flex items-center gap-2.5 md:hidden">
           <QatraMark size={34} radius={11} />
           <QatraWordmark size={24} />
         </div>
@@ -236,7 +241,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl font-extrabold leading-none">{donorProfile?.bloodType ?? "A+"}</span>
+                  <BloodType value={donorProfile?.bloodType ?? "A+"} className="text-2xl font-extrabold leading-none" />
                   <span className="text-[10px] opacity-90 mt-0.5">
                     {eligibility.eligible ? t.eligible : `${eligibility.daysLeft}/90`}
                   </span>
@@ -281,52 +286,64 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
 
           {/* SOS broadcast */}
           {urgentRequest && (
+            /*
+             * Two rows on a phone, one from md up. In a single row the share
+             * button and the Respond pill left the text a third of the card:
+             * the title broke over two lines and the hospital line was cut
+             * off inside the wilaya's name.
+             */
             <div
               onClick={() => onNavigate("matching")}
-              className="wa-sos cursor-pointer w-full mt-3.5 rounded-[20px] px-[18px] py-4 text-white flex items-center gap-[14px]"
+              className="wa-sos cursor-pointer w-full mt-3.5 rounded-[20px] px-[18px] py-4 text-white flex flex-col gap-3 md:flex-row md:items-center md:gap-[14px]"
               style={{ textAlign: "start" }}
             >
-              <span className="w-[42px] h-[42px] rounded-xl bg-[#E5484D] flex items-center justify-center shrink-0">
-                <Droplet className="w-[22px] h-[22px]" fill="white" stroke="none" />
-              </span>
-              <span className="flex-1 min-w-0">
-                <span className="block text-[11px] font-extrabold tracking-[1px]" style={{ color: "#F4677E" }}>
-                  {t.sosLabel}
-                  {isFallback && <span className="ms-1.5 opacity-80">· {t.sampleData}</span>}
+              <span className="flex items-center gap-[14px] flex-1 min-w-0">
+                <span className="w-[42px] h-[42px] rounded-xl bg-[#E5484D] flex items-center justify-center shrink-0">
+                  <Droplet className="w-[22px] h-[22px]" fill="white" stroke="none" />
                 </span>
-                <span className="block text-[15px] font-bold mt-px">{t.sosTitle.replace("{bloodType}", urgentRequest.bloodType)}</span>
-                <span className="block text-xs opacity-85 mt-px truncate">
-                  {urgentRequest.hospital} · {nameStatesWilaya(urgentRequest.hospital, urgentRequest.wilaya) ? "" : `${wilayaLabel(urgentRequest.wilaya, lang)} · `}{urgentRequest.units} {t.units}
+                <span className="flex-1 min-w-0">
+                  <span className="block text-[11px] font-extrabold tracking-[1px]" style={{ color: "#F4677E" }}>
+                    {t.sosLabel}
+                    {isFallback && <span className="ms-1.5 opacity-80">· {t.sampleData}</span>}
+                  </span>
+                  <span className="block text-[15px] font-bold mt-px">{withBloodTypes(t.sosTitle, { bloodType: urgentRequest.bloodType })}</span>
+                  {/* The hospital is isolated, so in Arabic "3 وحدات" stays
+                      together instead of its number joining the Latin name. */}
+                  <span className="block text-xs opacity-85 mt-px truncate">
+                    <bdi>{urgentRequest.hospital}</bdi> · {nameStatesWilaya(urgentRequest.hospital, urgentRequest.wilaya) ? "" : `${wilayaLabel(urgentRequest.wilaya, lang)} · `}{urgentRequest.units} {t.units}
+                  </span>
                 </span>
               </span>
-              {/* No sharing a placeholder.
-                  The label above keeps a sample request honest inside the app,
-                  but a share leaves it: the message names a hospital, a blood
-                  type and — via verifiedByName — an association that vouched,
-                  and it arrives in WhatsApp with none of this screen's context.
-                  A fabricated appeal forwarded under a real organisation's name
-                  is not something a label can catch up with. */}
-              {!isFallback && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    shareToWhatsApp(
-                      formatShareMessage(t, {
-                        hospital: urgentRequest.hospital,
-                        bloodType: urgentRequest.bloodType,
-                        wilaya: wilayaLabel(urgentRequest.wilaya, lang),
-                        units: urgentRequest.units,
-                        verifiedByName: urgentRequest.verifiedByName,
-                      })
-                    );
-                  }}
-                  aria-label={t.shareLabel}
-                  className="cursor-pointer w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0 border-none"
-                >
-                  <Share2 className="w-4 h-4 text-white" strokeWidth={2.2} />
-                </button>
-              )}
-              <span className="text-xs font-extrabold bg-[#E5484D] px-[11px] py-1.5 rounded-full shrink-0">{t.respond}</span>
+              <span className="flex items-center justify-end gap-2 shrink-0">
+                {/* No sharing a placeholder.
+                    The label above keeps a sample request honest inside the app,
+                    but a share leaves it: the message names a hospital, a blood
+                    type and — via verifiedByName — an association that vouched,
+                    and it arrives in WhatsApp with none of this screen's context.
+                    A fabricated appeal forwarded under a real organisation's name
+                    is not something a label can catch up with. */}
+                {!isFallback && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      shareToWhatsApp(
+                        formatShareMessage(t, {
+                          hospital: urgentRequest.hospital,
+                          bloodType: urgentRequest.bloodType,
+                          wilaya: wilayaLabel(urgentRequest.wilaya, lang),
+                          units: urgentRequest.units,
+                          verifiedByName: urgentRequest.verifiedByName,
+                        })
+                      );
+                    }}
+                    aria-label={t.shareLabel}
+                    className="cursor-pointer w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0 border-none"
+                  >
+                    <Share2 className="w-4 h-4 text-white" strokeWidth={2.2} />
+                  </button>
+                )}
+                <span className="text-xs font-extrabold bg-[#E5484D] px-[11px] py-1.5 rounded-full shrink-0">{t.respond}</span>
+              </span>
             </div>
           )}
 
@@ -339,7 +356,9 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
             <div className="flex flex-col gap-[13px]">
               {RESERVE.map((b) => (
                 <div key={b.type} className="flex items-center gap-3">
-                  <span className="w-[42px] text-sm font-extrabold" style={{ color: "#0B2432" }}>{b.type}</span>
+                  <span className="w-[42px] shrink-0 text-sm font-extrabold" style={{ color: "#0B2432", textAlign: "start" }}>
+                    <BloodType value={b.type} />
+                  </span>
                   <div className="flex-1 h-[9px] rounded-md overflow-hidden" style={{ background: "#EEF2F4" }}>
                     <div className="h-full rounded-md" style={{ width: b.width, background: b.color }} />
                   </div>

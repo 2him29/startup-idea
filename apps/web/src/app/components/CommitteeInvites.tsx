@@ -159,6 +159,96 @@ export function CommitteeInvites({ onBack }: CommitteeInvitesProps) {
     );
   };
 
+  /*
+   * Live links first, because they are the ones still being handed out. The
+   * rest stay on the list as a record, without the buttons that would send
+   * them anywhere: a withdrawn or full link reaches a donor only as an error.
+   * They used to come first, so on a committee with a history the links still
+   * in use were at the bottom of a long faded list.
+   */
+  const live = invites.filter((invite) => inviteIsLive(invite));
+  const ended = invites.filter((invite) => !inviteIsLive(invite));
+
+  const renderInvite = (invite: AssociationInvite) => (
+    <div
+      key={invite.id}
+      data-testid="invite-row"
+      className="bg-white border rounded-[20px] p-[18px]"
+      style={{ borderColor: "rgba(11,36,50,0.06)", opacity: inviteIsLive(invite) ? 1 : 0.65 }}
+    >
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* The code is the thing a committee reads out loud, so it gets
+            monospace and letter spacing rather than the body font. */}
+        <span
+          className="text-[17px] font-extrabold tracking-[2px]"
+          style={{ color: "#0B2432", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
+        >
+          {invite.code}
+        </span>
+        {statusChip(invite)}
+      </div>
+      {invite.label && (
+        <div className="text-[12.5px] mt-0.5" style={{ color: "#8496A0", textAlign: "start" }}>{invite.label}</div>
+      )}
+      <div className="flex items-center gap-1.5 mt-2 text-[12.5px]" style={{ color: "#5A6B75" }}>
+        <Users className="w-[14px] h-[14px]" />
+        {t.invitesJoined.replace("{count}", String(invite.redeemed))}
+        {invite.maxUses != null && ` / ${invite.maxUses}`}
+      </div>
+
+      {inviteIsLive(invite) && (
+        <div className="flex items-center gap-2 mt-3">
+          <button
+            onClick={() => handleCopy(invite)}
+            data-testid="copy-invite"
+            className="cursor-pointer flex-1 h-[42px] rounded-xl border bg-white text-[13px] font-bold flex items-center justify-center gap-1.5"
+            style={{ borderColor: "rgba(11,36,50,0.12)", color: "#0B2432" }}
+          >
+            {copied === invite.id
+              ? <Check className="w-4 h-4" style={{ color: "#12B76A" }} strokeWidth={3} />
+              : <Copy className="w-4 h-4" />}
+            {copied === invite.id ? t.invitesCopied : t.invitesCopy}
+          </button>
+          <button
+            onClick={() => setShowing(invite)}
+            data-testid="show-invite-qr"
+            aria-label={t.invitesShowQr}
+            className="cursor-pointer w-[42px] h-[42px] rounded-xl border bg-white flex items-center justify-center shrink-0"
+            style={{ borderColor: "rgba(11,36,50,0.12)" }}
+          >
+            <QrCode className="w-4 h-4" style={{ color: "#0B2432" }} />
+          </button>
+          {/* WhatsApp, because that is how a committee already reaches its
+              donors — the same reason the request share button exists. */}
+          <button
+            onClick={() =>
+              shareToWhatsApp(
+                `${t.inviteJoinTitle.replace("{association}", association.name)}\n${inviteUrl(invite.code)}`
+              )
+            }
+            aria-label={t.shareLabel}
+            className="cursor-pointer w-[42px] h-[42px] rounded-xl border bg-white flex items-center justify-center shrink-0"
+            style={{ borderColor: "rgba(11,36,50,0.12)" }}
+          >
+            <Share2 className="w-4 h-4" style={{ color: "#0B2432" }} />
+          </button>
+          {isAdmin && (
+            <button
+              onClick={() => handleRevoke(invite)}
+              disabled={busy}
+              data-testid="revoke-invite"
+              className="cursor-pointer disabled:opacity-60 w-[42px] h-[42px] rounded-xl border bg-white flex items-center justify-center shrink-0"
+              style={{ borderColor: "rgba(229,72,77,0.35)" }}
+              aria-label={t.invitesRevoke}
+            >
+              <X className="w-4 h-4" style={{ color: "#E5484D" }} />
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   return shell(
     <div className="flex flex-col gap-3">
       {/* Said before the button, not after. See the note at the top of the file. */}
@@ -220,82 +310,18 @@ export function CommitteeInvites({ onBack }: CommitteeInvitesProps) {
           {t.invitesNone}
         </div>
       ) : (
-        invites.map((invite) => (
-          <div
-            key={invite.id}
-            data-testid="invite-row"
-            className="bg-white border rounded-[20px] p-[18px]"
-            style={{ borderColor: "rgba(11,36,50,0.06)", opacity: inviteIsLive(invite) ? 1 : 0.65 }}
-          >
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* The code is the thing a committee reads out loud, so it gets
-                  monospace and letter spacing rather than the body font. */}
-              <span
-                className="text-[17px] font-extrabold tracking-[2px]"
-                style={{ color: "#0B2432", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
-              >
-                {invite.code}
-              </span>
-              {statusChip(invite)}
+        <>
+          {live.map(renderInvite)}
+          {ended.length > 0 && (
+            <div
+              className="mt-2 text-[12px] font-extrabold uppercase tracking-[0.4px]"
+              style={{ color: "#8496A0", textAlign: "start" }}
+            >
+              {t.invitesInactive} · {ended.length}
             </div>
-            {invite.label && (
-              <div className="text-[12.5px] mt-0.5" style={{ color: "#8496A0", textAlign: "start" }}>{invite.label}</div>
-            )}
-            <div className="flex items-center gap-1.5 mt-2 text-[12.5px]" style={{ color: "#5A6B75" }}>
-              <Users className="w-[14px] h-[14px]" />
-              {t.invitesJoined.replace("{count}", String(invite.redeemed))}
-              {invite.maxUses != null && ` / ${invite.maxUses}`}
-            </div>
-
-            <div className="flex items-center gap-2 mt-3">
-              <button
-                onClick={() => handleCopy(invite)}
-                data-testid="copy-invite"
-                className="cursor-pointer flex-1 h-[42px] rounded-xl border bg-white text-[13px] font-bold flex items-center justify-center gap-1.5"
-                style={{ borderColor: "rgba(11,36,50,0.12)", color: "#0B2432" }}
-              >
-                {copied === invite.id
-                  ? <Check className="w-4 h-4" style={{ color: "#12B76A" }} strokeWidth={3} />
-                  : <Copy className="w-4 h-4" />}
-                {copied === invite.id ? t.invitesCopied : t.invitesCopy}
-              </button>
-              {/* WhatsApp, because that is how a committee already reaches its
-                  donors — the same reason the request share button exists. */}
-              <button
-                onClick={() => setShowing(invite)}
-                data-testid="show-invite-qr"
-                aria-label={t.invitesShowQr}
-                className="cursor-pointer w-[42px] h-[42px] rounded-xl border bg-white flex items-center justify-center shrink-0"
-                style={{ borderColor: "rgba(11,36,50,0.12)" }}
-              >
-                <QrCode className="w-4 h-4" style={{ color: "#0B2432" }} />
-              </button>
-              <button
-                onClick={() =>
-                  shareToWhatsApp(
-                    `${t.inviteJoinTitle.replace("{association}", association.name)}\n${inviteUrl(invite.code)}`
-                  )
-                }
-                className="cursor-pointer w-[42px] h-[42px] rounded-xl border bg-white flex items-center justify-center shrink-0"
-                style={{ borderColor: "rgba(11,36,50,0.12)" }}
-              >
-                <Share2 className="w-4 h-4" style={{ color: "#0B2432" }} />
-              </button>
-              {isAdmin && inviteIsLive(invite) && (
-                <button
-                  onClick={() => handleRevoke(invite)}
-                  disabled={busy}
-                  data-testid="revoke-invite"
-                  className="cursor-pointer disabled:opacity-60 w-[42px] h-[42px] rounded-xl border bg-white flex items-center justify-center shrink-0"
-                  style={{ borderColor: "rgba(229,72,77,0.35)" }}
-                  aria-label={t.invitesRevoke}
-                >
-                  <X className="w-4 h-4" style={{ color: "#E5484D" }} />
-                </button>
-              )}
-            </div>
-          </div>
-        ))
+          )}
+          {ended.map(renderInvite)}
+        </>
       )}
       {showing && (
         <InviteQr

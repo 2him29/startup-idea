@@ -252,12 +252,12 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
           <div className="pt-4" style={{ borderTop: "1px solid rgba(11,36,50,0.06)" }} />
           {block(2, t.blockWhere)}
           <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.wilayaField}</label>
-          <div className="relative mb-4">
+          <div className="relative">
             <select
               value={wilaya}
               onChange={(e) => { setWilaya(e.target.value); setCommune(""); }}
               required
-              className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none appearance-none"
+              className="w-full h-12 rounded-[13px] border-[1.5px] ps-3.5 pe-10 text-[15px] outline-none appearance-none"
               style={{ ...inputStyle, textAlign: "start" }}
             >
               {WILAYAS.map((w) => (
@@ -268,6 +268,27 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
             </select>
             <ChevronDown className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none" style={{ insetInlineEnd: "14px", color: "#8496A0" }} />
           </div>
+          {/*
+            Said before the hospital field, not after it, and directly under
+            the wilaya it is about.
+
+            Whether suggestions appear at all is a property of the wilaya, and
+            a family in Tissemsilt should learn that here — while choosing —
+            rather than by typing into a field that stays silent and wondering
+            what they got wrong. The count is derived, not written down, so it
+            stops being true the day a hospital is added.
+
+            It used to come after the commune picker, still pulled up by a
+            negative margin meant for the wilaya select, and its first line
+            slid underneath the commune.
+          */}
+          <div className="mt-1.5 mb-4 text-[11.5px]" style={{ color: "#8496A0", textAlign: "start" }}>
+            {suggestions.length > 0
+              ? t.coverageMapped
+                  .replace("{wilaya}", wilayaLabel(wilaya, lang))
+                  .replace("{count}", String(coveredWilayas))
+              : t.coverageUnmapped.replace("{wilaya}", wilayaLabel(wilaya, lang))}
+          </div>
 
           {/*
             Optional, and said so. A family typing this at 2am must never be
@@ -275,14 +296,14 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
           */}
           {communeOptions.length > 0 && (
             <>
-              <label className="block text-[12.5px] font-bold mb-1.5 mt-3.5" style={{ color: "#5A6B75", textAlign: "start" }}>
+              <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>
                 {t.communeField}
               </label>
-              <div className="relative">
+              <div className="relative mb-4">
                 <select
                   value={commune}
                   onChange={(e) => setCommune(e.target.value)}
-                  className="w-full h-12 rounded-[13px] border-[1.5px] px-3.5 text-[15px] outline-none appearance-none"
+                  className="w-full h-12 rounded-[13px] border-[1.5px] ps-3.5 pe-10 text-[15px] outline-none appearance-none"
                   style={{ ...inputStyle, textAlign: "start" }}
                 >
                   <option value="">{t.communeAny}</option>
@@ -294,22 +315,6 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
               </div>
             </>
           )}
-          {/*
-            Said before the hospital field, not after it.
-
-            Whether suggestions appear at all is a property of the wilaya, and
-            a family in Tissemsilt should learn that here — while choosing —
-            rather than by typing into a field that stays silent and wondering
-            what they got wrong. The count is derived, not written down, so it
-            stops being true the day a hospital is added.
-          */}
-          <div className="-mt-3 mb-4 text-[11.5px]" style={{ color: "#8496A0", textAlign: "start" }}>
-            {suggestions.length > 0
-              ? t.coverageMapped
-                  .replace("{wilaya}", wilayaLabel(wilaya, lang))
-                  .replace("{count}", String(coveredWilayas))
-              : t.coverageUnmapped.replace("{wilaya}", wilayaLabel(wilaya, lang))}
-          </div>
 
           <label className="block text-[12.5px] font-bold mb-1.5" style={{ color: "#5A6B75", textAlign: "start" }}>{t.hospitalNameOptional}</label>
           {/*
@@ -396,7 +401,8 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
                     textAlign: "start",
                   }}
                 >
-                  <span className="text-[12.5px] font-extrabold">{urgencyLabel(u, t)}</span>
+                  {/* One width on every row, so the four explanations start in a column. */}
+                  <span className="text-[12.5px] font-extrabold min-w-[64px] shrink-0">{urgencyLabel(u, t)}</span>
                   {/* What each level means in plain words. "High" means nothing
                       on its own to someone who has never used the app. */}
                   <span className="text-[11.5px]" style={{ opacity: active ? 0.85 : 0.6 }}>{urgencyHint[u]}</span>

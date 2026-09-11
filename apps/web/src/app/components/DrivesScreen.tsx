@@ -37,6 +37,17 @@ export function DrivesScreen({ onBack }: DrivesScreenProps) {
         </div>
       </div>
 
+      {/* Nothing listed is an answer, and it has to look like one. A header
+          over a blank page reads as a screen that failed to load. */}
+      {drives.length === 0 ? (
+        <div className="bg-white border rounded-[20px] p-6 text-center" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
+          <span className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center" style={{ background: "#E4F6FB" }}>
+            <Calendar className="w-7 h-7" style={{ color: "#0E8BA8" }} />
+          </span>
+          <div className="mt-4 text-[15px] font-extrabold" style={{ color: "#0B2432" }}>{t.drivesEmptyTitle}</div>
+          <div className="mt-1.5 text-[13px] leading-relaxed max-w-[340px] mx-auto" style={{ color: "#6B7C88" }}>{t.drivesEmptyBody}</div>
+        </div>
+      ) : (
       <div className="flex flex-col gap-3">
         {drives.map((d) => (
           <div
@@ -73,6 +84,7 @@ export function DrivesScreen({ onBack }: DrivesScreenProps) {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }
