@@ -32,7 +32,7 @@ const PURPLE_GRADIENT = "linear-gradient(135deg,#6B4FC0,#8A6BD6)";
 export function CompensateScreen({ onBack, onComplete }: CompensateScreenProps) {
   const { t, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
-  const { hospitals } = useHospitals();
+  const { hospitals, isFallback: hospitalsPending } = useHospitals();
 
   const [patientName, setPatientName] = useState("");
   const [patientFile, setPatientFile] = useState("");
@@ -44,7 +44,10 @@ export function CompensateScreen({ onBack, onComplete }: CompensateScreenProps) 
   // Default the select to the first hospital once the list loads.
   const selectedHospitalId = hospitalId || hospitals[0]?.id || "";
   const selectedHospital = hospitals.find((h) => h.id === selectedHospitalId);
-  const canSubmit = patientName.trim() !== "" && patientFile.trim() !== "" && selectedHospitalId !== "";
+  // Not before the live list is in. The sample hospitals shown until then have
+  // ids that are not database rows ("h-blida"), so a pledge sent against one
+  // fails, and a choice made from that list would outlive the list itself.
+  const canSubmit = !hospitalsPending && patientName.trim() !== "" && patientFile.trim() !== "" && selectedHospitalId !== "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,9 +191,10 @@ export function CompensateScreen({ onBack, onComplete }: CompensateScreenProps) 
           <select
             value={selectedHospitalId}
             onChange={(e) => setHospitalId(e.target.value)}
+            disabled={hospitalsPending}
             // pe-10 keeps a long hospital name clear of the arrow; with the
             // same padding on both sides, the name ran into it.
-            className="w-full h-12 rounded-[13px] border-[1.5px] ps-3.5 pe-10 text-[15px] outline-none appearance-none"
+            className="w-full h-12 rounded-[13px] border-[1.5px] ps-3.5 pe-10 text-[15px] outline-none appearance-none disabled:opacity-60"
             style={{ ...inputStyle, textAlign: "start" }}
           >
             {hospitals.map((h) => (

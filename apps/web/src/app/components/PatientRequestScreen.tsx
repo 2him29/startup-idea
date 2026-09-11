@@ -64,7 +64,7 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
   const { t, lang, dir } = useI18n();
   const chevronFlip = dir === "rtl" ? "scaleX(-1)" : undefined;
   const { verified, loading: checkingVerification } = usePhoneVerified();
-  const { hospitals } = useHospitals();
+  const { hospitals, isFallback: hospitalsPending } = useHospitals();
 
   const [patientName, setPatientName] = useState("");
   const [bloodType, setBloodType] = useState("O+");
@@ -127,10 +127,16 @@ export function PatientRequestScreen({ onBack, onPosted, onNeedsVerification }: 
    * A match gives the request real coordinates (they come from the hospitals
    * join) and so a pin on the donor map. No match is not an error — the name
    * is kept as free text and the request simply has no pin, exactly as before.
+   *
+   * Only the live directory can match. Until it arrives the list is the
+   * built-in sample, whose ids ("h-blida") are not database rows, and a match
+   * against it was posted as hospital_id and refused with "invalid input
+   * syntax for type uuid", printed on the form. A name typed that early stays
+   * free text until the real rows land, and the confirmation waits for them.
    */
-  const matchedHospital = suggestions.find(
-    (h) => h.name.trim().toLowerCase() === hospitalName.trim().toLowerCase()
-  );
+  const matchedHospital = hospitalsPending
+    ? undefined
+    : suggestions.find((h) => h.name.trim().toLowerCase() === hospitalName.trim().toLowerCase());
 
   const draft = (): RequestDraft => ({
     patientName,
