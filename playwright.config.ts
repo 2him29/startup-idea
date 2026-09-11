@@ -18,6 +18,10 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   reporter: process.env.CI ? "github" : "list",
 
+  // Clears what the specs wrote to staging once the run ends: e2e/cleanup.sql
+  // says what counts as test data, e2e/global-teardown.ts where it may run.
+  globalTeardown: "./e2e/global-teardown.ts",
+
   // One retry locally, not zero.
   //
   // These specs drive the real app against a live Supabase project, so a slow

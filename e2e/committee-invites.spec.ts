@@ -4,12 +4,13 @@ import { gotoFresh, gotoFreshIn, demoLogin, openCommittee, t, PATIENT_MODEL_ENAB
 /**
  * Committee invite links.
  *
- * These write, and what they write cannot be deleted: revoking an invite is
- * deliberately not a delete, because the redemptions under it are the record
+ * These write, and the app cannot delete what they write: revoking an invite
+ * is deliberately not a delete, because the redemptions under it are the record
  * of how those donors arrived. So the suite creates as little as it can — one
- * invite in one test, labelled with the run's timestamp so it can be found
- * among the rows earlier runs left behind — and every other assertion is made
- * against codes that never existed, which touches nothing.
+ * invite in one test, labelled with the run's timestamp — and every other
+ * assertion is made against codes that never existed, which touches nothing.
+ * The one invite it does create is removed from staging after the run by
+ * global-teardown.ts: an administrator's cleanup of test rows, not an app path.
  *
  * Counts are never asserted exactly. Three workers share one staging database
  * and one demo account, so "1 joined" is true only until another worker gets
