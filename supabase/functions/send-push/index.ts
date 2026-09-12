@@ -74,8 +74,10 @@ const COPY = {
     }),
   },
   ar: {
+    // The group is isolated (U+2066 … U+2069). The sign after it is a neutral
+    // character, and right-to-left text would otherwise print O+ as +O.
     request: (type: string, wilaya: string) => ({
-      title: `مطلوب ${type} في ${wilaya}`,
+      title: `مطلوب ⁦${type}⁩ في ${wilaya}`,
       body: "مريض قريب منك يحتاج إلى دم. اضغط لعرض الطلب.",
     }),
     responded: () => ({
@@ -97,6 +99,11 @@ interface Target {
   endpoint: string;
   p256dh: string;
   auth: string;
+  /**
+   * The recipient's own blood type, which push_targets_for_request uses to pick
+   * compatible donors. Not the request's: a title built from it told an O+
+   * donor "O+ needed" about an A+ patient. handleOne reads the request's.
+   */
   blood_type?: string;
   wilaya?: string;
 }
@@ -133,6 +140,25 @@ async function handleOne(job: { id: string; kind: string; request_id: string }):
   const rows = (targets ?? []) as Target[];
   if (rows.length === 0) return 0;
 
+  /*
+   * The request's own blood type and wilaya, read once for all recipients.
+   *
+   * The targets carry a blood_type too, but it is each donor's, and the title
+   * used to be built from it. An O+ donor was told "O+ needed in Blida" about
+   * an A+ patient: the wrong group, on a lock screen, in an app where the
+   * group is most of the message.
+   */
+  let request: { blood_type: string; wilaya: string } | null = null;
+  if (job.kind === "new_request") {
+    const { data, error: requestError } = await db
+      .from("blood_requests")
+      .select("blood_type, wilaya")
+      .eq("id", job.request_id)
+      .single();
+    if (requestError) throw requestError;
+    request = data;
+  }
+
   // Language per recipient, so a push is not English at an Arabic speaker.
   const { data: profiles } = await db
     .from("profiles")
@@ -150,7 +176,7 @@ async function handleOne(job: { id: string; kind: string; request_id: string }):
       const copy = COPY[lang];
       const message =
         job.kind === "new_request"
-          ? copy.request(target.blood_type ?? "", target.wilaya ?? "")
+          ? copy.request(request?.blood_type ?? "", request?.wilaya ?? "")
           : copy.responded();
 
       const result = await deliver(target, {
