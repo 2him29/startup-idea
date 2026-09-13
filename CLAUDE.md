@@ -47,9 +47,11 @@ npm workspaces monorepo:
 - **`packages/ui-tokens`** — the colour palette.
 - **`supabase/migrations`** — schema, applied in filename order.
 
-**Routing is a single `currentScreen` string in `App.tsx`,** switched over in `renderScreen()`. There is no router despite `react-router` being a dependency — adding a screen means adding a `case` and a nav entry, not a route.
+**Routing is a single `currentScreen` string in `App.tsx`,** switched over in `renderScreen()`. There is no router despite `react-router` being a dependency — adding a screen means adding a `case` and a nav entry, not a route. Nothing resets the scroll position between screens either, so a layout effect in `App.tsx` scrolls the window (phones) and the content column (md and up) back to the top whenever `currentScreen` or `userType` changes. Without it, a screen opened from partway down the previous one arrived partway down itself, title and back button above the fold; `userType` is in the list because signing in swaps the splash for Home without changing `currentScreen`.
 
 **Data hooks seed with static fallback data, then swap in live rows** (`useBloodRequests`, `useHospitals`, `useBloodDrives`). Fetch errors are logged and swallowed, keeping the fallback. This makes the UI resilient but means **a broken query is invisible** — it renders plausible mock data instead of failing. If live data looks stale or fake, suspect the query, not the UI.
+
+**A fallback row's id is not a database id.** Those seeded lists carry hand-written ids — `h-blida` for the Blida hospital, `d1` for a drive — so anything that sends one back to Postgres fails on a uuid column. The request form matched the typed hospital name against whichever list `useHospitals()` was holding and posted the match's id, which on a slow first load was the sample's: the family got `invalid input syntax for type uuid: "h-blida"` on the form and nothing was posted. Gate on the `isFallback` flag those hooks return before using an id or claiming a match, never on the array merely being non-empty.
 
 `invites.ts` deliberately breaks that pattern: it surfaces its error instead of falling back, and goes through RPC rather than table selects. There is no sensible invented value for "the links your committee handed out" — a fabricated code is one a committee would read out to real people — and an RPC that does not exist yet fails alone rather than taking a whole query down with it. Pointed at a database missing the migration it says so, in those words.
 
@@ -121,7 +123,9 @@ Get-CimInstance Win32_Process -Filter "Name = 'postgres.exe'" |
 
 **RTL is handled with CSS logical properties**, not conditionals: `textAlign: "start"`, `insetInlineStart/End`, `ms-auto`/`me-auto`. The one thing that needs explicit handling is directional icons — chevrons and back arrows flip with `transform: scaleX(-1)` when `dir === "rtl"`.
 
-**Wilayas are stored canonically as the French name** (`"Alger"`, not `"Algiers"` or `"16"`). `wilayaLabel()` translates for display.
+**Wilayas are stored canonically as the French name** (`"Alger"`, not `"Algiers"` or `"16"`). `wilayaLabel()` translates for display. The push titles in `supabase/functions/send-push` do **not** translate it — an Arabic phone reads "في Blida" — because that would mean a copy of the wilaya table inside the function.
+
+**A blood group goes through `<BloodType>`, never bare text.** The sign after `O` or `AB` is a neutral character, so right-to-left text reorders it and `O+` prints as `+O`: wrong in the one app where the group *is* the message. `BloodType` isolates the run (`dir="ltr"` plus `unicodeBidi: isolate`), and `withBloodTypes()` fills a translated sentence containing `{bloodType}`, `{donor}` or `{recipient}` with isolated groups instead of `.replace()` handing the paragraph a plain string. Outside React — the push titles — use the isolate characters directly (`⁦` … `⁩`).
 
 ## Hard constraints
 
@@ -136,3 +140,5 @@ Get-CimInstance Win32_Process -Filter "Name = 'postgres.exe'" |
 ## Demo accounts
 
 Pre-seeded, deliberately non-secret, reachable from one-click buttons on the splash screen: `demo.donor@weare.app` / `demo.hospital@weare.app`, password `WeAreDemo123!`.
+
+**The demo link is https://2him29.github.io/startup-idea/, served from the `gh-pages` branch and built against staging.** Redeploy after any app change: `cd apps/web && GHPAGES=1 npx vite build`, then put the contents of `dist` on `gh-pages` (a throwaway worktree is the simplest way) keeping `.nojekyll`, and push. The QR code never changes — it encodes that address, not a build — so a stale deploy is worse than a broken link, because nobody notices. It is the front door people are handed, which means **whatever staging holds is public**, and why the cleanup above matters. Never build it against live: `VITE_DEMO_OTP=true` would let anyone claim any phone number. `apps/web/.env` stays pointed at staging for that reason and for the e2e guard; the live settings live in `apps/web/.env.live.local`, which is gitignored.
