@@ -14,6 +14,7 @@
  */
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
+import { WILAYA_LABELS } from "./wilayas.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -92,6 +93,23 @@ type Lang = keyof typeof COPY;
 /** Falls back to French: it is the language the app defaults to on these devices. */
 function langOf(value: string | null | undefined): Lang {
   return value === "en" || value === "ar" ? value : "fr";
+}
+
+/**
+ * The wilaya in the reader's own language.
+ *
+ * A request stores the canonical French name ("Alger"), and the title printed
+ * it as-is in all three languages, so an Arabic phone read "في Blida" — half a
+ * sentence in the wrong script, on a lock screen. WILAYA_LABELS is a generated
+ * copy of packages/core's table, because an edge function cannot import from
+ * the monorepo; a unit test fails while the two disagree.
+ *
+ * A name that is not in the table falls back to what was stored, which is still
+ * a real place rather than a blank.
+ */
+function wilayaLabel(stored: string | null | undefined, lang: Lang): string {
+  if (!stored) return "";
+  return WILAYA_LABELS[stored]?.[lang] ?? stored;
 }
 
 interface Target {
@@ -176,7 +194,7 @@ async function handleOne(job: { id: string; kind: string; request_id: string }):
       const copy = COPY[lang];
       const message =
         job.kind === "new_request"
-          ? copy.request(request?.blood_type ?? "", request?.wilaya ?? "")
+          ? copy.request(request?.blood_type ?? "", wilayaLabel(request?.wilaya, lang))
           : copy.responded();
 
       const result = await deliver(target, {
