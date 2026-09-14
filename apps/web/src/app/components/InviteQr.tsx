@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { X, Printer } from "lucide-react";
-import QRCode from "qrcode";
 import { inviteUrl } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
@@ -34,7 +33,12 @@ export function InviteQr({ code, associationName, onClose }: InviteQrProps) {
 
   useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL(url, { errorCorrectionLevel: "H", margin: 2, width: 900 })
+    // Fetched here rather than imported at the top: the generator is a chunk of
+    // its own, and only an administrator holding a code up to a room needs it.
+    import("qrcode")
+      .then(({ default: QRCode }) =>
+        QRCode.toDataURL(url, { errorCorrectionLevel: "H", margin: 2, width: 900 })
+      )
       .then((d) => {
         if (!cancelled) setPng(d);
       })

@@ -1,34 +1,47 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { HomeScreen } from "./components/HomeScreen";
 import { AuthScreen } from "./components/AuthScreen";
-import { DonorRegistration } from "./components/DonorRegistration";
-import { HospitalDashboard } from "./components/HospitalDashboard";
-import { MatchingScreen } from "./components/MatchingScreen";
 import { RequestDetail } from "./components/RequestDetail";
-import { RequestPostedScreen } from "./components/RequestPostedScreen";
-import { MatchConfirm } from "./components/MatchConfirm";
-import { CompensateScreen } from "./components/CompensateScreen";
-import { HospitalConsole } from "./components/HospitalConsole";
-import { HospitalsScreen } from "./components/HospitalsScreen";
-import { DrivesScreen } from "./components/DrivesScreen";
 import { ProfileScreen } from "./components/ProfileScreen";
-import { EditProfileScreen } from "./components/EditProfileScreen";
-import { SettingsScreen } from "./components/SettingsScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { SCREEN_BG } from "./background";
-import { CommitteeInvites } from "./components/CommitteeInvites";
 import { InviteBanner } from "./components/InviteBanner";
 import { Sidebar } from "./components/Sidebar";
 import { PatientRequestScreen, type RequestDraft } from "./components/PatientRequestScreen";
-import { PhoneVerificationScreen } from "./components/PhoneVerificationScreen";
-import { AssociationConsole } from "./components/AssociationConsole";
 import { CommitteeHub } from "./components/CommitteeHub";
-import { DonorSearchScreen } from "./components/DonorSearchScreen";
-import { AssociationApplyScreen } from "./components/AssociationApplyScreen";
-import { ConsentScreen } from "./components/ConsentScreen";
-import { DataRightsScreen } from "./components/DataRightsScreen";
 import { bloodRequests, createPatientRequest, isPatientModelEnabled, signInDemo, signOut, unitsLabel, useSession, wilayaLabel, type BloodRequest, type Profile } from "@weare/core";
 import { useI18n } from "./i18n/LangContext";
+
+/*
+ * Screens nobody has asked for yet.
+ *
+ * Leaflet and its React bindings are the weight here — around 180 kB raw across
+ * the three screens that draw a map — and they were in the first download,
+ * which on Algerian mobile data is paid by every visitor, including the many
+ * who never open one. The splash, Home, the request form, a request's detail
+ * and the profile stay eager: they are the first screen or one tap from it.
+ *
+ * Each import() is what makes the bundler give the screen its own file; the
+ * Suspense boundary below holds the space while it arrives.
+ */
+const MatchingScreen = lazy(() => import("./components/MatchingScreen").then((m) => ({ default: m.MatchingScreen })));
+const HospitalsScreen = lazy(() => import("./components/HospitalsScreen").then((m) => ({ default: m.HospitalsScreen })));
+const HospitalConsole = lazy(() => import("./components/HospitalConsole").then((m) => ({ default: m.HospitalConsole })));
+const HospitalDashboard = lazy(() => import("./components/HospitalDashboard").then((m) => ({ default: m.HospitalDashboard })));
+const AssociationConsole = lazy(() => import("./components/AssociationConsole").then((m) => ({ default: m.AssociationConsole })));
+const DonorSearchScreen = lazy(() => import("./components/DonorSearchScreen").then((m) => ({ default: m.DonorSearchScreen })));
+const CommitteeInvites = lazy(() => import("./components/CommitteeInvites").then((m) => ({ default: m.CommitteeInvites })));
+const DrivesScreen = lazy(() => import("./components/DrivesScreen").then((m) => ({ default: m.DrivesScreen })));
+const CompensateScreen = lazy(() => import("./components/CompensateScreen").then((m) => ({ default: m.CompensateScreen })));
+const DataRightsScreen = lazy(() => import("./components/DataRightsScreen").then((m) => ({ default: m.DataRightsScreen })));
+const ConsentScreen = lazy(() => import("./components/ConsentScreen").then((m) => ({ default: m.ConsentScreen })));
+const AssociationApplyScreen = lazy(() => import("./components/AssociationApplyScreen").then((m) => ({ default: m.AssociationApplyScreen })));
+const MatchConfirm = lazy(() => import("./components/MatchConfirm").then((m) => ({ default: m.MatchConfirm })));
+const RequestPostedScreen = lazy(() => import("./components/RequestPostedScreen").then((m) => ({ default: m.RequestPostedScreen })));
+const DonorRegistration = lazy(() => import("./components/DonorRegistration").then((m) => ({ default: m.DonorRegistration })));
+const PhoneVerificationScreen = lazy(() => import("./components/PhoneVerificationScreen").then((m) => ({ default: m.PhoneVerificationScreen })));
+const EditProfileScreen = lazy(() => import("./components/EditProfileScreen").then((m) => ({ default: m.EditProfileScreen })));
+const SettingsScreen = lazy(() => import("./components/SettingsScreen").then((m) => ({ default: m.SettingsScreen })));
 import { WifiOff } from "lucide-react";
 
 /**
@@ -95,6 +108,27 @@ export default function App() {
     window.scrollTo(0, 0);
     scrollColumn.current?.scrollTo(0, 0);
   }, [currentScreen, userType]);
+
+  /*
+   * Warm the two screens a donor reaches in one tap, once the browser is idle.
+   *
+   * Splitting them out keeps the first paint light, but it moves the wait to
+   * the tap, where it is felt. Fetching them after the page has settled costs
+   * nothing on the critical path and makes Find and Compensate open instantly.
+   */
+  useEffect(() => {
+    const warm = () => {
+      void import("./components/MatchingScreen");
+      void import("./components/CompensateScreen");
+    };
+    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback;
+    if (idle) {
+      idle(warm);
+      return;
+    }
+    const timer = window.setTimeout(warm, 2000);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const handleNavigate = (screen: string) => {
     setCurrentScreen(screen);
@@ -395,7 +429,12 @@ export default function App() {
       {!isConsole && <Sidebar activeScreen={currentScreen} onNavigate={handleNavigate} userType={userType} />}
       <div ref={scrollColumn} className="max-w-md mx-auto h-full relative md:max-w-none md:mx-0 md:flex-1 md:h-screen md:overflow-y-auto">
         <ScreenTransition key={currentScreen}>
-          {isFullBleed ? screen : <div className="md:px-10 md:py-8">{screen}</div>}
+          {/* The fallback is a full-height empty screen, not a spinner: these
+              chunks arrive in a few hundred milliseconds, and a spinner that
+              flashes reads as something having gone wrong. */}
+          <Suspense fallback={<div className="min-h-screen" style={{ background: SCREEN_BG }} />}>
+            {isFullBleed ? screen : <div className="md:px-10 md:py-8">{screen}</div>}
+          </Suspense>
         </ScreenTransition>
         {!isConsole && (
           <BottomNavigation
