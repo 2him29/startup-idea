@@ -294,7 +294,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
              */
             <div
               onClick={() => onNavigate("matching")}
-              className="wa-sos cursor-pointer w-full mt-3.5 rounded-[20px] px-[18px] py-4 text-white flex flex-col gap-3 md:flex-row md:items-center md:gap-[14px]"
+              className="wa-sos cursor-pointer w-full mt-3.5 rounded-[20px] px-[18px] py-4 text-white flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-[14px]"
               style={{ textAlign: "start" }}
             >
               <span className="flex items-center gap-[14px] flex-1 min-w-0">

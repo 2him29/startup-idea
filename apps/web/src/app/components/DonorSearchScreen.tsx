@@ -280,7 +280,7 @@ export function DonorSearchScreen({ onBack }: DonorSearchScreenProps) {
         </div>
       )}
 
-      <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
+      <div className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4">
         {loading && [0, 1].map((i) => <RequestCardSkeleton key={`sk-${i}`} />)}
 
         {!loading && !error && donors.length === 0 && (

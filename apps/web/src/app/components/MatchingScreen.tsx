@@ -253,7 +253,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
       )}
 
       {/* request list */}
-      <div className="mt-5 flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
+      <div className="mt-5 flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4">
         {loading && [0, 1, 2].map((i) => <RequestCardSkeleton key={`sk-${i}`} />)}
         {!loading && bloodRequests.map((r) => {
           const badge = urgencyStyle[r.urgency];

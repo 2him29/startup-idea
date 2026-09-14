@@ -290,7 +290,7 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
       </div>
 
       {loading && (
-        <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
+        <div className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4">
           {[0, 1].map((i) => <RequestCardSkeleton key={`sk-${i}`} />)}
         </div>
       )}
@@ -323,7 +323,7 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
             {group.items.length}
           </span>
         </div>
-      <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4">
+      <div className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4">
         {group.items.map((r) => {
           const badge = urgencyStyle[r.urgency];
           const isVerified = Boolean(r.verifiedByName);

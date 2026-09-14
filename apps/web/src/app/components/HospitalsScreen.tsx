@@ -99,7 +99,7 @@ export function HospitalsScreen({ onBack }: HospitalsScreenProps) {
       </div>
 
       {/* directory list */}
-      <div className="flex flex-col gap-2.5 md:grid md:grid-cols-2 md:gap-3.5">
+      <div className="flex flex-col gap-2.5 lg:grid lg:grid-cols-2 lg:gap-3.5">
         {loading && [0, 1, 2, 3].map((i) => (
           <div key={`sk-${i}`} className="bg-white border rounded-[18px] p-3.5" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
             <RequestRowSkeleton />
