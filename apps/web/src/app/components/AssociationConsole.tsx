@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AlertTriangle, ArrowLeft, BadgeCheck, Check, ChevronDown, Clock, Droplet, Info, MapPin, ShieldQuestion, X } from "lucide-react";
-import {
+import { hospitalLabel,
   unitsLabel,
   urgencyStyle,
   urgencyLabel,
@@ -351,10 +351,10 @@ export function AssociationConsole({ onBack, onApply }: AssociationConsoleProps)
                         hospital for a volunteer, whose RLS filters the name
                         away, and for legacy hospital-authored rows. */}
                     <div className="text-[15.5px] font-bold truncate" style={{ color: "#0B2432" }}>
-                      {r.patientName?.trim() || r.hospital}
+                      {r.patientName?.trim() || hospitalLabel(r.hospital, t)}
                     </div>
                     {r.patientName?.trim() && (
-                      <div className="text-[12.5px] truncate mt-0.5" style={{ color: "#6B7C88" }}>{r.hospital}</div>
+                      <div className="text-[12.5px] truncate mt-0.5" style={{ color: "#6B7C88" }}>{hospitalLabel(r.hospital, t)}</div>
                     )}
                     <div className="flex items-center gap-1 mt-0.5 text-[12.5px]" style={{ color: "#8496A0" }}>
                       <Clock className="w-[13px] h-[13px]" />

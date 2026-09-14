@@ -1,5 +1,5 @@
 import { BadgeCheck, X } from "lucide-react";
-import { unitsLabel, type BloodRequest } from "@weare/core";
+import { hospitalLabel, unitsLabel, type BloodRequest } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 
@@ -38,7 +38,7 @@ export function VouchConfirm({
   onCancel,
 }: VouchConfirmProps) {
   const { t, lang } = useI18n();
-  const who = request.patientName?.trim() || request.hospital;
+  const who = request.patientName?.trim() || hospitalLabel(request.hospital, t);
 
   return (
     <div
@@ -81,7 +81,7 @@ export function VouchConfirm({
             style={{ color: "#E5484D", background: "#FFECEC" }}
           />
           <span className="text-[13px] font-semibold" style={{ color: "#6B7C88" }}>{unitsLabel(request.units, t, lang)}</span>
-          <span className="text-[12.5px] truncate" style={{ color: "#8496A0" }}>{request.hospital}</span>
+          <span className="text-[12.5px] truncate" style={{ color: "#8496A0" }}>{hospitalLabel(request.hospital, t)}</span>
         </div>
 
         <div className="mt-3.5 text-[13px] leading-relaxed" style={{ color: "#5A6B75", textAlign: "start" }}>

@@ -80,7 +80,11 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
         paddingBottom: "calc(9px + env(safe-area-inset-bottom))",
       }}
     >
-      <div className="flex items-center justify-around">
+      {/* Equal slots that shrink, rather than buttons sized by their own
+          padding. At 360px — a common cheap Android — the five French labels
+          ("Accueil, Chercher, Demander, Comité, Profil") overflowed the row and
+          Profil was cut off at the edge. */}
+      <div className="flex items-stretch">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeScreen === item.id;
@@ -101,7 +105,7 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
                   ? t.navCommitteeWaiting.replace("{count}", String(item.badge))
                   : item.label
               }
-              className="cursor-pointer border-none flex flex-col items-center gap-[3px] px-4 py-2 rounded-[14px]"
+              className="cursor-pointer border-none flex-1 min-w-0 flex flex-col items-center gap-[3px] px-0.5 py-2 rounded-[14px]"
               style={{
                 background: isActive ? accentSoft : "transparent",
                 color: isActive ? accent : "#9AA9B2",
@@ -121,7 +125,7 @@ export function BottomNavigation({ activeScreen, onNavigate, userType }: BottomN
                   </span>
                 )}
               </span>
-              <span className="text-[11px] font-bold">{item.label}</span>
+              <span className="text-[10.5px] font-bold w-full truncate text-center">{item.label}</span>
             </button>
           );
         })}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { LayoutDashboard, ClipboardList, Users, Package, Droplet, Printer, Download } from "lucide-react";
 import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useBloodRequests, urgencyStyle, urgencyLabel, unitsLabel, RESERVE, RESERVE_STATUS, useSession, type BloodRequest, type Strings, formatRelativeTime, type Lang } from "@weare/core";
+import { hospitalLabel, useBloodRequests, urgencyStyle, urgencyLabel, unitsLabel, RESERVE, RESERVE_STATUS, useSession, type BloodRequest, type Strings, formatRelativeTime, type Lang } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { useI18n } from "../i18n/LangContext";
 import { RequestRowSkeleton } from "./Skeletons";
@@ -17,7 +17,7 @@ function printRequests(requests: BloodRequest[], t: Strings, lang: Lang, dir: "l
   const rows = requests
     .map(
       (r) =>
-        `<tr><td>${r.patientId}</td><td>${r.hospital}</td><td>${r.bloodType}</td><td>${unitsLabel(r.units, t, lang)}</td><td>${urgencyLabel(r.urgency, t)}</td><td>${formatRelativeTime(r.createdAt, lang)}</td></tr>`
+        `<tr><td>${r.patientId}</td><td>${hospitalLabel(r.hospital, t)}</td><td>${r.bloodType}</td><td>${unitsLabel(r.units, t, lang)}</td><td>${urgencyLabel(r.urgency, t)}</td><td>${formatRelativeTime(r.createdAt, lang)}</td></tr>`
     )
     .join("");
   win.document.write(`
@@ -48,7 +48,7 @@ function printRequests(requests: BloodRequest[], t: Strings, lang: Lang, dir: "l
 function exportRequestsCsv(requests: BloodRequest[], t: Strings, lang: Lang) {
   const header = "Patient ID,Hospital,Blood Type,Units,Urgency,Time\n";
   const rows = requests
-    .map((r) => [r.patientId, r.hospital, r.bloodType, r.units, urgencyLabel(r.urgency, t), formatRelativeTime(r.createdAt, lang)].join(","))
+    .map((r) => [r.patientId, hospitalLabel(r.hospital, t), r.bloodType, r.units, urgencyLabel(r.urgency, t), formatRelativeTime(r.createdAt, lang)].join(","))
     .join("\n");
   const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
@@ -309,7 +309,7 @@ function RequestsCard({
               </span>
               <div className="flex-1 min-w-0">
                 <div className="text-[13.5px] font-bold truncate" style={{ color: "#0B2432" }}>{r.patientId}</div>
-                <div className="text-xs truncate" style={{ color: "#8496A0" }}>{r.hospital}</div>
+                <div className="text-xs truncate" style={{ color: "#8496A0" }}>{hospitalLabel(r.hospital, t)}</div>
               </div>
               <BloodType value={r.bloodType} className="font-extrabold text-[12.5px] px-2.5 py-1.5 rounded-[9px]" style={{ color: "#E5484D", background: "#FFECEC" }} />
               <span className="text-xs font-semibold w-14 text-center" style={{ color: "#6B7C88" }}>{unitsLabel(r.units, t, lang)}</span>

@@ -69,6 +69,18 @@ export const bloodRequests: BloodRequest[] = [
  * Intl.PluralRules already knows those bands for every locale, so the
  * dictionary only has to supply the forms.
  */
+/**
+ * The hospital named on a request, or a translated stand-in.
+ *
+ * The hospital is optional on a patient's request — a family must never be
+ * blocked because their clinic is not in the directory — so an unnamed one is
+ * ordinary, not an error. api.ts leaves the field empty; this is where it gets
+ * words, in the reader's language rather than in English.
+ */
+export function hospitalLabel(hospital: string | null | undefined, t: Strings): string {
+  return hospital?.trim() || t.hospitalUnspecified;
+}
+
 export function unitsLabel(units: number, t: Strings, lang: Lang): string {
   let category: Intl.LDMLPluralRule = "other";
   try {

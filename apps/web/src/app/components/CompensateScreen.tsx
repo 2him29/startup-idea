@@ -208,6 +208,14 @@ export function CompensateScreen({ onBack, onComplete }: CompensateScreenProps) 
             style={{ insetInlineEnd: "14px", color: "#8496A0" }}
           />
         </div>
+        {/* Most of these read "CHU X – Wilaya", and a select clips rather than
+            wrapping — Chrome draws no ellipsis inside one either, so the name
+            simply stopped mid-word. Repeated underneath, where it can wrap. */}
+        {selectedHospital && (
+          <div className="mt-1.5 text-[11.5px] leading-relaxed" style={{ color: "#8496A0", textAlign: "start" }}>
+            {selectedHospital.name}
+          </div>
+        )}
       </div>
 
       {/* reassurance note */}

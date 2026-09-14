@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Clock, AlertTriangle, Info, Share2, Check, X } from "lucide-react";
-import {
+import { hospitalLabel,
   urgencyLabel,
   wilayaLabel,
   formatShareMessage,
@@ -95,7 +95,7 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
         <div className="flex justify-between items-start gap-3">
           <div className="min-w-0">
             <div className="text-[12.5px] opacity-90 font-semibold">{t.requestedBy}</div>
-            <div className="text-[21px] font-extrabold tracking-[-0.3px]">{request.hospital}</div>
+            <div className="text-[21px] font-extrabold tracking-[-0.3px]">{hospitalLabel(request.hospital, t)}</div>
           </div>
           <span className="shrink-0 text-[11.5px] font-extrabold px-3 py-1.5 rounded-full bg-white/[0.22] border border-white/40">{urgencyLabel(request.urgency, t)}</span>
         </div>
@@ -197,7 +197,7 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
           onClick={() =>
             shareToWhatsApp(
               formatShareMessage(t, {
-                hospital: request.hospital,
+                hospital: hospitalLabel(request.hospital, t),
                 bloodType: request.bloodType,
                 wilaya: wilayaLabel(request.wilaya, lang),
                 units: request.units,
@@ -229,7 +229,7 @@ export function RequestDetail({ onBack, onResponded, request }: RequestDetailPro
             onClick={() =>
               shareToWhatsApp(
                 formatShareMessage(t, {
-                  hospital: request.hospital,
+                  hospital: hospitalLabel(request.hospital, t),
                   bloodType: request.bloodType,
                   wilaya: wilayaLabel(request.wilaya, lang),
                   units: request.units,

@@ -3,7 +3,7 @@ import { ArrowLeft, Check, ChevronDown, MapPin, Droplet } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, useResponses, useDonorProfile, canDonate, useCommunes, wilayaLabel, nameStatesWilaya, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
+import { hospitalLabel, unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, useResponses, useDonorProfile, canDonate, useCommunes, wilayaLabel, nameStatesWilaya, type BloodRequest, type Urgency, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { BloodType } from "./BloodType";
 import { getDefaultWilaya } from "../prefs";
@@ -256,7 +256,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
               <Popup>
                 <div className="min-w-[170px] max-h-[220px] overflow-y-auto">
                   <div className="text-[13px] font-bold" style={{ color: "#0B2432" }}>
-                    {group.requests[0].hospital}
+                    {hospitalLabel(group.requests[0].hospital, t)}
                   </div>
                   {group.requests.length > 1 && (
                     <div className="text-[11px] mt-0.5" style={{ color: "#8496A0" }}>
@@ -342,7 +342,7 @@ export function MatchingScreen({ onBack, userType, onOpenDetail }: MatchingScree
                     <Droplet className="w-6 h-6" fill="white" stroke="none" />
                   </span>
                   <div className="min-w-0">
-                    <div className="text-[15.5px] font-bold" style={{ color: "#0B2432" }}>{r.hospital}</div>
+                    <div className="text-[15.5px] font-bold" style={{ color: "#0B2432" }}>{hospitalLabel(r.hospital, t)}</div>
                     {/* "CHU Frantz Fanon – Blida" followed by "Blida" is a
                         stutter, so the second one goes — and the pin with it,
                         since a location marker in front of a timestamp points

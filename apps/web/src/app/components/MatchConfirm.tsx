@@ -1,5 +1,5 @@
 import { Check, Navigation } from "lucide-react";
-import { openDirections, wilayaLabel, type BloodRequest } from "@weare/core";
+import { hospitalLabel, openDirections, wilayaLabel, type BloodRequest } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 
 interface MatchConfirmProps {
@@ -28,7 +28,7 @@ export function MatchConfirm({ onBackHome, request }: MatchConfirmProps) {
       <div className="mt-[26px] w-full bg-white border rounded-[20px] p-[18px] text-start shadow-[0_12px_26px_-20px_rgba(11,36,50,0.5)]" style={{ borderColor: "rgba(11,36,50,0.06)" }}>
         <div className="flex justify-between py-[9px]">
           <span className="text-[13.5px]" style={{ color: "#8496A0" }}>{t.location}</span>
-          <span className="text-[13.5px] font-bold" style={{ color: "#0B2432" }}>{request.hospital}</span>
+          <span className="text-[13.5px] font-bold" style={{ color: "#0B2432" }}>{hospitalLabel(request.hospital, t)}</span>
         </div>
         <div className="h-px" style={{ background: "rgba(11,36,50,0.06)" }} />
         <div className="flex justify-between py-[9px]">

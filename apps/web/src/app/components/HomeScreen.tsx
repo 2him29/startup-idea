@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Droplet, Users, ShieldCheck, ChevronRight, Calendar, PlayCircle, Moon, HeartHandshake, Share2, Building2 } from "lucide-react";
-import { RESERVE, RESERVE_STATUS, isPatientModelEnabled, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, wilayaLabel, nameStatesWilaya, shareToWhatsApp, type Profile } from "@weare/core";
+import { hospitalLabel, RESERVE, RESERVE_STATUS, isPatientModelEnabled, useBloodRequests, useDonorProfile, computeEligibility, formatShareMessage, wilayaLabel, nameStatesWilaya, shareToWhatsApp, type Profile } from "@weare/core";
 import { QatraMark, QatraWordmark } from "./QatraMark";
 import { LiveStats } from "./LiveStats";
 import { LangSwitcher } from "./LangSwitcher";
@@ -310,7 +310,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
                   {/* The hospital is isolated, so in Arabic "3 وحدات" stays
                       together instead of its number joining the Latin name. */}
                   <span className="block text-xs opacity-85 mt-px truncate">
-                    <bdi>{urgentRequest.hospital}</bdi> · {nameStatesWilaya(urgentRequest.hospital, urgentRequest.wilaya) ? "" : `${wilayaLabel(urgentRequest.wilaya, lang)} · `}{urgentRequest.units} {t.units}
+                    <bdi>{hospitalLabel(urgentRequest.hospital, t)}</bdi> · {nameStatesWilaya(urgentRequest.hospital, urgentRequest.wilaya) ? "" : `${wilayaLabel(urgentRequest.wilaya, lang)} · `}{urgentRequest.units} {t.units}
                   </span>
                 </span>
               </span>
@@ -328,7 +328,7 @@ export function HomeScreen({ onNavigate, userType, profile, onSetUserType, onDem
                       e.stopPropagation();
                       shareToWhatsApp(
                         formatShareMessage(t, {
-                          hospital: urgentRequest.hospital,
+                          hospital: hospitalLabel(urgentRequest.hospital, t),
                           bloodType: urgentRequest.bloodType,
                           wilaya: wilayaLabel(urgentRequest.wilaya, lang),
                           units: urgentRequest.units,

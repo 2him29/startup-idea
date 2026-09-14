@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Search, Droplet, Plus } from "lucide-react";
-import { unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, formatRelativeTime } from "@weare/core";
+import { hospitalLabel, unitsLabel, urgencyStyle, urgencyLabel, useBloodRequests, formatRelativeTime } from "@weare/core";
 import { useI18n } from "../i18n/LangContext";
 import { SCREEN_BG } from "../background";
 import { RequestCardSkeleton } from "./Skeletons";
@@ -92,7 +92,7 @@ export function HospitalDashboard({ onBack }: HospitalDashboardProps) {
                   </span>
                   <div>
                     <div className="text-sm font-extrabold" style={{ color: "#0B2432" }}>{r.patientId}</div>
-                    <div className="text-[12.5px]" style={{ color: "#8496A0" }}>{r.hospital}</div>
+                    <div className="text-[12.5px]" style={{ color: "#8496A0" }}>{hospitalLabel(r.hospital, t)}</div>
                   </div>
                 </div>
                 <span className="text-[11.5px] font-extrabold px-[11px] py-1.5 rounded-full" style={{ background: badge.bg, color: badge.fg }}>

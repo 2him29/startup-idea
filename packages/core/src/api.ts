@@ -32,7 +32,10 @@ interface BloodRequestRow {
 function toBloodRequest(row: BloodRequestRow): BloodRequest {
   return {
     id: row.id,
-    hospital: row.hospital_name ?? row.hospitals?.name ?? "Unknown hospital",
+    // Empty rather than "Unknown hospital": that English literal reached
+    // French and Arabic screens untranslated. hospitalLabel() names it in the
+    // reader's own language, at the point where the language is known.
+    hospital: row.hospital_name ?? row.hospitals?.name ?? "",
     patientId: row.patient_id,
     patientRecordId: row.patient_record_id ?? null,
     bloodType: row.blood_type,

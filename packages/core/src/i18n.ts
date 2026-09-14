@@ -71,7 +71,7 @@ export interface Strings {
   noNotifications: string; newRequestTitle: string; patientIdLabel: string;
   publishRequest: string; requestPublished: string; publishing: string;
   sosStartedToast: string; sosStoppedToast: string;
-  hospitalsTitle: string; hospitalsSub: string; openInMaps: string; hospSearchPh: string;
+  hospitalsTitle: string; hospitalsSub: string; openInMaps: string; hospSearchPh: string; hospitalUnspecified: string;
 
   // --- Patient/association model (behind the patientModel feature flag) ---
   verifiedByLabel: string; verifiedShort: string; notVerifiedShort: string; shareVerifiedSuffix: string;
@@ -232,7 +232,7 @@ export const I18N: Record<Lang, Strings> = {
     noNotifications: "You're all caught up", newRequestTitle: "New blood request", patientIdLabel: "Patient ID",
     publishRequest: "Publish request", requestPublished: "Request published — nearby donors will see it", publishing: "Publishing…",
     sosStartedToast: "SOS broadcast started", sosStoppedToast: "SOS broadcast stopped",
-    hospitalsTitle: "Hospitals & blood centers", hospitalsSub: "Find the nearest center", openInMaps: "Open in Google Maps", hospSearchPh: "Search by name or wilaya…",
+    hospitalsTitle: "Hospitals & blood centers", hospitalsSub: "Find the nearest center", openInMaps: "Open in Google Maps", hospSearchPh: "Search by name or wilaya…", hospitalUnspecified: "Hospital not given",
 
     verifiedByLabel: "Verified by {association}", verifiedShort: "Verified", notVerifiedShort: "Not verified",
     shareVerifiedSuffix: "Verified by {association} via Qatra.",
@@ -463,7 +463,7 @@ export const I18N: Record<Lang, Strings> = {
     noNotifications: "Rien de nouveau", newRequestTitle: "Nouvelle demande de sang", patientIdLabel: "ID patient",
     publishRequest: "Publier la demande", requestPublished: "Demande publiée — les donneurs à proximité la verront", publishing: "Publication…",
     sosStartedToast: "Diffusion SOS lancée", sosStoppedToast: "Diffusion SOS arrêtée",
-    hospitalsTitle: "Hôpitaux et centres de sang", hospitalsSub: "Trouvez le centre le plus proche", openInMaps: "Ouvrir dans Google Maps", hospSearchPh: "Rechercher par nom ou wilaya…",
+    hospitalsTitle: "Hôpitaux et centres de sang", hospitalsSub: "Trouvez le centre le plus proche", openInMaps: "Ouvrir dans Google Maps", hospSearchPh: "Rechercher par nom ou wilaya…", hospitalUnspecified: "Hôpital non précisé",
 
     verifiedByLabel: "Vérifié par {association}", verifiedShort: "Vérifié", notVerifiedShort: "Non vérifié",
     shareVerifiedSuffix: "Vérifié par {association} via Qatra.",
@@ -621,7 +621,7 @@ export const I18N: Record<Lang, Strings> = {
     contactPhoneHint: "Visible par les donneurs qui ouvrent votre demande.",
     addFileNumber: "Ajouter le numéro de dossier",
     verifyBannerSub: "Un code par SMS. Remplissez d'abord si vous préférez — nous gardons ce que vous avez saisi.",
-    postRequestFooter: "Les donneurs de {wilaya} la voient immédiatement. Un comité peut ajouter son badge plus tard — votre demande est active dans tous les cas.",
+    postRequestFooter: "Les donneurs à {wilaya} la voient immédiatement. Un comité peut ajouter son badge plus tard — votre demande est active dans tous les cas.",
     urgencyCriticalHint: "nécessaire aujourd'hui", urgencyHighHint: "dans les prochains jours",
     urgencyMediumHint: "opération programmée", urgencyLowHint: "pas encore de date",
   },
@@ -694,7 +694,7 @@ export const I18N: Record<Lang, Strings> = {
     noNotifications: "لا إشعارات جديدة", newRequestTitle: "طلب دم جديد", patientIdLabel: "رقم المريض",
     publishRequest: "نشر الطلب", requestPublished: "نُشر الطلب — سيراه المتبرعون القريبون", publishing: "جارٍ النشر…",
     sosStartedToast: "بدأ بث النداء العاجل", sosStoppedToast: "توقف بث النداء العاجل",
-    hospitalsTitle: "المستشفيات ومراكز الدم", hospitalsSub: "اعثر على أقرب مركز", openInMaps: "افتح في خرائط جوجل", hospSearchPh: "ابحث بالاسم أو الولاية…",
+    hospitalsTitle: "المستشفيات ومراكز الدم", hospitalsSub: "اعثر على أقرب مركز", openInMaps: "افتح في خرائط جوجل", hospSearchPh: "ابحث بالاسم أو الولاية…", hospitalUnspecified: "المستشفى غير محدد",
 
     verifiedByLabel: "موثّق من {association}", verifiedShort: "موثّق", notVerifiedShort: "غير موثّق",
     shareVerifiedSuffix: "موثّق من {association} عبر قطرة.",
